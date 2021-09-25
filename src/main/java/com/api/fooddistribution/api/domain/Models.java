@@ -142,5 +142,121 @@ public class Models {
 
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Entity
+    @Table(name = "purchase")
+    public static class Purchase {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(name = "buyer_id")
+        private Long buyerId;
+
+        @Column(insertable = false, updatable = false, name = "created_at")
+        private Date createdAt;
+
+        @Column(name = "product_id")
+        private Long productId;
+
+        public Purchase() {
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Entity
+    @Table(name = "product_category")
+    public static class ProductCategory {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(name = "name")
+        private String name;
+
+        public ProductCategory() {
+
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Entity
+    @Table(name = "product")
+    public static class Product {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(name = "product_name")
+        private String name;
+
+        @Column(name = "category_id")
+        private Long categoryId;
+
+        @Column(name = "price")
+        private BigDecimal price;
+
+        @Column(name = "image")
+        private String image;
+
+        @Column(name = "seller_id")
+        private Long sellerId;
+
+        @Column(name = "buyer_id")
+        private Long buyerId;
+
+        @Column(insertable = false, updatable = false, name = "created_at")
+        private Date createdAt;
+
+        @Column(name = "created_at")
+        private Date updatedAt;
+
+        public Product() {
+
+        }
+    }
+
+
+    public static class Distribution {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(name = "certified_authority_id")
+        public Long certifiedAuthorityId;
+
+        @Column(name = "transporter_id")
+        public Long transporterId;
+
+        @Column(name = "status")
+        public Integer status;
+
+        @Column(name = "created_at")
+        private Date createdAt;
+
+        @Column(name = "updated_at")
+        private Date updatedAt;
+
+        @Column(name = "completed_at")
+        private Date completedAt;
+
+        @Column(name = "purchase_id")
+        private Long purchaseId;
+
+        @Column(name = "last_known_location")
+        private String lastKnownLocation;
+
+        public Distribution() {
+
+        }
+    }
 }
 
