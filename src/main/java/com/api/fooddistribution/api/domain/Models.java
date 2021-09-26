@@ -49,9 +49,9 @@ public class Models {
         @Column(name = "deleted")
         private boolean deleted;
 
-        @ManyToMany(fetch = FetchType.EAGER) //anytime load user, load a role
+        @ManyToOne(fetch = FetchType.EAGER) //anytime load user, load a role
         @Column(name = "role")
-        private Set<AppRole> role = new LinkedHashSet<>();
+        private AppRole role;
 
         public AppUser() {
 
@@ -73,12 +73,12 @@ public class Models {
             this.password = password;
         }
 
-        public AppUser(String name, String username, String emailAddress, String password, boolean deleted, Set<AppRole> roles) {
+        public AppUser(String name, String username, String emailAddress, String password, boolean deleted, AppRole role) {
             this.name = name;
             this.username = username;
             this.emailAddress = emailAddress;
             this.password = password;
-            this.role = roles;
+            this.role = role;
             this.deleted = deleted;
         }
     }

@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ import static com.api.fooddistribution.global.GlobalService.dataService;
 @SpringBootApplication
 @EnableJpaRepositories
 @EnableScheduling
+@EnableTransactionManagement
+
 public class FoodDistributionApplication {
 
 

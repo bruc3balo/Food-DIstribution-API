@@ -53,18 +53,16 @@ public class DataServiceImpl implements DataService, UserDetailsService {
 
         //add all authorities and permissions to list
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        appUser.getRole().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
-        appUser.getRole().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-            role.getAllowedPermissions().forEach(p -> {
-                if (!authorities.contains(new SimpleGrantedAuthority(p.getName()))) {
-                    log.info("Adding permissions {} to role {}", role.getName(), p);
-                    authorities.add(new SimpleGrantedAuthority(p.getName()));
-                } else {
-                    System.out.println("Role already has permission");
-                }
-            });
+        authorities.add(new SimpleGrantedAuthority(appUser.getRole().getName()));
+        appUser.getRole().getAllowedPermissions().forEach(p -> {
+            if (!authorities.contains(new SimpleGrantedAuthority(p.getName()))) {
+                log.info("Adding permissions {} to role {}", appUser.getRole().getName(), p);
+                authorities.add(new SimpleGrantedAuthority(p.getName()));
+            } else {
+                System.out.println("Role already has permission");
+            }
         });
+
 
         log.info("authorities " + authorities);
 
@@ -254,41 +252,29 @@ public class DataServiceImpl implements DataService, UserDetailsService {
         }
 
         if (user.getRole() != null) {
-            if (!user.getRole().isEmpty()) {
-                if (user.getRole().contains(role)) {
-                    throw new DuplicateRequestException("User already has role " + role);
-                }
 
-                for (Models.AppRole dbRole : user.getRole()) { //should be only one
-
-                    if (dbRole.getName().equals(role.getName())) { //if role already added
-                        if (dbRole.getAllowedPermissions().isEmpty()) { //check if permissions is empty
-                            try {
-                                Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(role.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
-                                addPermissionListToARole(roleName, permissionsList);
-                            } catch (NotFoundException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            //do nothing
-                            log.info("No changes made for " + username);
-                        }
-                    } else { //role doesn't exists
-                        log.info("Adding role {} to seller {}", role.getName(), user.getUsername()); //will save because @Transactional
-                        user.getRole().clear();
-                        user.getRole().add(role);
-                    }
-
-                }
-
-            } else {
-                log.info("Adding role {} to seller {}", role.getName(), user.getUsername()); //will save because @Transactional
-                user.getRole().add(role);
+            if (user.getRole().getName().equals(role.getName())) {
+                throw new DuplicateRequestException("User already has role " + role);
             }
-        } else {
+
+
+            if (user.getRole().getAllowedPermissions().isEmpty()) { //check if permissions is empty
+                try {
+                    Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(role.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
+                    addPermissionListToARole(role.getName(), permissionsList);
+                } catch (NotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                //do nothing
+                log.info("No changes made for " + username);
+            }
+
+        } else { //role doesn't exists
             log.info("Adding role {} to seller {}", role.getName(), user.getUsername()); //will save because @Transactional
-            user.getRole().add(role);
         }
+
+        user.setRole(role);
     }
 
     @Override

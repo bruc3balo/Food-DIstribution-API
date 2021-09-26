@@ -55,8 +55,7 @@ public class UserController {
 
             Page<Models.AppUser> userList = dataService.getAllUsers(new UserPredicate(id, name, username), PageRequest.of(0, Integer.MAX_VALUE));
 
-            userList.forEach(u -> u.getRole().forEach(role ->{role.setAllowedPermissions(role.getAllowedPermissions().stream().sorted(Comparator.comparing(Models.Permissions::getId)).collect(Collectors.toCollection(LinkedHashSet::new)));}));
-
+            userList.forEach(u -> u.getRole().setAllowedPermissions(u.getRole().getAllowedPermissions().stream().sorted(Comparator.comparing(Models.Permissions::getId)).collect(Collectors.toCollection(LinkedHashSet::new))));
             Models.AppRole role = new Models.AppRole();
             role.setAllowedPermissions(role.getAllowedPermissions().stream().sorted(Comparator.comparing(Models.Permissions::getId)).collect(Collectors.toCollection(LinkedHashSet::new)));
 
