@@ -4,8 +4,10 @@ import com.api.fooddistribution.api.model.NewUserForm;
 import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.RoleCreationForm;
 import com.api.fooddistribution.config.security.AppRolesEnum;
+import com.api.fooddistribution.config.security.AppUserPermission;
 import com.api.fooddistribution.utils.ConvertToJson;
 import com.api.fooddistribution.utils.DataOps;
+import javassist.NotFoundException;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,6 +39,12 @@ public class FoodDistributionApplication {
     CommandLineRunner run() {
         return args -> {
 
+            //permissions
+            Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
+            userService.savePermissionList(newP);
+            Thread.sleep(2000);
+
+
             //roles
             Set<String> roles = Arrays.stream(AppRolesEnum.values()).map(Enum::name).collect(Collectors.toSet());
             List<RoleCreationForm> roleCreationFormSet = new ArrayList<>();
@@ -45,13 +53,18 @@ public class FoodDistributionApplication {
                 Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, r).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(r))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
                 RoleCreationForm roleCreationForm = new RoleCreationForm(r, permissionsList);
                 roleCreationFormSet.add(roleCreationForm);
-                System.out.println("form " + Arrays.toString(c) + " " + ConvertToJson.setJsonString(roleCreationForm));
+                try {
+                    userService.saveANewRole(roleCreationForm);
+                } catch (NotFoundException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("form " + Arrays.toString(c) + " : "+roleCreationForm.getAllowedPermissions().size() + " :: " + ConvertToJson.setJsonString(roleCreationForm));
                 c[0]++;
             });
 
             System.out.println("role list "+roleCreationFormSet);
 
-            userService.saveRolesList(roleCreationFormSet);
+           // userService.saveRolesList(roleCreationFormSet);
 
             //Users
             userService.saveAUser(new NewUserForm("super admin", "superadmin", "superadmin@admin.com", "superadmin", AppRolesEnum.ROLE_ADMIN.name()));

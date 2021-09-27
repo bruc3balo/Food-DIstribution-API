@@ -3,6 +3,7 @@ package com.api.fooddistribution;
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.RoleCreationForm;
 import com.api.fooddistribution.config.security.AppRolesEnum;
+import com.api.fooddistribution.config.security.AppUserPermission;
 import com.api.fooddistribution.utils.ConvertDate;
 import com.api.fooddistribution.utils.ConvertToJson;
 import com.api.fooddistribution.utils.DataOps;
@@ -36,6 +37,8 @@ public class EncryptSecret {
         Date date1 = ConvertDate.formatDate(formatLocalDate(LocalDate.now()), DATE_PATTERN);//2020-05-08
         System.out.println(date1);
 
+        Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
+        System.out.println(newP.size());
 
         Set<String> roles = Arrays.stream(AppRolesEnum.values()).map(Enum::name).collect(Collectors.toSet());
         System.out.println("role list "+roles);

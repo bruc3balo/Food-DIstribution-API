@@ -169,7 +169,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
-
     @Override
     public Models.AppUser disableUser(Models.AppUser user) {
         user.setDisabled(true);
@@ -209,7 +208,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (getARole(form.getName()) != null) {
             throw new DuplicateRequestException("Role has already been created");
         } else {
-            log.info("Saving new role {} to db", form.getName());
+            log.info("Saving new role {} to db with permissions {}", form.getName(), form.getAllowedPermissions().size());
 
             Models.AppRole role = roleRepo.save(new Models.AppRole(form.getName()));
 
@@ -228,7 +227,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 Models.AppRole role = saveANewRole(f);
                 if (role != null) {
                     savedRoles.add(role);
-                    log.info("ROle {} saved with permissions {}",role.getName(),role.getAllowedPermissions().size());
+                    log.info("ROle {} saved with permissions {}", role.getName(), role.getAllowedPermissions().size());
                     //todo fix
                 }
             } catch (DuplicateRequestException e) {
@@ -305,15 +304,33 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Set<Models.Permissions> savePermissionList(Set<String> permissions) {
+        Set<Models.Permissions> permissionsSet = new HashSet<>();
+        permissions.forEach(p-> {
+            Models.Permissions permission = new Models.Permissions(p);
+            saveAPermission(permission);
+            permissionsSet.add(permission);
+        });
+        return permissionsSet;
+    }
+
+    @Override
     public Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionList) throws NotFoundException {
+        log.info("{} Permissions to add {}",roleName,permissionList.size());
+
+
         Models.AppRole role = getARole(roleName);
         if (role == null) {
             throw new NotFoundException("Role not found " + roleName);
         }
 
+
+
         //save permissions in db
         Set<Models.Permissions> permissionsExistingInDb = getAllPermissions().stream().filter(p -> permissionList.contains(p.getName())).collect(Collectors.toSet()); //filter out present roles// match names
         role.getAllowedPermissions().addAll(permissionsExistingInDb);
+
+        log.info("{} Permissions in db {}",roleName,permissionsExistingInDb.size());
 
         //save new permissions to db
         Set<Models.Permissions> newPermissionsToAddT0List = new HashSet<>();
@@ -322,6 +339,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 Models.Permissions newPermission = saveAPermission(p);
                 if (newPermission != null) {
                     newPermissionsToAddT0List.add(newPermission);
+                    log.info("Adding permission {} for role {}",newPermission.getName(),roleName);
                 }
             });
         } catch (DuplicateRequestException e) {
@@ -331,6 +349,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         role.getAllowedPermissions().addAll(newPermissionsToAddT0List);
+        log.info("{} Permissions not in db {}",roleName,permissionsExistingInDb.size());
+
         return role;
     }
 

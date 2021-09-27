@@ -37,6 +37,7 @@ public interface UserService {
 
     //Permission
     Models.Permissions saveAPermission(Models.Permissions permissions); //works
+    Set<Models.Permissions> savePermissionList (Set<String> permissions);
     Models.Permissions getAPermission(String name); //works
     List<Models.Permissions> getAllPermissions(); //works
     Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws NotFoundException; //works
