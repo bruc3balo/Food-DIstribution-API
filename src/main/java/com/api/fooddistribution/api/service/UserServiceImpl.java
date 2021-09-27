@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         newUser.setCreatedAt(getNowFormattedFullDate());
         newUser.setUpdatedAt(getNowFormattedFullDate());
         newUser.setDeleted(false);
+        newUser.setDisabled(false);
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
