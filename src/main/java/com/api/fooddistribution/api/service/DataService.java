@@ -1,44 +1,39 @@
 package com.api.fooddistribution.api.service;
 
-
-import com.api.fooddistribution.api.domain.Models;
-import com.api.fooddistribution.api.model.NewUserForm;
-import com.api.fooddistribution.api.model.RoleCreationForm;
-import com.api.fooddistribution.api.model.UserUpdateForm;
+import com.api.fooddistribution.api.domain.Models.Product;
+import com.api.fooddistribution.api.domain.Models.ProductCategory;
+import com.api.fooddistribution.api.model.ProductCreationFrom;
+import com.api.fooddistribution.api.model.ProductUpdateForm;
 import javassist.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.text.ParseException;
-import java.util.List;
-import java.util.Set;
 
 public interface DataService {
 
-    //User
-    Models.AppUser saveAUser(NewUserForm userForm) throws NotFoundException, ParseException; //working
-    Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws NotFoundException, ParseException; //working
-    Models.AppUser toggleUserDeletion(Models.AppUser user) throws NotFoundException; //works
-    Models.AppUser getAUser(String username); //works
-    Page<Models.AppUser> getAllUsers(Specification<Models.AppUser> specification, PageRequest pageRequest); //works
-    Page<Models.AppUser> getAllUsers(PageRequest pageRequest); //works
+    //Product
+    Product saveNewProduct(ProductCreationFrom productCreationFrom) throws ParseException, NotFoundException;
+    Product updateProduct(String productName,ProductUpdateForm form) throws ParseException, NotFoundException;
+    Product disableProduct(Product product);
+    Product enableProduct(Product product);
+    Product deleteProduct(Product product);
+    Product getProduct(String productName);
+    Page<Product> getAllProducts(Specification<Product> specification, PageRequest pageRequest);
 
-    //Role
-   // Models.AppRole saveARole(String name) throws NotFoundException; //works
-    Models.AppRole saveANewRole(RoleCreationForm form) throws NotFoundException;
-    Set<Models.AppRole> saveRolesList(Set<RoleCreationForm> creationForms); //works
-    Models.AppRole getARole(String name); //works
-    List<Models.AppRole> getAllRoles(); //works
-    void addARoleToAUser(String username, String roleName) throws NotFoundException; //working
+    //category
+    ProductCategory saveNewProductCategory(String categoryName) throws ParseException;
+    ProductCategory updateProductCategory(String categoryName, String productCategoryNewName) throws ParseException, NotFoundException;
+    ProductCategory disableProductCategory(ProductCategory productCategory);
+    ProductCategory enableProductCategory(ProductCategory productCategory);
+    ProductCategory deleteProductCategory(ProductCategory productCategory);
+    ProductCategory getProductCategory(String productCategoryName);
+    Page<ProductCategory> getAllProductCategories(Specification<ProductCategory> specification, PageRequest pageRequest);
 
+    //product category
+    Product addProductToCategory(String productName, String productCategoryName) throws NotFoundException;
 
-    //Permission
-    Models.Permissions saveAPermission(Models.Permissions permissions); //works
-    Models.Permissions getAPermission(String name); //works
-    List<Models.Permissions> getAllPermissions(); //works
-    Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws NotFoundException; //works
-    Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionName) throws NotFoundException; //works
 
 
 }

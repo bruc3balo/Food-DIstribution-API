@@ -1,6 +1,7 @@
 package com.api.fooddistribution.global;
 
 import com.api.fooddistribution.api.service.DataService;
+import com.api.fooddistribution.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,11 +10,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalService {
 
+    public static UserService userService;
     public static DataService dataService;
     public static UserDetailsService userDetailsService;
     public static PasswordEncoder passwordEncoder;
 
 
+    @Autowired
+    public void setUserService(UserService userService) {
+        GlobalService.userService = userService;
+    }
 
     @Autowired
     public void setDataService(DataService dataService) {
@@ -29,6 +35,5 @@ public class GlobalService {
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         GlobalService.passwordEncoder = passwordEncoder;
     }
-
 
 }

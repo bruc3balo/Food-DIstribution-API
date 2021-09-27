@@ -10,8 +10,8 @@ import javax.persistence.criteria.Root;
 
 public class PermissionPredicate implements Specification<Models.Permissions> {
 
-    Models.Permissions permissions;
-    String name;
+    private Models.Permissions permissions;
+    private String name;
 
     public PermissionPredicate(Models.Permissions permissions) {
         this.permissions = permissions;
@@ -40,6 +40,7 @@ public class PermissionPredicate implements Specification<Models.Permissions> {
         if (name != null) {
             p.getExpressions().add(cb.equal(cb.upper(root.get("name")), name.toUpperCase()));
         }
+
         return p;
     }
 }

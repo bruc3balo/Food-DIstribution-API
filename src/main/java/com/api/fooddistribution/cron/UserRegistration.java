@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 
-import static com.api.fooddistribution.global.GlobalService.dataService;
+import static com.api.fooddistribution.global.GlobalService.userService;
 import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 
 @Slf4j
@@ -20,16 +20,16 @@ public class UserRegistration {
 
     @Scheduled(fixedDelay = 5000, initialDelay = 10000) //every 10 seconds
     private void addRolesToUsers() {
-        Page<Models.AppUser> usersWithoutRoles = dataService.getAllUsers(PageRequest.of(0, Integer.MAX_VALUE));
+        Page<Models.AppUser> usersWithoutRoles = userService.getAllUsers(PageRequest.of(0, Integer.MAX_VALUE));
         if (!usersWithoutRoles.isEmpty()) {
             //log.info("Checking user roles");
             usersWithoutRoles.forEach(u -> {
                 if (u.getRole() == null) {
-                    Models.AppRole role = dataService.getARole(AppRolesEnum.ROLE_BUYER.name());
+                    Models.AppRole role = userService.getARole(AppRolesEnum.ROLE_BUYER.name());
                     if (role != null) {
                         try {
                             u.setUpdatedAt(getNowFormattedFullDate());
-                            dataService.addARoleToAUser(u.getUsername(), role.getName());
+                            userService.addARoleToAUser(u.getUsername(), role.getName());
                         } catch (ParseException | NotFoundException e) {
                             e.printStackTrace();
                         }

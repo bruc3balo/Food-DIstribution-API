@@ -2,9 +2,7 @@ package com.api.fooddistribution.global;
 
 
 
-import com.api.fooddistribution.api.repository.AppPermissionRepo;
-import com.api.fooddistribution.api.repository.AppRoleRepo;
-import com.api.fooddistribution.api.repository.AppUserRepo;
+import com.api.fooddistribution.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +12,8 @@ public class GlobalRepositories {
     public static AppUserRepo userRepo;
     public static AppRoleRepo roleRepo;
     public static AppPermissionRepo appPermissionRepo;
+    public static ProductRepo productRepo;
+    public static ProductCategoryRepo productCategoryRepo;
 
 
     @Autowired
@@ -26,6 +26,15 @@ public class GlobalRepositories {
         GlobalRepositories.roleRepo = appRoleRepo;
     }
 
+    @Autowired
+    public void setProductRepo(ProductRepo productRepo) {
+        GlobalRepositories.productRepo = productRepo;
+    }
+
+    @Autowired
+    public void setProductCategoryRepo(ProductCategoryRepo productCategoryRepo) {
+        GlobalRepositories.productCategoryRepo = productCategoryRepo;
+    }
 
     @Autowired
     public void setAppPermissionRepo(AppPermissionRepo appPermissionRepo) {GlobalRepositories.appPermissionRepo = appPermissionRepo;}

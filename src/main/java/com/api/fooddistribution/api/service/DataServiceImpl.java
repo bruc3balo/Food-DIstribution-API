@@ -2,351 +2,215 @@ package com.api.fooddistribution.api.service;
 
 
 import com.api.fooddistribution.api.domain.Models;
-import com.api.fooddistribution.api.model.NewUserForm;
-import com.api.fooddistribution.api.model.RoleCreationForm;
-import com.api.fooddistribution.api.model.UserUpdateForm;
-import com.api.fooddistribution.api.specification.UserPredicate;
-import com.api.fooddistribution.config.security.AppRolesEnum;
-import com.api.fooddistribution.utils.DataOps;
+import com.api.fooddistribution.api.model.ProductCreationFrom;
+import com.api.fooddistribution.api.model.ProductUpdateForm;
+import com.api.fooddistribution.api.specification.ProductPredicate;
 import com.sun.jdi.request.DuplicateRequestException;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
 
-import static com.api.fooddistribution.global.GlobalRepositories.*;
-import static com.api.fooddistribution.global.GlobalService.dataService;
+import static com.api.fooddistribution.global.GlobalRepositories.productCategoryRepo;
+import static com.api.fooddistribution.global.GlobalRepositories.productRepo;
 import static com.api.fooddistribution.global.GlobalService.passwordEncoder;
-import static com.api.fooddistribution.utils.DataOps.*;
+import static com.api.fooddistribution.utils.DataOps.getNowFormattedDate;
+import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 
 @Service
 @Transactional
 @Slf4j
-public class DataServiceImpl implements DataService, UserDetailsService {
+public class DataServiceImpl implements DataService {
 
-
-    //User
+    //products
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public Models.Product saveNewProduct(ProductCreationFrom productCreationFrom) throws ParseException, NotFoundException {
 
-
-        Models.AppUser appUser = userRepo.findByUsername(username).orElse(null);
-
-        if (appUser == null) {
-            log.error("User not found in db");
-            throw new UsernameNotFoundException("User not found in db");
-        } else {
-            log.info("User {} found in db ", appUser.getUsername());
+        if (getProduct(productCreationFrom.getProductName()) != null) {
+            throw new DuplicateRequestException("Product already exists with name " + productCreationFrom.getProductName());
         }
 
-        //add all authorities and permissions to list
-        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(appUser.getRole().getName()));
-        appUser.getRole().getAllowedPermissions().forEach(p -> {
-            if (!authorities.contains(new SimpleGrantedAuthority(p.getName()))) {
-                log.info("Adding permissions {} to role {}", appUser.getRole().getName(), p);
-                authorities.add(new SimpleGrantedAuthority(p.getName()));
+        Models.Product product = new Models.Product(productCreationFrom.getProductName(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate(), getNowFormattedDate(), false, false);
+
+        if (productCreationFrom.getProductCategoryName() != null) {
+            Models.ProductCategory productCategory = getProductCategory(productCreationFrom.getProductCategoryName());
+            if (productCategory == null) {
+                throw new NotFoundException("Cannot find product category with name " + productCreationFrom.getProductCategoryName());
             } else {
-                System.out.println("Role already has permission");
-            }
-        });
-
-
-        log.info("authorities " + authorities);
-
-        return new User(appUser.getUsername(), appUser.getPassword(), authorities);
-    }
-
-    @Override
-    public Models.AppUser saveAUser(NewUserForm newUserForm) throws ParseException, NotFoundException {
-
-        Page<Models.AppUser> users = getAllUsers(new UserPredicate(newUserForm.getUsername()), PageRequest.of(0, 1));
-
-        if (!users.isEmpty()) {
-            if (users.getContent().get(0).getUsername().equals(newUserForm.getUsername())) {
-                throw new DuplicateRequestException("User has already been created");
+                product.setProductCategory(productCategory);
             }
         }
 
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getName(), newUserForm.getUsername(), newUserForm.getEmailAddress(), passwordEncoder.encode(newUserForm.getPassword()));
-        newUser.setCreatedAt(getNowFormattedFullDate());
-        newUser.setUpdatedAt(getNowFormattedFullDate());
-        newUser.setDeleted(false);
+        Models.Product newProduct = productRepo.save(product);
+        log.info("Product {} saved", newProduct.getName());
 
-        log.info("Saving new user {} to db", newUser.getUsername());
-
-        Models.AppUser createdUser = userRepo.save(newUser);
-
-        if (newUserForm.getRole() != null) {
-
-            if (!newUserForm.getRole().isBlank()) {
-                if (!newUserForm.getRole().isEmpty()) {
-                    try {
-                        if (createdUser.getUsername() != null) {
-                            log.info("Now add role {} to user {}", newUserForm.getRole(), createdUser.getUsername());
-                            Thread.sleep(0);
-                            addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
-                        }
-                    } catch (NotFoundException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        } else {
-            log.info("No role for user " + createdUser.getUsername());
-            try {
-                if (createdUser.getUsername() != null) {
-                    log.info("Now add role {} to user {}", newUserForm.getRole(), AppRolesEnum.ROLE_BUYER.name());
-                    Thread.sleep(0);
-                    addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
-                }
-            } catch (NotFoundException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        return newUser;
+        return newProduct;
     }
 
     @Override
-    public Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws NotFoundException, ParseException {
-        Models.AppUser user = getAUser(username);
+    public Models.Product updateProduct(String productName, ProductUpdateForm updateForm) throws ParseException {
 
-        if (user == null) {
-            throw new UsernameNotFoundException(username + ", not found");
+        Models.Product product = getProduct(productName);
+
+
+        if (product == null) {
+            throw new UsernameNotFoundException(productName + ", not found");
         }
 
         if (updateForm != null) {
 
-            if (updateForm.getRole() != null) {
-                addARoleToAUser(user.getUsername(), updateForm.getRole());
-            }
-
-            if (updateForm.getPassword() != null) {
-                user.setPassword(passwordEncoder.encode(updateForm.getPassword()));
-            }
-
-            if (updateForm.getEmailAddress() != null) {
-                user.setEmailAddress(updateForm.getEmailAddress());
-            }
-
-            if (updateForm.getName() != null) {
-                user.setName(updateForm.getName());
-            }
-
-            user.setUpdatedAt(getNowFormattedFullDate());
-
-        }
-
-        return userRepo.save(user);
-    }
-
-    @Override
-    public Models.AppUser getAUser(String username) {
-        log.info("Fetching user {} ", username);
-        Optional<Models.AppUser> user = userRepo.findByUsername(username);
-        return user.orElse(null);
-    }
-
-    @Override
-    public Models.AppUser toggleUserDeletion(Models.AppUser user) {
-        user.setDeleted(!user.isDeleted());
-        return userRepo.save(user);
-    }
-
-    @Override
-    public Page<Models.AppUser> getAllUsers(Specification<Models.AppUser> specification, PageRequest pageRequest) {
-        log.info("Fetching all users");
-        return userRepo.findAll(specification, pageRequest);
-    }
-
-    @Override
-    public Page<Models.AppUser> getAllUsers(PageRequest pageRequest) {
-        return userRepo.findAll(pageRequest);
-    }
-
-    //Role
-    /*@Override
-    public Models.AppRole saveARole(String name) {
-        if (getARole(name) != null) {
-            throw new DuplicateRequestException("Role has already been created");
-        } else {
-            log.info("Saving new role {} to db", name);
-            return roleRepo.save(new Models.AppRole(name));
-        }
-    }*/
-
-    @Override
-    public Models.AppRole saveANewRole(RoleCreationForm form) throws NotFoundException {
-        if (getARole(form.getName()) != null) {
-            throw new DuplicateRequestException("Role has already been created");
-        } else {
-            log.info("Saving new role {} to db", form.getName());
-
-            Models.AppRole role = roleRepo.save(new Models.AppRole(form.getName()));
-
-            return addPermissionListToARole(role.getName(), form.getAllowedPermissions());
-        }
-    }
-
-    @Override
-    public Set<Models.AppRole> saveRolesList(Set<RoleCreationForm> creationForms) {
-
-        Set<Models.AppRole> savedRoles = new HashSet<>();
-
-        creationForms.forEach(f -> {
-            try {
-                Models.AppRole role = saveANewRole(f);
-                if (role != null) {
-                    savedRoles.add(role);
+            if (updateForm.getProductName() != null) {
+                if (getProduct(updateForm.getProductName()) != null) {
+                    throw new DuplicateRequestException("product exists with " + updateForm.getProductName());
                 }
-            } catch (DuplicateRequestException e) {
-                log.error("Role already added");
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-                log.error("Failed to add role " + f.getName());
             }
-        });
-        return savedRoles;
-    }
 
-    @Override
-    public Models.AppRole getARole(String name) {
-        log.info("Fetching role {} ", name);
-        Optional<Models.AppRole> role = roleRepo.findByName(name);
-        return role.orElse(null);
-    }
+            if (updateForm.getProductCategoryName() != null) {
+                product.setName(updateForm.getProductName());
+            }
 
-    @Override
-    public List<Models.AppRole> getAllRoles() {
-        log.info("Fetching all roles");
-        return roleRepo.findAll();
-    }
+            if (updateForm.getImage() != null) {
+                product.setImage(updateForm.getImage());
+            }
 
-    @Override
-    public void addARoleToAUser(String username, String roleName) throws NotFoundException {
-        Models.AppUser user = getAUser(username);
-        Models.AppRole role = getARole(roleName);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found " + username);
-        }
-
-        if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
-        }
-
-        if (user.getRole() != null) {
-
-            if (user.getRole().getName().equals(role.getName())) {
-                throw new DuplicateRequestException("User already has role " + role);
+            if (updateForm.getProductPrice() != null) {
+                product.setPrice(new BigDecimal(updateForm.getProductPrice()));
             }
 
 
-            if (user.getRole().getAllowedPermissions().isEmpty()) { //check if permissions is empty
-                try {
-                    Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(role.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
-                    addPermissionListToARole(role.getName(), permissionsList);
-                } catch (NotFoundException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                //do nothing
-                log.info("No changes made for " + username);
+            product.setUpdatedAt(getNowFormattedFullDate());
+
+        }
+
+
+        product.setUpdatedAt(getNowFormattedFullDate());
+        return productRepo.save(product);
+    }
+
+    @Override
+    public Models.Product disableProduct(Models.Product product) {
+        product.setDisabled(true);
+        return productRepo.save(product);
+    }
+
+    @Override
+    public Models.Product enableProduct(Models.Product product) {
+        product.setDisabled(false);
+        return productRepo.save(product);
+    }
+
+    @Override
+    public Models.Product deleteProduct(Models.Product product) {
+        product.setDeleted(true);
+        return productRepo.save(product);
+    }
+
+    @Override
+    public Models.Product getProduct(String productName) {
+        return productRepo.findByName(productName).orElse(null);
+    }
+
+    @Override
+    public Page<Models.Product> getAllProducts(Specification<Models.Product> specification, PageRequest pageRequest) {
+        return productRepo.findAll(specification, pageRequest);
+    }
+
+    //product category
+    @Override
+    public Models.ProductCategory saveNewProductCategory(String categoryName) throws ParseException {
+
+        if (getProductCategory(categoryName) != null) {
+            throw new DuplicateRequestException("Product category already exists with name " + categoryName);
+        }
+
+        Models.ProductCategory newProductCategory = productCategoryRepo.save(new Models.ProductCategory(categoryName, false, false, getNowFormattedFullDate(), getNowFormattedFullDate()));
+        log.info("saving new product category {} ", newProductCategory.getName());
+        return newProductCategory;
+    }
+
+    @Override
+    public Models.ProductCategory updateProductCategory(String productCategoryName, String productCategoryNewName) throws ParseException, NotFoundException {
+        Models.ProductCategory productCategory = getProductCategory(productCategoryName);
+
+        if (productCategory == null) {
+            throw new NotFoundException("Category not found");
+        }
+
+        if (productCategory.getName().equals(productCategoryNewName)) {
+            throw new DuplicateRequestException("Category exists with that name");
+        }
+
+        productCategory.setName(productCategoryNewName);
+        productCategory.setUpdatedAt(getNowFormattedFullDate());
+        return productCategoryRepo.save(productCategory);
+    }
+
+    @Override
+    public Models.ProductCategory disableProductCategory(Models.ProductCategory productCategory) {
+        productCategory.setDisabled(true);
+        return productCategoryRepo.save(productCategory);
+    }
+
+    @Override
+    public Models.ProductCategory enableProductCategory(Models.ProductCategory productCategory) {
+        productCategory.setDisabled(false);
+        return productCategoryRepo.save(productCategory);
+    }
+
+    @Override
+    public Models.ProductCategory deleteProductCategory(Models.ProductCategory productCategory) {
+        productCategory.setDeleted(true);
+        return productCategoryRepo.save(productCategory);
+    }
+
+    @Override
+    public Models.ProductCategory getProductCategory(String productName) {
+        return productCategoryRepo.findByName(productName).orElse(null);
+    }
+
+    @Override
+    public Page<Models.ProductCategory> getAllProductCategories(Specification<Models.ProductCategory> specification, PageRequest pageRequest) {
+        return productCategoryRepo.findAll(specification, pageRequest);
+    }
+
+    //product category
+
+    @Override
+    public Models.Product addProductToCategory(String productName, String productCategoryName) throws NotFoundException {
+
+        Models.Product product = getProduct(productName);
+        Models.ProductCategory productCategory = getProductCategory(productCategoryName);
+
+        if (product == null) {
+            throw new NotFoundException("Product not found " + productName);
+        }
+
+        if (productCategory == null) {
+            throw new NotFoundException("Product category not found " + productCategoryName);
+        }
+
+        if (product.getProductCategory() != null) {
+
+            if (product.getProductCategory().getName().equals(productCategory.getName())) {
+                throw new DuplicateRequestException("Product " + product.getName() + "is already in category " + productCategory.getName());
             }
 
         } else { //role doesn't exists
-            log.info("Adding role {} to seller {}", role.getName(), user.getUsername()); //will save because @Transactional
+            log.info("Adding product {} to category {}", product.getName(), productCategory.getName()); //will save because @Transactional
         }
 
-        user.setRole(role);
+        product.setProductCategory(productCategory);
+
+        return product;
     }
 
-    @Override
-    public Models.Permissions saveAPermission(Models.Permissions permissions) {
-        if (getAllPermissions().stream().map(Models.Permissions::getName).collect(Collectors.toList()).contains(permissions.getName())) {
-            throw new DuplicateRequestException("Permission already in db");
-        } else {
-            return appPermissionRepo.save(permissions);
-        }
-    }
-
-    @Override
-    public Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionList) throws NotFoundException {
-        Models.AppRole role = getARole(roleName);
-        if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
-        }
-
-        //save permissions in db
-        Set<Models.Permissions> permissionsExistingInDb = getAllPermissions().stream().filter(p -> permissionList.contains(p.getName())).collect(Collectors.toSet()); //filter out present roles// match names
-        role.getAllowedPermissions().addAll(permissionsExistingInDb);
-
-        //save new permissions to db
-        Set<Models.Permissions> newPermissionsToAddT0List = new HashSet<>();
-        try {
-            permissionList.stream().filter(p -> !permissionsExistingInDb.contains(new Models.Permissions(p))).map(Models.Permissions::new).collect(Collectors.toSet()).forEach(p -> {
-                Models.Permissions newPermission = saveAPermission(p);
-                if (newPermission != null) {
-                    newPermissionsToAddT0List.add(newPermission);
-                }
-            });
-        } catch (DuplicateRequestException e) {
-            log.error("Permission already in db");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        role.getAllowedPermissions().addAll(newPermissionsToAddT0List);
-        return role;
-    }
-
-    @Override
-    public Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws NotFoundException {
-        Models.AppRole role = getARole(roleName);
-        Models.Permissions permissions = getAPermission(permissionName);
-
-        if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
-        }
-
-        if (permissions == null) {
-            throw new NotFoundException("Permission not found " + permissionName + " for role " + roleName);
-        }
-
-        if (role.getAllowedPermissions().contains(permissions)) {
-            throw new DuplicateRequestException("Role " + roleName + " already has permission " + permissionName);
-        }
-
-
-        log.info("Adding permission {} to role {}", permissions.getName(), role.getName());
-        role.getAllowedPermissions().add(permissions); //will save because @Transactional
-
-        return role;
-    }
-
-    @Override
-    public List<Models.Permissions> getAllPermissions() {
-        return appPermissionRepo.findAll();
-    }
-
-    @Override
-    public Models.Permissions getAPermission(String name) {
-        return appPermissionRepo.findByName(name);
-    }
 }

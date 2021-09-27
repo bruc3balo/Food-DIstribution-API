@@ -1,6 +1,5 @@
 package com.api.fooddistribution.api.specification;
 
-import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.domain.Models.AppUser;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -14,8 +13,8 @@ public class UserPredicate implements Specification<AppUser> {
 
     private AppUser appUser;
     private Long id;
-    private String name;
-    private String username;
+    private String name,username;
+    private Boolean disabled,deleted;
 
 
     public UserPredicate(AppUser appUser) {
@@ -32,6 +31,10 @@ public class UserPredicate implements Specification<AppUser> {
         this.username = username;
     }
 
+    public UserPredicate(Boolean disabled, Boolean deleted) {
+        this.disabled = disabled;
+        this.deleted = deleted;
+    }
 
     @Override
     public Predicate toPredicate(Root<AppUser> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
@@ -46,8 +49,20 @@ public class UserPredicate implements Specification<AppUser> {
                 p.getExpressions().add(cb.equal(cb.upper(root.get("username")), appUser.getUsername().toUpperCase()));
             }
 
+            if (appUser.getEmailAddress() != null) {
+                p.getExpressions().add(cb.equal(cb.upper(root.get("emailAddress")), appUser.getEmailAddress().toUpperCase()));
+            }
+
             if (appUser.getName() != null) {
                 p.getExpressions().add(cb.equal(cb.upper(root.get("name")), appUser.getName().toUpperCase()));
+            }
+
+            if (appUser.getDeleted() != null) {
+                p.getExpressions().add(cb.equal(cb.upper(root.get("deleted")), appUser.getDeleted()));
+            }
+
+            if (appUser.getDisabled() != null) {
+                p.getExpressions().add(cb.equal(cb.upper(root.get("disabled")), appUser.getDisabled()));
             }
 
         }
@@ -63,6 +78,15 @@ public class UserPredicate implements Specification<AppUser> {
         if (name != null) {
             p.getExpressions().add(cb.equal(cb.upper(root.get("name")), name.toUpperCase()));
         }
+
+        if (deleted != null) {
+            p.getExpressions().add(cb.equal(cb.upper(root.get("deleted")), deleted));
+        }
+
+        if (disabled != null) {
+            p.getExpressions().add(cb.equal(cb.upper(root.get("disabled")), disabled));
+        }
+
 
         return p;
     }
