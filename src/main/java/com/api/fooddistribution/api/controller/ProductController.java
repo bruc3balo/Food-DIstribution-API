@@ -35,7 +35,7 @@ public class ProductController {
 
 
     @GetMapping("/product/all")
-    //@PreAuthorize("hasAuthority('product:read')")
+    @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<?> getAllProducts(HttpServletRequest request,
                                             @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                             @RequestParam(value = "pageNo", required = false) Integer pageNo,
@@ -69,7 +69,7 @@ public class ProductController {
     }
 
     @PostMapping("/save")
-  //  @PreAuthorize("hasAuthority('product:write')")
+    @PreAuthorize("hasAuthority('product:write')")
     public ResponseEntity<?> saveProduct(@Valid @RequestBody ProductCreationFrom productCreationFrom) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/product/save").toUriString());
         log.info("uri saveproduct ::: {}", uri);
@@ -86,7 +86,7 @@ public class ProductController {
     }
 
     @PutMapping(value = "update/product/{id}")
-    //@PreAuthorize("hasAuthority('product:update')")
+    @PreAuthorize("hasAuthority('product:update')")
     public ResponseEntity<?> updateProduct(HttpServletRequest request,
                                            @RequestParam(value = "product_name") String productName,
                                            @RequestBody ProductUpdateForm updateForm) {
@@ -114,7 +114,7 @@ public class ProductController {
 
 
     @DeleteMapping(value = "delete/product")
-    //@PreAuthorize("hasAuthority('product:delete')")
+    @PreAuthorize("hasAuthority('product:delete')")
     public ResponseEntity<?> deleteProduct(HttpServletRequest request,
                                            @RequestParam(value = "name", required = false) String name,
                                            @RequestParam(value = "id", required = false) Long id) {
@@ -148,7 +148,7 @@ public class ProductController {
     }
 
     @DeleteMapping(value = "disable/product")
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> disableProduct(HttpServletRequest request,
                                             @RequestParam(value = "disabled") Boolean disabled,
                                             @RequestParam(value = "name", required = false) String name,
@@ -189,7 +189,7 @@ public class ProductController {
     }
 
     @GetMapping("/productCategory/all")
-   // @PreAuthorize("hasAuthority('product_category:read')")
+    @PreAuthorize("hasAuthority('product_category:read')")
     public ResponseEntity<?> getAllProductCategories(HttpServletRequest request,
                                                      @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                                      @RequestParam(value = "pageNo", required = false) Integer pageNo,
@@ -224,7 +224,7 @@ public class ProductController {
 
 
     @PostMapping("/save/productCategory")
-   // @PreAuthorize("hasAuthority('product_category:write')")
+    @PreAuthorize("hasAuthority('product_category:write')")
     public ResponseEntity<?> saveProductCategory(HttpServletRequest request, @RequestParam(name = "name") String productName) {
 
 
@@ -250,7 +250,7 @@ public class ProductController {
 
 
     @PutMapping(value = "update/productCategory/{id}")
-    //@PreAuthorize("hasAuthority('product_category:update')")
+    @PreAuthorize("hasAuthority('product_category:update')")
     public ResponseEntity<?> updateProductCategory(HttpServletRequest request,
                                                    @RequestParam(value = "product_category_name_old") String productCategoryName,
                                                    @RequestParam(value = "product_category_name_new") String productCategoryNewName) {
@@ -277,7 +277,7 @@ public class ProductController {
     }
 
     @DeleteMapping(value = "delete/productCategory")
-    //@PreAuthorize("hasAuthority('product_category:delete')")
+    @PreAuthorize("hasAuthority('product_category:delete')")
     public ResponseEntity<?> deleteProductCategory(HttpServletRequest request,
                                                    @RequestParam(value = "name", required = false) String name,
                                                    @RequestParam(value = "id", required = false) Long id) {
@@ -311,7 +311,7 @@ public class ProductController {
     }
 
     @DeleteMapping(value = "disable/productCategory")
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> disableProductCategory(HttpServletRequest request,
                                                     @RequestParam(value = "disabled") Boolean disabled,
                                                     @RequestParam(value = "name", required = false) String name,
