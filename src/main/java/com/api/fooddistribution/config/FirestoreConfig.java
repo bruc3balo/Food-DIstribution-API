@@ -1,6 +1,5 @@
 package com.api.fooddistribution.config;
 
-import com.github.alperkurtul.firebaseuserauthentication.service.UserAuthenticationServiceImpl;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
@@ -59,9 +58,9 @@ public class FirestoreConfig {
         return firestoreOptions != null ? firestoreOptions.getService() : null;
     }
 
-    @Bean
+    /*@Bean
     public UserAuthenticationServiceImpl userAuthenticationServiceImpl() {
         return new UserAuthenticationServiceImpl();
     }
-
+*/
 }

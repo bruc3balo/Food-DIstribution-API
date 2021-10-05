@@ -6,7 +6,6 @@ import com.api.fooddistribution.utils.ApiCode;
 import com.api.fooddistribution.utils.JsonResponse;
 import com.api.fooddistribution.utils.JsonSetErrorResponse;
 import com.api.fooddistribution.utils.JsonSetSuccessResponse;
-import com.github.alperkurtul.firebaseuserauthentication.bean.FirebaseSignInSignUpResponseBean;
 import com.google.firebase.auth.UserRecord;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +22,7 @@ import static com.api.fooddistribution.utils.DataOps.getTransactionId;
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController {
 
-    @PostMapping(value = {"authuser"})
+    /*@PostMapping(value = {"authuser"})
     public ResponseEntity<?> authenticateUser(@RequestParam(name = "email") String email, @RequestParam(name = "password") String password) {
         try {
             FirebaseSignInSignUpResponseBean signedUpInUser = authService.authenticateUser(email, password);
@@ -42,7 +41,7 @@ public class AuthController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-    }
+    }*/
 
     @PostMapping(value = {"authnewuser"})
     public ResponseEntity<?> authenticateUser(@RequestBody NewUserForm form) {

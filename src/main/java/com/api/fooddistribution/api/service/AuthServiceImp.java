@@ -3,7 +3,6 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
-import com.github.alperkurtul.firebaseuserauthentication.bean.FirebaseSignInSignUpResponseBean;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
@@ -22,10 +21,10 @@ public class AuthServiceImp implements AuthService {
     private final Logger logger = LoggerFactory.getLogger(AuthServiceImp.class);
 
 
-    @Override
+  /*  @Override
     public FirebaseSignInSignUpResponseBean authenticateUser(String email, String password) {
         return userAuthenticationServiceImpl.signInWithEmailAndPassword(email, password);
-    }
+    }*/
 
     @Override
     public boolean isUserPresent(String username) {
