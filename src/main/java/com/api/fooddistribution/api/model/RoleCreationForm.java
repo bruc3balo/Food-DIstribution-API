@@ -19,15 +19,15 @@ public class RoleCreationForm {
 
     @JsonProperty(value = "permissions")
     @NotEmpty(message = "permissions cannot be empty")
-    private Set<String> allowedPermissions = new LinkedHashSet<>();
+    private Set<String> permissions = new LinkedHashSet<>();
 
     public RoleCreationForm() {
 
     }
 
-    public RoleCreationForm(String name, Set<String> allowedPermissions) {
+    public RoleCreationForm(String name, Set<String> permissions) {
         this.name = name;
-        this.allowedPermissions = allowedPermissions;
+        this.permissions = permissions;
     }
 
 

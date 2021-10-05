@@ -3,17 +3,17 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
+import com.api.fooddistribution.api.model.UserUpdateForm;
+import com.api.fooddistribution.api.domain.Models;
+import com.api.fooddistribution.api.model.NewUserForm;
 import com.api.fooddistribution.api.model.RoleCreationForm;
 import com.api.fooddistribution.api.model.UserUpdateForm;
-import com.api.fooddistribution.api.specification.UserPredicate;
 import com.api.fooddistribution.config.security.AppRolesEnum;
 import com.api.fooddistribution.utils.DataOps;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.gax.rpc.NotFoundException;
 import com.sun.jdi.request.DuplicateRequestException;
-import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,17 +21,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.passwordEncoder;
-import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
+import static com.api.fooddistribution.utils.DataOps.*;
+
 
 @Service
-@Transactional
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -41,7 +41,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 
-        Models.AppUser appUser = userRepo.findByUsername(username).orElse(null);
+        Models.AppUser appUser = findByUsername(username).orElse(null);
+
 
         if (appUser == null) {
             log.error("User not found in db");
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         //add all authorities and permissions to list
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(appUser.getRole().getName()));
-        appUser.getRole().getAllowedPermissions().forEach(p -> {
+        appUser.getRole().getPermissions().forEach(p -> {
             if (!authorities.contains(new SimpleGrantedAuthority(p.getName()))) {
                 log.info("Adding permissions {} to role {}", appUser.getRole().getName(), p);
                 authorities.add(new SimpleGrantedAuthority(p.getName()));
@@ -69,22 +70,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Models.AppUser saveAUser(NewUserForm newUserForm) throws ParseException, NotFoundException {
-
-        Page<Models.AppUser> users = getAllUsers(new UserPredicate(newUserForm.getUsername()), PageRequest.of(0, 1));
+    public Optional<Models.AppUser> findByUsername(String username) {
+        List<Models.AppUser> users = getAllUsers().stream().filter(p -> p.getUsername().equals(username)).collect(Collectors.toList());
 
         if (!users.isEmpty()) {
-            if (users.getContent().get(0).getUsername().equals(newUserForm.getUsername())) {
+            return Optional.of(users.get(0));
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
+    @Override
+    public Models.AppUser saveAUser(NewUserForm newUserForm) throws Exception {
+
+        List<Models.AppUser> users = getAllUsers().stream().filter(u -> u.getUsername().equals(newUserForm.getUsername())).collect(Collectors.toList());
+
+        if (!users.isEmpty()) {
+            if (users.stream().findFirst().get().getUsername().equals(newUserForm.getUsername())) {
                 throw new DuplicateRequestException("User has already been created");
             }
         }
 
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getName(), newUserForm.getUsername(), newUserForm.getEmailAddress(), passwordEncoder.encode(newUserForm.getPassword()));
-        newUser.setCreatedAt(getNowFormattedFullDate());
-        newUser.setUpdatedAt(getNowFormattedFullDate());
-        newUser.setDeleted(false);
-        newUser.setDisabled(false);
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), null, getNowFormattedFullDate(), getNowFormattedFullDate(), null, false, false);
+
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
@@ -124,8 +134,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws NotFoundException, ParseException {
-        Models.AppUser user = getAUser(username);
+    public Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws Exception {
+        Models.AppUser user = getAUserByUid(username).orElse(null);
 
         if (user == null) {
             throw new UsernameNotFoundException(username + ", not found");
@@ -139,28 +149,51 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (updateForm.getPassword() != null) {
                 user.setPassword(passwordEncoder.encode(updateForm.getPassword()));
+
             }
 
             if (updateForm.getEmailAddress() != null) {
                 user.setEmailAddress(updateForm.getEmailAddress());
+
             }
 
             if (updateForm.getName() != null) {
-                user.setName(updateForm.getName());
+                user.setNames(updateForm.getName());
+
             }
 
-            user.setUpdatedAt(getNowFormattedFullDate());
+            if (updateForm.getPhoneNumber() != null) {
+                user.setPhoneNumber(updateForm.getPhoneNumber());
 
+            }
+
+
+            if (updateForm.getIdNumber() != null) {
+                user.setIdNumber(updateForm.getIdNumber());
+
+            }
+
+            if (updateForm.getBio() != null) {
+                user.setBio(updateForm.getBio());
+            }
+
+
+            user.setUpdatedAt(getNowFormattedFullDate());
         }
 
         return userRepo.save(user);
     }
 
     @Override
-    public Models.AppUser getAUser(String username) {
-        log.info("Fetching user {} ", username);
-        Optional<Models.AppUser> user = userRepo.findByUsername(username);
-        return user.orElse(null);
+    public Models.AppUser updateAUser(Models.AppUser appUser) throws ParseException, JsonProcessingException {
+        appUser.setUpdatedAt(getNowFormattedFullDate());
+        return userRepo.save(appUser);
+    }
+
+    @Override
+    public Optional<Models.AppUser> getAUserByUid(String uid) {
+        log.info("Fetching user {} ", uid);
+        return userRepo.get(uid);
     }
 
     @Override
@@ -169,6 +202,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepo.save(user);
     }
 
+    @Override
+    public boolean deleteUser(String uid) throws NotFoundException {
+        return userRepo.remove(uid);
+    }
 
     @Override
     public Models.AppUser disableUser(Models.AppUser user) {
@@ -183,38 +220,53 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Page<Models.AppUser> getAllUsers(Specification<Models.AppUser> specification, PageRequest pageRequest) {
-        log.info("Fetching all users");
-        return userRepo.findAll(specification, pageRequest);
+    public List<Models.AppUser> getAllUsers() {
+        return userRepo.retrieveAll();
     }
 
+
     @Override
-    public Page<Models.AppUser> getAllUsers(PageRequest pageRequest) {
-        return userRepo.findAll(pageRequest);
+    public List<String> getAllUsernames() {
+        return userRepo.retrieveAll().stream().map(Models.AppUser::getUsername).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<String> getAllPhoneNumbers() {
+        return userRepo.retrieveAll().stream().map(Models.AppUser::getPhoneNumber).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     //Role
-    /*@Override
-    public Models.AppRole saveARole(String name) {
-        if (getARole(name) != null) {
+    @Override
+    public Models.AppRole saveANewRole(RoleCreationForm form) throws Exception {
+
+        Models.AppRole addedRole = findByRoleName(form.getName()).orElse(null);
+        if (addedRole != null) {
             throw new DuplicateRequestException("Role has already been created");
         } else {
-            log.info("Saving new role {} to db", name);
-            return roleRepo.save(new Models.AppRole(name));
+            log.info("Saving new role {} to db with permissions {}", form.getName(), form.getPermissions().size());
+
+            Models.AppRole role = appRoleRepo.save(new Models.AppRole(generateRoleID(form.getName()), form.getName()));
+
+            return addPermissionListToARole(role.getName(), form.getPermissions());
+            //return role;
         }
-    }*/
+    }
 
     @Override
-    public Models.AppRole saveANewRole(RoleCreationForm form) throws NotFoundException {
-        if (getARole(form.getName()) != null) {
-            throw new DuplicateRequestException("Role has already been created");
-        } else {
-            log.info("Saving new role {} to db with permissions {}", form.getName(), form.getAllowedPermissions().size());
+    public Models.AppRole updateRole(Models.AppRole appRole) throws ParseException, JsonProcessingException {
+        return appRoleRepo.save(appRole);
+    }
 
-            Models.AppRole role = roleRepo.save(new Models.AppRole(form.getName()));
+    @Override
+    public Models.AppRole saveADirectRole(Models.AppRole appRole) {
+        return appRoleRepo.save(appRole);
+    }
 
-            return addPermissionListToARole(role.getName(), form.getAllowedPermissions());
-        }
+    @Override
+    public boolean deleteRole(String id) {
+
+        return appRoleRepo.remove(id);
     }
 
     @Override
@@ -228,15 +280,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 Models.AppRole role = saveANewRole(f);
                 if (role != null) {
                     savedRoles.add(role);
-                    log.info("ROle {} saved with permissions {}", role.getName(), role.getAllowedPermissions().size());
-                    //todo fix
+                    log.info("Role {} saved with permissions {}", role.getName(), role.getPermissions().size());
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (DuplicateRequestException e) {
                 log.error("Role already added");
             } catch (NotFoundException e) {
                 e.printStackTrace();
                 log.error("Failed to add role " + f.getName());
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -244,39 +300,44 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Models.AppRole getARole(String name) {
-        log.info("Fetching role {} ", name);
-        Optional<Models.AppRole> role = roleRepo.findByName(name);
-        return role.orElse(null);
+    public Optional<Models.AppRole> getARoleById(String id) {
+        log.info("Fetching role {} ", id);
+        return appRoleRepo.get(id);
+    }
+
+    @Override
+    public Optional<Models.AppRole> findByRoleName(String roleName) {
+        List<Models.AppRole> roles = getAllRoles().stream().filter(p -> p.getName().equals(roleName)).collect(Collectors.toList());
+        if (!roles.isEmpty()) {
+            return Optional.of(roles.get(0));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
     public List<Models.AppRole> getAllRoles() {
         log.info("Fetching all roles");
-        return roleRepo.findAll();
+        return appRoleRepo.retrieveAll();
     }
 
     @Override
-    public void addARoleToAUser(String username, String roleName) throws NotFoundException {
-        Models.AppUser user = getAUser(username);
-        Models.AppRole role = getARole(roleName);
+    public void addARoleToAUser(String username, String roleName) throws Exception {
+        Models.AppUser user = findByUsername(username).orElse(null);
+        Models.AppRole role = findByRoleName(roleName).orElse(null);
 
         if (user == null) {
             throw new UsernameNotFoundException("User not found " + username);
         }
 
         if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
+            throw new Exception("Role not found " + roleName);
         }
 
         if (user.getRole() != null) {
 
-            if (user.getRole().getName().equals(role.getName())) {
-                throw new DuplicateRequestException("User already has role " + role);
-            }
 
-
-            if (user.getRole().getAllowedPermissions().isEmpty()) { //check if permissions is empty
+            if (user.getRole().getPermissions().isEmpty()) { //check if permissions is empty
                 try {
                     Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(role.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
                     addPermissionListToARole(role.getName(), permissionsList);
@@ -284,108 +345,160 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     e.printStackTrace();
                 }
             } else {
-                //do nothing
-                log.info("No changes made for " + username);
+
+
+                if (user.getRole().getName().equals(role.getName())) {
+                    throw new DuplicateRequestException("User already has role " + role);
+                } else {
+                    //do nothing
+                    log.info("No changes made for " + username);
+                }
             }
 
         } else { //role doesn't exists
-            log.info("Adding role {} to seller {}", role.getName(), user.getUsername()); //will save because @Transactional
+            log.info("Adding role {} to  {}", role.getName(), user.getUsername()); //will save because @Transactional
         }
 
         user.setRole(role);
+        userRepo.save(user);
     }
 
     @Override
     public Models.Permissions saveAPermission(Models.Permissions permissions) {
-        if (getAllPermissions().stream().map(Models.Permissions::getName).collect(Collectors.toList()).contains(permissions.getName())) {
+
+        Models.Permissions newPermission = findByPermissionName(permissions.getName()).orElse(null);
+
+        if (newPermission != null) {
             throw new DuplicateRequestException("Permission already in db");
         } else {
-            return appPermissionRepo.save(permissions);
+            return permissionsRepo.save(permissions);
+        }
+    }
+
+    @Override
+    public Optional<Models.Permissions> findByPermissionName(String permissionName) {
+        List<Models.Permissions> permissionsList = getAllPermissions().stream().filter(p -> p.getName().equals(permissionName)).collect(Collectors.toList());
+
+        if (!permissionsList.isEmpty()) {
+            return Optional.of(permissionsList.get(0));
+        } else {
+            return Optional.empty();
         }
     }
 
     @Override
     public Set<Models.Permissions> savePermissionList(Set<String> permissions) {
         Set<Models.Permissions> permissionsSet = new HashSet<>();
-        permissions.forEach(p-> {
-            Models.Permissions permission = new Models.Permissions(p);
+        permissions.forEach(p -> {
+            Models.Permissions permission = new Models.Permissions(generatePermissionID(p), p);
             saveAPermission(permission);
             permissionsSet.add(permission);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         return permissionsSet;
     }
 
     @Override
-    public Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionList) throws NotFoundException {
-        log.info("{} Permissions to add {}",roleName,permissionList.size());
+    public Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionList) throws Exception {
+        log.info("{} Permissions to add {}", roleName, permissionList.size());
 
 
-        Models.AppRole role = getARole(roleName);
+        Models.AppRole role = findByRoleName(roleName).orElse(null);
         if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
+            throw new Exception("Role not found " + roleName);
         }
 
-
+        List<Models.Permissions> allPermissions = getAllPermissions();
 
         //save permissions in db
-        Set<Models.Permissions> permissionsExistingInDb = getAllPermissions().stream().filter(p -> permissionList.contains(p.getName())).collect(Collectors.toSet()); //filter out present roles// match names
-        role.getAllowedPermissions().addAll(permissionsExistingInDb);
+        Set<Models.Permissions> permissionsExistingInDb = new HashSet<>(); //filter out present roles// match names
+        Set<Models.Permissions> newAllowedPermissions = new HashSet<>();
+        Set<Models.Permissions> rolePermissions = new HashSet<>();
 
-        log.info("{} Permissions in db {}",roleName,permissionsExistingInDb.size());
+        permissionList.forEach(p -> {
+            if (allPermissions.stream().map(Models.Permissions::getName).collect(Collectors.toList()).contains(p)) {
+                allPermissions.forEach(dbPermission -> {
+                    if (dbPermission.getName().equals(p)) {
+                        permissionsExistingInDb.add(dbPermission);
+                        rolePermissions.add(dbPermission);
+                        log.info("Adding {} to list ", dbPermission.getName());
+                    }
+                });
+            } else {
+                newAllowedPermissions.add(new Models.Permissions(generatePermissionID(p), p));
+                log.info("Adding new {} to list ", p);
+
+            }
+        });
+
+        log.info("{} Permissions in db {}", roleName, permissionsExistingInDb.size());
 
         //save new permissions to db
-        Set<Models.Permissions> newPermissionsToAddT0List = new HashSet<>();
+        final int[] i = {0};
         try {
-            permissionList.stream().filter(p -> !permissionsExistingInDb.contains(new Models.Permissions(p))).map(Models.Permissions::new).collect(Collectors.toSet()).forEach(p -> {
-                Models.Permissions newPermission = saveAPermission(p);
-                if (newPermission != null) {
-                    newPermissionsToAddT0List.add(newPermission);
-                    log.info("Adding permission {} for role {}",newPermission.getName(),roleName);
+            newAllowedPermissions.forEach(p -> {
+                try {
+                    Models.Permissions newPermission = saveAPermission(p);
+                    i[0]++;
+                    if (newPermission != null) {
+                        rolePermissions.add(newPermission);
+                        log.info("Adding permission {} to role {}", newPermission.getName(), roleName);
+                    }
+                } catch (DuplicateRequestException e) {
+                    log.error("Permission already in db");
                 }
             });
-        } catch (DuplicateRequestException e) {
-            log.error("Permission already in db");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        role.getAllowedPermissions().addAll(newPermissionsToAddT0List);
-        log.info("{} Permissions not in db {}",roleName,permissionsExistingInDb.size());
+        role.setPermissions(rolePermissions.stream().toList());
 
-        return role;
+        log.info("{} Permissions not in db {}", roleName, i[0]);
+        return updateRole(role);
+        //return role;
     }
 
     @Override
-    public Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws NotFoundException {
-        Models.AppRole role = getARole(roleName);
-        Models.Permissions permissions = getAPermission(permissionName);
+    public Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws Exception {
+        Models.AppRole role = getARoleById(roleName).orElse(null);
+        Models.Permissions permissions = getAPermission(permissionName).orElse(null);
 
         if (role == null) {
-            throw new NotFoundException("Role not found " + roleName);
+            throw new Exception("Role not found " + roleName);
         }
 
         if (permissions == null) {
-            throw new NotFoundException("Permission not found " + permissionName + " for role " + roleName);
+            throw new Exception("Permission not found " + permissionName + " for role " + roleName);
         }
 
-        if (role.getAllowedPermissions().contains(permissions)) {
+        if (role.getPermissions().contains(permissions)) {
             throw new DuplicateRequestException("Role " + roleName + " already has permission " + permissionName);
         }
 
 
         log.info("Adding permission {} to role {}", permissions.getName(), role.getName());
-        role.getAllowedPermissions().add(permissions); //will save because @Transactional
+        role.getPermissions().add(permissions); //will save because @Transactional
 
-        return role;
+        return appRoleRepo.save(role);
     }
 
     @Override
     public List<Models.Permissions> getAllPermissions() {
-        return appPermissionRepo.findAll();
+        return permissionsRepo.retrieveAll();
     }
 
     @Override
-    public Models.Permissions getAPermission(String name) {
-        return appPermissionRepo.findByName(name);
+    public Optional<Models.Permissions> getAPermission(String id) {
+        return permissionsRepo.get(id);
+    }
+
+    @Override
+    public Models.Permissions updatePermission(Models.Permissions permissions) throws ParseException, JsonProcessingException {
+        return permissionsRepo.save(permissions);
     }
 }

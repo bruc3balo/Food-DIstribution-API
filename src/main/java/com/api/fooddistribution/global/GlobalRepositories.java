@@ -9,33 +9,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalRepositories {
 
-    public static AppUserRepo userRepo;
-    public static AppRoleRepo roleRepo;
-    public static AppPermissionRepo appPermissionRepo;
-    public static ProductRepo productRepo;
-    public static ProductCategoryRepo productCategoryRepo;
-
+    public static UserRepo userRepo;
+    public static AppRoleRepo appRoleRepo;
+    public static PermissionsRepo permissionsRepo;
 
     @Autowired
-    public void setAppUserRepo(AppUserRepo appUserRepo) {
-        GlobalRepositories.userRepo = appUserRepo;
+    public void setUserRepo(UserRepo userRepo) {
+        GlobalRepositories.userRepo = userRepo;
     }
 
     @Autowired
     public void setAppRoleRepo(AppRoleRepo appRoleRepo) {
-        GlobalRepositories.roleRepo = appRoleRepo;
+        GlobalRepositories.appRoleRepo = appRoleRepo;
     }
 
     @Autowired
-    public void setProductRepo(ProductRepo productRepo) {
-        GlobalRepositories.productRepo = productRepo;
+    public  void setPermissionsRepo(PermissionsRepo permissionsRepo) {
+        GlobalRepositories.permissionsRepo = permissionsRepo;
     }
-
-    @Autowired
-    public void setProductCategoryRepo(ProductCategoryRepo productCategoryRepo) {
-        GlobalRepositories.productCategoryRepo = productCategoryRepo;
-    }
-
-    @Autowired
-    public void setAppPermissionRepo(AppPermissionRepo appPermissionRepo) {GlobalRepositories.appPermissionRepo = appPermissionRepo;}
 }

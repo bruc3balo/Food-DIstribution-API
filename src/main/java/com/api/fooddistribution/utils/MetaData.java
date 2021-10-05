@@ -4,7 +4,6 @@ package com.api.fooddistribution.utils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.domain.Sort;
 
 @Getter @Setter
 public class MetaData {
@@ -18,7 +17,6 @@ public class MetaData {
     @JsonProperty(value="total_elements")
     private Long totalElements;
     private Integer size;
-    private Sort sort;
 
     public MetaData(){
 

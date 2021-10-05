@@ -6,17 +6,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
-import static com.api.fooddistribution.utils.ConvertDate.formatDate;
-import static com.api.fooddistribution.utils.ConvertDate.formatLocalDateTime;
+import static com.api.fooddistribution.global.GlobalVariables.HY;
 
 public class DataOps {
 
@@ -78,6 +73,19 @@ public class DataOps {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public static String getTransactionId(String type) {
+        return UUID.randomUUID().toString().concat(HY).concat(type);
+    }
+
+
+    public static String generateRoleID(String name) {
+        return new KeyGenerator(4).nextString().concat(HY).concat(name).concat(HY).concat("RL");
+    }
+
+    public static String generatePermissionID(String name) {
+        return new KeyGenerator(4).nextString().concat(HY).concat(name).concat(HY).concat("PM");
     }
 
 

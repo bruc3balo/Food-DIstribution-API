@@ -1,150 +1,152 @@
 package com.api.fooddistribution.api.domain;
 
+import com.api.fooddistribution.api.validation.email.ValidEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.cloud.firestore.annotation.DocumentId;
+import com.google.type.LatLng;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.api.fooddistribution.global.GlobalVariables.*;
 
 public class Models {
 
 
     //user
-    @Entity
-    @Table(name = "users")
+
     @Getter
     @Setter
     public static class AppUser {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        @DocumentId
+        private String documentId;
 
-        @Column(name = "name")
-        @JsonProperty(value = "name")
-        private String name;
+        @JsonProperty(value = UID)
+        private String uid;
 
-        @Column(name = "username", unique = true)
-        @JsonProperty(value = "username")
+        @JsonProperty(value = NAMES)
+        private String names;
+
+        @JsonProperty(USERNAME)
         private String username;
 
-        @Column(name = "email_address")
-        @JsonProperty(value = "email_address")
+        @JsonProperty(ID_NUMBER)
+        private String idNumber;
+
+        @JsonProperty(EMAIL_ADDRESS)
+        @ValidEmail(message = "Invalid email")
         private String emailAddress;
 
-        @Column(name = "password")
-        @JsonProperty(value = "password")
+        @JsonProperty(PHONE_NUMBER)
+        private String phoneNumber;
+
+        @JsonProperty(PASSWORD)
         private String password;
 
-        @Column(updatable = false, name = "created_at")
-        @JsonProperty(value = "created_at")
+        @JsonProperty(BIO)
+        private String bio;
+
+        @JsonProperty(LAST_LOCATION)
+        private LatLng lastKnownLocation;
+
+        @JsonProperty(CREATED_AT)
         private Date createdAt;
 
-        @Column(name = "updated_at")
-        @JsonProperty(value = "updated_at")
+        @JsonProperty(UPDATED_AT)
         private Date updatedAt;
 
-        @Column(name = "is_deleted")
-        @JsonProperty(value = "is_deleted")
-        private Boolean deleted;
-
-        @Column(name = "is_disabled")
-        @JsonProperty(value = "is_disabled")
-        private Boolean disabled;
-
-        @ManyToOne(fetch = FetchType.EAGER) //anytime load user, load a role
+        @JsonProperty(ROLE)
         private AppRole role;
+
+
+        @JsonProperty("disabled")
+        private boolean disabled;
+
+        @JsonProperty("deleted")
+        private boolean deleted;
 
         public AppUser() {
 
         }
 
-        public AppUser(Long id, String username) {
-            this.id = id;
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, LatLng lastKnownLocation, Date createdAt, Date updatedAt, AppRole role, boolean disabled, boolean deleted) {
+            this.uid = uid;
+            this.documentId = uid;
+            this.names = names;
             this.username = username;
-        }
-
-        public AppUser(String name) {
-            this.name = name;
-        }
-
-        public AppUser(Long id, String name, String username,String emailAddress) {
-            this.id = id;
-            this.name = name;
-            this.username = username;
+            this.idNumber = idNumber;
             this.emailAddress = emailAddress;
-        }
-
-        public AppUser(String name, String username, String emailAddress, String password) {
-            this.name = name;
-            this.username = username;
-            this.emailAddress = emailAddress;
+            this.phoneNumber = phoneNumber;
             this.password = password;
-        }
-
-        public AppUser(String name, String username, String emailAddress, String password, Boolean deleted, AppRole role) {
-            this.name = name;
-            this.username = username;
-            this.emailAddress = emailAddress;
-            this.password = password;
+            this.bio = bio;
+            this.lastKnownLocation = lastKnownLocation;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
             this.role = role;
+            this.disabled = disabled;
             this.deleted = deleted;
         }
+
+
+
     }
 
-    @Entity
-    @Table(name = "roles")
+
     @Getter
     @Setter
-    @AllArgsConstructor
     public static class AppRole {
+        @DocumentId
+        private String documentId;
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
 
-        @Column(name = "name")
-        @JsonProperty(value = "name")
+        @JsonProperty(value = ID)
+        private String id;
+
+        @JsonProperty(value = NAME)
         private String name;
 
-        @ManyToMany(fetch = FetchType.EAGER)
-        @Column(name = "permissions")
-        private Set<Permissions> allowedPermissions = new LinkedHashSet<>();
+        @JsonProperty(PERMISSIONS)
+        private List<Permissions> permissions = new ArrayList<>();
 
         public AppRole() {
+        }
 
+        public AppRole(String id, String name) {
+            this.id = id;
+            this.documentId = id;
+            this.name = name;
         }
 
         public AppRole(String name) {
             this.name = name;
         }
 
-        public AppRole(String name, Set<Permissions> allowedPermissions) {
+        public AppRole(String id, String name, List<Permissions> allowedPermissions) {
+            this.id = id;
+            this.documentId = id;
             this.name = name;
-            this.allowedPermissions = allowedPermissions;
+            this.permissions = allowedPermissions;
         }
 
-        /*public Set<GrantedAuthority> getGrantedAllowedPermissions() {
-            return allowedPermissions.stream().map(permissions -> new SimpleGrantedAuthority(permissions.getName())).collect(Collectors.toSet());
-        }*/
     }
 
-    @Entity
-    @Table(name = "permissions")
     @Getter
     @Setter
     public static class Permissions {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+        @DocumentId
+        private String documentId;
 
-        @Column(name = "name")
+        @JsonProperty(ID)
+        private String id;
+
+        @JsonProperty(NAME)
         private String name;
 
         public Permissions() {
@@ -154,7 +156,11 @@ public class Models {
             this.name = name;
         }
 
-
+        public Permissions(String id, String name) {
+            this.id = id;
+            this.documentId = id;
+            this.name = name;
+        }
     }
 
     //product
@@ -162,44 +168,36 @@ public class Models {
     @Getter
     @Setter
     @AllArgsConstructor
-    @Entity
-    @Table(name = "product")
     public static class Product {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+
         private Long id;
 
-        @Column(name = "product_name",unique = true)
+
         private String name;
 
-        @ManyToOne(fetch = FetchType.EAGER)
         private ProductCategory productCategory;
 
-        @Column(name = "price")
         private BigDecimal price;
 
-        @Column(name = "image")
         private String image;
 
-        @Column(name = "seller")
-        @ManyToMany(fetch = FetchType.EAGER)
+
         private Set<AppUser> sellers = new HashSet<>();
 
-        @Column(name = "buyers")
-        @ManyToMany(fetch = FetchType.EAGER)
+
         private Set<AppUser> buyers = new HashSet<>();
 
-        @Column(updatable = false, name = "created_at")
+
         private Date createdAt;
 
-        @Column(name = "updated_at")
+
         private Date updatedAt;
 
-        @Column(name = "is_deleted")
+
         private Boolean deleted;
 
-        @Column(name = "is_disabled")
+
         private Boolean disabled;
 
         public Product() {
@@ -231,27 +229,19 @@ public class Models {
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    @Entity
-    @Table(name = "product_category")
+
     public static class ProductCategory {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+
         private Long id;
 
-        @Column(name = "name",unique = true)
         private String name;
 
-        @Column(name = "is_deleted")
         private Boolean deleted;
 
-        @Column(name = "is_disabled")
         private Boolean disabled;
 
-        @Column(updatable = false, name = "created_at")
         private Date createdAt;
 
-        @Column(name = "updated_at")
         private Date updatedAt;
 
         public ProductCategory() {
@@ -289,26 +279,24 @@ public class Models {
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    @Entity
-    @Table(name = "purchase")
+
     public static class Purchase {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+
         private Long id;
 
+
+        private AppUser seller;
+
         // @Column(name = "buyer")
-        @OneToOne(fetch = FetchType.EAGER)
         private AppUser buyer;
 
-        @Column(insertable = false, updatable = false, name = "created_at")
+
         private Date createdAt;
 
-        @Column(name = "product")
-        @OneToMany(fetch = FetchType.EAGER)
+
         private Set<Product> products = new HashSet<>();
 
-        @Column(name = "is_deleted")
+
         private Boolean deleted;
 
         public Purchase() {
@@ -317,43 +305,39 @@ public class Models {
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    @Entity
-    @Table(name = "distribution")
+
     public static class Distribution {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+
         private Long id;
 
         // @Column(name = "certified_authority")
-        @OneToOne(fetch = FetchType.EAGER)
+
         public AppUser certifiedAuthority;
 
         //@Column(name = "transporter")
-        @OneToOne(fetch = FetchType.EAGER)
+
         public AppUser transporter;
 
-        @Column(name = "status")
+
         public Integer status;
 
-        @Column(name = "created_at")
+
         private Date createdAt;
 
-        @Column(name = "updated_at")
+
         private Date updatedAt;
 
-        @Column(name = "completed_at")
+
         private Date completedAt;
 
-        @Column(name = "purchase")
-        @OneToMany(fetch = FetchType.EAGER)
+
         private Set<Purchase> purchases = new HashSet<>();
 
-        @Column(name = "last_known_location")
+
         private String lastKnownLocation;
 
-        @Column(name = "is_deleted")
+
         private Boolean deleted;
 
         public Distribution() {

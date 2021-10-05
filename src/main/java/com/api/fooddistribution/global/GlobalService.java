@@ -1,7 +1,8 @@
 package com.api.fooddistribution.global;
 
-import com.api.fooddistribution.api.service.DataService;
+import com.api.fooddistribution.api.service.AuthService;
 import com.api.fooddistribution.api.service.UserService;
+import com.github.alperkurtul.firebaseuserauthentication.service.UserAuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,10 +12,16 @@ import org.springframework.stereotype.Component;
 public class GlobalService {
 
     public static UserService userService;
-    public static DataService dataService;
+    public static AuthService authService;
     public static UserDetailsService userDetailsService;
     public static PasswordEncoder passwordEncoder;
+    public static UserAuthenticationServiceImpl userAuthenticationServiceImpl;
 
+
+    @Autowired
+    public void setUserAuthenticationServiceImpl(UserAuthenticationServiceImpl userAuthenticationServiceImpl) {
+        GlobalService.userAuthenticationServiceImpl = userAuthenticationServiceImpl;
+    }
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -22,9 +29,10 @@ public class GlobalService {
     }
 
     @Autowired
-    public void setDataService(DataService dataService) {
-        GlobalService.dataService = dataService;
+    public void setAuthService(AuthService authService) {
+        GlobalService.authService = authService;
     }
+    
 
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {

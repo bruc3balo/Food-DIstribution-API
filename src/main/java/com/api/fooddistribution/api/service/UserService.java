@@ -1,47 +1,59 @@
 package com.api.fooddistribution.api.service;
 
 
-import com.api.fooddistribution.api.domain.Models;
+
+import com.api.fooddistribution.api.domain.Models.*;
 import com.api.fooddistribution.api.model.NewUserForm;
 import com.api.fooddistribution.api.model.RoleCreationForm;
 import com.api.fooddistribution.api.model.UserUpdateForm;
-import javassist.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.gax.rpc.NotFoundException;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+
 
 public interface UserService {
 
     //User
-    Models.AppUser saveAUser(NewUserForm userForm) throws NotFoundException, ParseException; //working
-    Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws NotFoundException, ParseException; //working
-    Models.AppUser deleteUser(Models.AppUser user) throws NotFoundException; //works
-    Models.AppUser disableUser(Models.AppUser user) throws NotFoundException; //works
-    Models.AppUser enableUser(Models.AppUser user) throws NotFoundException; //works
-    Models.AppUser getAUser(String username); //works
-    Page<Models.AppUser> getAllUsers(Specification<Models.AppUser> specification, PageRequest pageRequest); //works
-    Page<Models.AppUser> getAllUsers(PageRequest pageRequest); //works
+    AppUser saveAUser(NewUserForm userForm) throws Exception; //working
+    AppUser updateAUser(String username, UserUpdateForm updateForm) throws Exception; //working
+    AppUser updateAUser(AppUser appUser) throws ParseException, JsonProcessingException; //working
+    AppUser deleteUser(AppUser user) throws NotFoundException; //works
+    boolean deleteUser(String uid) throws NotFoundException; //works
+    AppUser disableUser(AppUser user) throws NotFoundException; //works
+    AppUser enableUser(AppUser user) throws NotFoundException; //works
+    Optional<AppUser> getAUserByUid(String uid); //works
+    Optional<AppUser> findByUsername(String username); //works
+    List<AppUser> getAllUsers(); //works
+    List<String> getAllUsernames(); //works
+    List<String> getAllPhoneNumbers(); //works
 
     //Role
    // Models.AppRole saveARole(String name) throws NotFoundException; //works
-    Models.AppRole saveANewRole(RoleCreationForm form) throws NotFoundException;
-    Set<Models.AppRole> saveRolesList(List<RoleCreationForm> creationForms); //works
-    Models.AppRole getARole(String name); //works
-    List<Models.AppRole> getAllRoles(); //works
-    void addARoleToAUser(String username, String roleName) throws NotFoundException; //working
+    AppRole saveANewRole(RoleCreationForm form) throws Exception;
+    AppRole saveADirectRole(AppRole appRole);
+    Set<AppRole> saveRolesList(List<RoleCreationForm> creationForms); //works
+    Optional<AppRole> getARoleById(String name); //works
+    List<AppRole> getAllRoles(); //works
+    Optional<AppRole> findByRoleName(String roleName); //works
+    boolean deleteRole(String roleId);
+    AppRole updateRole(AppRole appRole) throws ParseException, JsonProcessingException;
+    void addARoleToAUser(String username, String roleName) throws Exception; //working
 
 
     //Permission
-    Models.Permissions saveAPermission(Models.Permissions permissions); //works
-    Set<Models.Permissions> savePermissionList (Set<String> permissions);
-    Models.Permissions getAPermission(String name); //works
-    List<Models.Permissions> getAllPermissions(); //works
-    Models.AppRole addAPermissionToARole(String roleName, String permissionName) throws NotFoundException; //works
-    Models.AppRole addPermissionListToARole(String roleName, Set<String> permissionName) throws NotFoundException; //works
+    Permissions saveAPermission(Permissions permissions); //works
+    Set<Permissions> savePermissionList (Set<String> permissions);
+    Optional<Permissions> getAPermission(String name); //works
+
+    Optional<Permissions> findByPermissionName(String permissionName); //works
+    Permissions updatePermission(Permissions permissions) throws ParseException, JsonProcessingException;
+    List<Permissions> getAllPermissions(); //works
+    AppRole addAPermissionToARole(String roleName, String permissionName) throws Exception; //works
+    AppRole addPermissionListToARole(String roleName, Set<String> permissionName) throws Exception; //works
 
 
 }
