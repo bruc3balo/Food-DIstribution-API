@@ -69,7 +69,7 @@ public class UserController {
 
             }
             if (user != null) {
-                user.setPassword("");
+                user.setPassword("pass");
             }
 
 
