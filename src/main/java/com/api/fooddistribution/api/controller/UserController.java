@@ -44,6 +44,8 @@ public class UserController {
 
             List<Models.AppUser> userList = userService.getAllUsers();
 
+            userList.forEach(u-> u.setPassword(""));
+
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !userList.isEmpty() ? userList.size() + "users found" : "User Not found", getTransactionId(USER_COLLECTION), userList);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -61,9 +63,15 @@ public class UserController {
 
             if (uid != null) {
                 user = userService.getAUserByUid(uid).orElse(null);
+
             } else {
                 user = userService.findByUsername(username).orElse(null);
+
             }
+            if (user != null) {
+                user.setPassword("");
+            }
+
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), user != null ? user.getNames() + " found" : "User Not found", getTransactionId(USER_COLLECTION), user);
             return new ResponseEntity<>(response, HttpStatus.OK);
