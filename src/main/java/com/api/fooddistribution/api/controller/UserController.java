@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.api.fooddistribution.global.GlobalService.userService;
+import static com.api.fooddistribution.global.GlobalVariables.HY;
 import static com.api.fooddistribution.global.GlobalVariables.USER_COLLECTION;
 import static com.api.fooddistribution.utils.DataOps.getTransactionId;
 
@@ -69,7 +70,7 @@ public class UserController {
 
             }
             if (user != null) {
-                user.setPassword("pass");
+                user.setPassword(HY);
             }
 
 

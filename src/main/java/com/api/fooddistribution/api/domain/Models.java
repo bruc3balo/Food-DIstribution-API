@@ -57,14 +57,13 @@ public class Models {
         private String lastKnownLocation;
 
         @JsonProperty(CREATED_AT)
-        private Date createdAt;
+        private String createdAt;
 
         @JsonProperty(UPDATED_AT)
-        private Date updatedAt;
+        private String updatedAt;
 
         @JsonProperty(ROLE)
         private AppRole role;
-
 
         @JsonProperty("disabled")
         private boolean disabled;
@@ -76,7 +75,7 @@ public class Models {
 
         }
 
-        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, Date createdAt, Date updatedAt, AppRole role, boolean disabled, boolean deleted) {
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted) {
             this.uid = uid;
             this.documentId = uid;
             this.names = names;

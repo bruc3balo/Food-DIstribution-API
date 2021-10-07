@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.api.fooddistribution.global.GlobalVariables.HY;
 import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.passwordEncoder;
@@ -94,8 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), "", getNowFormattedFullDate(), getNowFormattedFullDate(), null, false, false);
-
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, Calendar.getInstance().getTime().toString(), Calendar.getInstance().getTime().toString(), null, false, false);
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
@@ -178,7 +178,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
 
 
-            user.setUpdatedAt(getNowFormattedFullDate());
+            user.setUpdatedAt(getNowFormattedFullDate().toString());
         }
 
         return userRepo.save(user);
@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Models.AppUser updateAUser(Models.AppUser appUser) throws ParseException, JsonProcessingException {
-        appUser.setUpdatedAt(getNowFormattedFullDate());
+        appUser.setUpdatedAt(getNowFormattedFullDate().toString());
         return userRepo.save(appUser);
     }
 

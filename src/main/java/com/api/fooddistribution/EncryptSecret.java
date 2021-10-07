@@ -7,6 +7,7 @@ import com.api.fooddistribution.config.security.AppUserPermission;
 import com.api.fooddistribution.utils.ConvertDate;
 import com.api.fooddistribution.utils.ConvertToJson;
 import com.api.fooddistribution.utils.DataOps;
+import com.google.gson.JsonObject;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -41,12 +42,12 @@ public class EncryptSecret {
         System.out.println(newP.size());
 
         Set<String> roles = Arrays.stream(AppRolesEnum.values()).map(Enum::name).collect(Collectors.toSet());
-        System.out.println("role list "+roles);
+        System.out.println("role list " + roles);
         final int[] c = {0};
         roles.forEach(r -> {
             Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, r).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(r))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
             RoleCreationForm roleCreationForm = new RoleCreationForm(r, permissionsList);
-            System.out.println("form " + Arrays.toString(c) + " "+ConvertToJson.setJsonString(roleCreationForm));
+            System.out.println("form " + Arrays.toString(c) + " " + ConvertToJson.setJsonString(roleCreationForm));
             c[0]++;
         });
 

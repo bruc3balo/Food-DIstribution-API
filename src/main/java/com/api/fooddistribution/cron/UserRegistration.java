@@ -18,7 +18,7 @@ import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 @Component
 public class UserRegistration {
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 10000) //every 10 seconds
+    @Scheduled(fixedDelay = 5000, initialDelay = 20000) //every 10 seconds
     private void addRolesToUsers() {
         List<Models.AppUser> usersWithoutRoles = userService.getAllUsers();
         if (!usersWithoutRoles.isEmpty()) {
@@ -28,7 +28,7 @@ public class UserRegistration {
                     Models.AppRole role = userService.findByRoleName(AppRolesEnum.ROLE_BUYER.name()).orElse(null);
                     if (role != null) {
                         try {
-                            u.setUpdatedAt(getNowFormattedFullDate());
+                            u.setUpdatedAt(getNowFormattedFullDate().toString());
                             userService.addARoleToAUser(u.getUsername(), role.getName());
                         } catch (Exception e) {
                             e.printStackTrace();
