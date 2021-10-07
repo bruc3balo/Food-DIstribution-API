@@ -12,6 +12,7 @@ import com.api.fooddistribution.config.security.AppRolesEnum;
 import com.api.fooddistribution.utils.DataOps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.type.LatLngOrBuilder;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), null, getNowFormattedFullDate(), getNowFormattedFullDate(), null, false, false);
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), "", getNowFormattedFullDate(), getNowFormattedFullDate(), null, false, false);
 
 
         log.info("Saving new user {} to db", newUser.getUsername());
@@ -164,7 +165,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (updateForm.getPhoneNumber() != null) {
                 user.setPhoneNumber(updateForm.getPhoneNumber());
-
             }
 
 
