@@ -55,9 +55,15 @@ public class UserController {
     }
 
     @GetMapping(value = {"/specific"})
-    public ResponseEntity<?> getUser(@RequestParam(name = "uid") String uid) {
+    public ResponseEntity<?> getUser(@RequestParam(name = "uid", required = false) String uid, @RequestParam(name = "username", required = false) String username) {
         try {
-            Models.AppUser user = userService.getAUserByUid(uid).orElse(null);
+            Models.AppUser user;
+
+            if (uid != null) {
+                user = userService.getAUserByUid(uid).orElse(null);
+            } else {
+                user = userService.findByUsername(username).orElse(null);
+            }
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), user != null ? user.getNames() + " found" : "User Not found", getTransactionId(USER_COLLECTION), user);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -73,7 +79,6 @@ public class UserController {
     @PostMapping(value = {"/update"})
     public ResponseEntity<?> updateUser(@RequestBody Models.AppUser user) {
         try {
-
 
             Models.AppUser updateUser = userService.updateAUser(user);
 
