@@ -45,7 +45,11 @@ public class UserController {
 
             List<Models.AppUser> userList = userService.getAllUsers();
 
-            userList.forEach(u-> u.setPassword(""));
+            userList.forEach(user-> {
+                user.setPassword(HY);
+                user.setCreatedAt(HY);
+                user.setUpdatedAt(HY);
+            });
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !userList.isEmpty() ? userList.size() + "users found" : "User Not found", getTransactionId(USER_COLLECTION), userList);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -71,6 +75,8 @@ public class UserController {
             }
             if (user != null) {
                 user.setPassword(HY);
+                user.setCreatedAt(HY);
+                user.setUpdatedAt(HY);
             }
 
 
