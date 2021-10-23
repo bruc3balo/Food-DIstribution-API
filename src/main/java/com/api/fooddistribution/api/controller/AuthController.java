@@ -102,7 +102,7 @@ public class AuthController {
         }
     }
 
-    @DeleteMapping(value = {"delete_user"})
+    @DeleteMapping(value = {"deleteUser"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteUser(@RequestParam(name = UID) String uid) {
         try {

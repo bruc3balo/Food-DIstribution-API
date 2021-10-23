@@ -136,7 +136,7 @@ public class UserController {
 
     }
 
-    @PostMapping(value = {"/update"})
+    @PutMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<?> updateUser(HttpServletRequest request,
                                         @RequestParam(name = UID) String uid,
