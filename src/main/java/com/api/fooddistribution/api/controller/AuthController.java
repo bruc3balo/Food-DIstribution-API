@@ -102,7 +102,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value = {"delete_user"})
+    @DeleteMapping(value = {"delete_user"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteUser(@RequestParam(name = UID) String uid) {
         try {
@@ -123,7 +123,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value = {"disable_user"})
+    @PutMapping(value = {"disableUser"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> disableUser(@RequestParam(name = UID) String uid) {
         try {
@@ -144,7 +144,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping(value = {"enable_user"})
+    @PutMapping(value = {"enableUser"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> enableUser(@RequestParam(name = UID) String uid) {
         try {
@@ -182,7 +182,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/role2user")
+    @PutMapping("/role2user")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<?> addRoleToUser(@Valid @RequestBody RoleToUserForm form) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/addroletouser").toUriString());

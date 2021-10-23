@@ -102,7 +102,7 @@ public class UserController {
 
     @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<?> getUser(@RequestParam(name = "uid", required = false) String uid, @RequestParam(name = "username", required = false) String username) {
+    public ResponseEntity<?> getUser(@RequestParam(name = UID, required = false) String uid, @RequestParam(name = "username", required = false) String username) {
         try {
             Models.AppUser user;
 
@@ -139,7 +139,7 @@ public class UserController {
     @PostMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<?> updateUser(HttpServletRequest request,
-                                        @RequestParam(value = UID) String uid,
+                                        @RequestParam(name = UID) String uid,
                                         @RequestBody UserUpdateForm updateForm) {
         try {
 

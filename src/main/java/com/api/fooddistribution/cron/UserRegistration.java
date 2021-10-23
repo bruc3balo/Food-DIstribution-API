@@ -22,7 +22,7 @@ public class UserRegistration {
     private void addRolesToUsers() {
         List<Models.AppUser> usersWithoutRoles = userService.getAllUsers();
         if (!usersWithoutRoles.isEmpty()) {
-            //log.info("Checking user roles");
+            log.info("Checking user roles");
             usersWithoutRoles.forEach(u -> {
                 if (u.getRole() == null) {
                     Models.AppRole role = userService.findByRoleName(AppRolesEnum.ROLE_BUYER.name()).orElse(null);
