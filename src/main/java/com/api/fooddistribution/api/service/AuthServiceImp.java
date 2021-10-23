@@ -3,25 +3,40 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
+import com.api.fooddistribution.api.model.RoleCreationForm;
+import com.api.fooddistribution.config.FirestoreConfig;
+import com.api.fooddistribution.config.security.AppRolesEnum;
+import com.api.fooddistribution.config.security.AppUserPermission;
+import com.api.fooddistribution.utils.ConvertToJson;
+import com.api.fooddistribution.utils.DataOps;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.sun.jdi.request.DuplicateRequestException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
+import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.*;
+import static com.api.fooddistribution.global.GlobalVariables.*;
 import static com.google.firebase.auth.UserRecord.UpdateRequest;
 
+
 @Service
+@Slf4j
 public class AuthServiceImp implements AuthService {
     private final Logger logger = LoggerFactory.getLogger(AuthServiceImp.class);
 
-
-  /*  @Override
+    /*  @Override
     public FirebaseSignInSignUpResponseBean authenticateUser(String email, String password) {
         return userAuthenticationServiceImpl.signInWithEmailAndPassword(email, password);
     }*/
@@ -34,7 +49,6 @@ public class AuthServiceImp implements AuthService {
     @Override
     public UserRecord authenticateNewUser(NewUserForm form) {
 
-
         try {
             if (!isUserPresent(form.getUsername())) {
                 CreateRequest createRequest = new CreateRequest();
@@ -43,7 +57,7 @@ public class AuthServiceImp implements AuthService {
                 createRequest.setDisplayName(form.getUsername());
                 createRequest.setEmail(form.getEmailAddress());
                 createRequest.setPhoneNumber(form.getPhoneNumber());
-                createRequest.setPassword(passwordEncoder.encode(form.getPassword()));
+                createRequest.setPassword(form.getPassword());
                 createRequest.setEmailVerified(false);
 
                 UserRecord record = firebaseAuth.createUser(createRequest);
@@ -113,10 +127,10 @@ public class AuthServiceImp implements AuthService {
                 throw new UsernameNotFoundException("User not found");
             }
 
-            userService.disableUser(user);
+            userService.enableUser(user);
 
             UpdateRequest updateRequest = new UpdateRequest(user.getUid());
-            updateRequest.setDisabled(true);
+            updateRequest.setDisabled(false);
 
             return firebaseAuth.updateUser(updateRequest);
         } catch (Exception e) {
@@ -124,5 +138,150 @@ public class AuthServiceImp implements AuthService {
             return null;
         }
 
+    }
+
+    @Override
+    public void defaults () throws Exception {
+
+            //permissions
+            Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
+            //userService.savePermissionList(newP);
+            newP.forEach(p -> {
+                Models.Permissions permissions = userService.saveAPermission(new Models.Permissions(DataOps.generatePermissionID(p), p));
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                log.info("Saved " + ConvertToJson.setJsonString(permissions));
+            });
+
+
+
+            //roles
+            Set<String> roles = Arrays.stream(AppRolesEnum.values()).map(Enum::name).collect(Collectors.toSet());
+            List<RoleCreationForm> roleCreationFormSet = new ArrayList<>();
+            final int[] c = {0};
+            roles.forEach(r -> {
+                Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, r).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(r))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
+                RoleCreationForm roleCreationForm = new RoleCreationForm(r, permissionsList);
+                roleCreationFormSet.add(roleCreationForm);
+                try {
+                    Models.AppRole updatedRole = userService.saveANewRole(roleCreationForm);
+
+                    log.info("updated" + ConvertToJson.setJsonString(updatedRole));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("form " + Arrays.toString(c) + " : " + roleCreationForm.getPermissions().size() + " :: " + ConvertToJson.setJsonString(roleCreationForm));
+                c[0]++;
+            });
+
+            System.out.println("role list " + roleCreationFormSet.size());
+
+            //Users
+            NewUserForm superAdminF = new NewUserForm("super admin", "superadmin", "superadmin@admin.com", "superadmin", "+254700000000", "1", "power", AppRolesEnum.ROLE_ADMIN.name());
+            UserRecord superAdmin = authService.authenticateNewUser(superAdminF);
+            if (superAdmin != null) {
+                superAdminF.setUid(superAdmin.getUid());
+                userService.saveAUser(superAdminF);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm traineeF = new NewUserForm("admin trainee", "trainee", "admin@trainee.com", "trainee", "+254700000001", "2", "apprentice", AppRolesEnum.ROLE_ADMIN_TRAINEE.name());
+            UserRecord trainee = authService.authenticateNewUser(traineeF);
+            if (trainee != null) {
+                traineeF.setUid(trainee.getUid());
+                userService.saveAUser(traineeF);
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm transporterF = new NewUserForm("transporter", "transport", "jason@statham.com", "transport", "+254700000002", "3", "move", AppRolesEnum.ROLE_TRANSPORTER.name());
+            UserRecord transporter = authService.authenticateNewUser(transporterF);
+            if (transporter != null) {
+                transporterF.setUid(transporter.getUid());
+                userService.saveAUser(transporterF);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm certifiedF = new NewUserForm("certified", "certified", "certified@authority.com", "certified", "+254700000003", "4", "help", AppRolesEnum.ROLE_DONOR.name());
+            UserRecord certified = authService.authenticateNewUser(certifiedF);
+            if (certified != null) {
+                certifiedF.setUid(certified.getUid());
+                userService.saveAUser(certifiedF);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm distributorF = new NewUserForm("distributor", "distributor", "distributor@distribute.com", "distributor", "+254700000004", "5", "mature", AppRolesEnum.ROLE_DISTRIBUTOR.name());
+            UserRecord distributor = authService.authenticateNewUser(distributorF);
+            if (distributor != null) {
+                distributorF.setUid(distributor.getUid());
+                userService.saveAUser(distributorF);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm buyerF = new NewUserForm("buyer", "buyer", "buyer@buyer.com", "buyer", "+254700000005", "6", "chop", AppRolesEnum.ROLE_BUYER.name());
+            UserRecord buyer = authService.authenticateNewUser(buyerF);
+            if (buyer != null) {
+                buyerF.setUid(buyer.getUid());
+                userService.saveAUser(buyerF);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NewUserForm sellerF = new NewUserForm("seller", "seller", "seller@seller.com", "seller", "+254700000006", "7", "grind", AppRolesEnum.ROLE_SELLER.name());
+            UserRecord seller = authService.authenticateNewUser(sellerF);
+
+            if (seller != null) {
+                sellerF.setUid(seller.getUid());
+                userService.saveAUser(sellerF);
+            }
+          /*  String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
+            String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
+            String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
+            String strawberries = "http://www.howtogrowstuff.com/wp-content/uploads/Strawberries1.jpg";
+            String vegetable = "https://www.greenlife.co.ke/wp-content/uploads/2020/02/Cabbage.jpg";
+
+
+            //category
+            dataService.saveNewProductCategory("Beverage");
+            dataService.saveNewProductCategory("Vegetables");
+            dataService.saveNewProductCategory("Fruits");
+            dataService.saveNewProductCategory("Proteins");
+
+
+            //product
+            dataService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage));
+            dataService.saveNewProduct(new ProductCreationFrom("coffee", "200", "Beverage", coffeeImage));
+            dataService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage));
+            dataService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries));
+            dataService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable));*/
+
+
+    }
+
+    @Override
+    public void clearDb() {
+        log.info("REMOVED ALL USERS");
+        log.info("REMOVED ALL PERMISSIONS");
+        log.info("REMOVED ALL ROLES");
     }
 }

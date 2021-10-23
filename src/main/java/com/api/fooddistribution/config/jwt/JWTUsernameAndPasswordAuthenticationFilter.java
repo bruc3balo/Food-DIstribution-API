@@ -3,6 +3,7 @@ package com.api.fooddistribution.config.jwt;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -32,8 +33,14 @@ public class JWTUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        unsuccessfulAuthenticationAuthFilter(response,failed);
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        unsuccessfulAuthenticationAuthFilter(request,response,failed,getFailureHandler());
+    }
+
+
+    @Override
+    protected AuthenticationFailureHandler getFailureHandler() {
+        return super.getFailureHandler();
     }
 
     @Override

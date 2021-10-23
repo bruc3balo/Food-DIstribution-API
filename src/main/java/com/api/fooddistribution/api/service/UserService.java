@@ -19,8 +19,7 @@ public interface UserService {
 
     //User
     AppUser saveAUser(NewUserForm userForm) throws Exception; //working
-    AppUser updateAUser(String username, UserUpdateForm updateForm) throws Exception; //working
-    AppUser updateAUser(AppUser appUser) throws ParseException, JsonProcessingException; //working
+    AppUser updateAUser(String uid, UserUpdateForm updateForm) throws Exception; //working
     AppUser deleteUser(AppUser user) throws NotFoundException; //works
     boolean deleteUser(String uid) throws NotFoundException; //works
     AppUser disableUser(AppUser user) throws NotFoundException; //works

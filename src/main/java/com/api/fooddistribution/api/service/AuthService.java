@@ -20,4 +20,6 @@ public interface AuthService {
 
     UserRecord enableUser (String uid);
 
+    void defaults () throws Exception;
+    void clearDb () throws Exception;
 }

@@ -19,11 +19,11 @@ public class NewUserForm {
     private String uid;
 
     @NotBlank(message = "name is required")
-    @JsonProperty(value = "name")
+    @JsonProperty(value = NAME)
     private String name;
 
     @NotBlank(message = "username is required")
-    @JsonProperty(value = "username")
+    @JsonProperty(value = USERNAME)
     private String username;
 
     @NotBlank(message = "email is required")
@@ -32,7 +32,7 @@ public class NewUserForm {
     private String emailAddress;
 
     @NotBlank(message = "password is required")
-    @JsonProperty(value = "password")
+    @JsonProperty(value = PASSWORD)
     private String password;
 
     @JsonProperty(value = PHONE_NUMBER)
@@ -44,8 +44,7 @@ public class NewUserForm {
     @JsonProperty(value = BIO)
     private String bio = HY;
 
-
-
+    @JsonProperty(value = ROLE)
     private String role;
 
 

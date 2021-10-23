@@ -7,7 +7,7 @@ import com.api.fooddistribution.config.security.AppUserPermission;
 import com.api.fooddistribution.utils.ConvertDate;
 import com.api.fooddistribution.utils.ConvertToJson;
 import com.api.fooddistribution.utils.DataOps;
-import com.google.gson.JsonObject;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -28,7 +28,7 @@ public class EncryptSecret {
 
     public static void main(String[] args) throws ParseException {
         //secret
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         System.out.println(passwordEncoder.encode("secret"));
         System.out.println(passwordEncoder.matches("secret", "$2a$10$l8Ffz3g/z0FHOFj3Op58eOdwK0kEINCgr9bZcrjz65ZJjgTxQCTdO"));
 
@@ -50,6 +50,7 @@ public class EncryptSecret {
             System.out.println("form " + Arrays.toString(c) + " " + ConvertToJson.setJsonString(roleCreationForm));
             c[0]++;
         });
+
 
 
     }

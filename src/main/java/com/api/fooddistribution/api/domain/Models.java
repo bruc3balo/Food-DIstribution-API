@@ -18,9 +18,7 @@ import static com.api.fooddistribution.global.GlobalVariables.*;
 
 public class Models {
 
-
     //user
-
     @Getter
     @Setter
     public static class AppUser {
@@ -65,17 +63,20 @@ public class Models {
         @JsonProperty(ROLE)
         private AppRole role;
 
-        @JsonProperty("disabled")
+        @JsonProperty(DISABLED)
         private boolean disabled;
 
-        @JsonProperty("deleted")
+        @JsonProperty(DELETED)
         private boolean deleted;
+
+        @JsonProperty(TUTORIAL)
+        private boolean tutorial;
 
         public AppUser() {
 
         }
 
-        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted) {
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial) {
             this.uid = uid;
             this.documentId = uid;
             this.names = names;
@@ -91,6 +92,7 @@ public class Models {
             this.role = role;
             this.disabled = disabled;
             this.deleted = deleted;
+            this.tutorial = tutorial;
         }
 
 
@@ -103,7 +105,6 @@ public class Models {
     public static class AppRole {
         @DocumentId
         private String documentId;
-
 
         @JsonProperty(value = ID)
         private String id;
@@ -169,13 +170,15 @@ public class Models {
     @AllArgsConstructor
     public static class Product {
 
+        @DocumentId
+        private String id;
 
-        private Long id;
-
-
+        @JsonProperty(NAME)
         private String name;
 
+        @JsonProperty(PRODUCT_CATEGORY)
         private ProductCategory productCategory;
+
 
         private BigDecimal price;
 
@@ -203,7 +206,7 @@ public class Models {
 
         }
 
-        public Product(Long id, String name) {
+        public Product(String id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -218,7 +221,7 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(Long id, String name, Boolean deleted, Boolean disabled) {
+        public Product(String id, String name, Boolean deleted, Boolean disabled) {
             this.id = id;
             this.name = name;
             this.deleted = deleted;

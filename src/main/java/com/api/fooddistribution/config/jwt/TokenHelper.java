@@ -19,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -74,11 +75,15 @@ public class TokenHelper {
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
 
-    public static void unsuccessfulAuthenticationAuthFilter(HttpServletResponse response, AuthenticationException failed) throws IOException {
+    public static void unsuccessfulAuthenticationAuthFilter(HttpServletRequest request,HttpServletResponse response, AuthenticationException failed, AuthenticationFailureHandler handler) throws IOException, ServletException {
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(FORBIDDEN.value());
+
+
         JsonResponse failResponse = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), failed.getMessage(), "");
+
         new ObjectMapper().writeValue(response.getOutputStream(), failResponse);
+        handler.onAuthenticationFailure(request,response,failed);
     }
 
     public static void JwtTokenVerify(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

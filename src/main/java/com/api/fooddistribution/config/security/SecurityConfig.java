@@ -24,13 +24,12 @@ import static com.api.fooddistribution.global.GlobalService.userDetailsService;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String[] WHITELIST = new String[]{
             GlobalVariables.contextPath + "/user/all",
+            GlobalVariables.contextPath + "/auth/authNewUser",
             "/",
             "html",
             "index",
@@ -54,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().authorizeRequests().antMatchers(WHITELIST).permitAll()
                 .and()
                 .addFilter(new JWTUsernameAndPasswordAuthenticationFilter(authenticationManager()))
                 .addFilterAfter(new JwtTokenVerifier(), JWTUsernameAndPasswordAuthenticationFilter.class);

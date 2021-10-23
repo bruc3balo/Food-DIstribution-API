@@ -33,6 +33,12 @@ public class GlobalVariables {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
+    //
+    public static final String PRODUCT_CATEGORY = "ProductCategory";
+    public static final String DISABLED = "disabled";
+    public static final String DELETED = "deleted";
+    public static final String TUTORIAL = "tutorial";
+
     //Role
     public static final String NAME = "name";
     public static final String ID = "id";

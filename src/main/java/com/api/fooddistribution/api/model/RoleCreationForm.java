@@ -9,15 +9,18 @@ import javax.validation.constraints.NotEmpty;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static com.api.fooddistribution.global.GlobalVariables.NAME;
+import static com.api.fooddistribution.global.GlobalVariables.PERMISSIONS;
+
 @Getter
 @Setter
 public class RoleCreationForm {
 
-    @JsonProperty(value = "name")
+    @JsonProperty(value = NAME)
     @NotBlank(message = "required role name")
     private String name;
 
-    @JsonProperty(value = "permissions")
+    @JsonProperty(value = PERMISSIONS)
     @NotEmpty(message = "permissions cannot be empty")
     private Set<String> permissions = new LinkedHashSet<>();
 

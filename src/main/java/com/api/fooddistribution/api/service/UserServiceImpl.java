@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,8 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, Calendar.getInstance().getTime().toString(), Calendar.getInstance().getTime().toString(), null, false, false);
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false,false);
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
@@ -121,25 +121,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             log.info("No role for user " + createdUser.getUsername());
             try {
                 if (createdUser.getUsername() != null) {
-                    log.info("Now add role {} to user {}", newUserForm.getRole(), AppRolesEnum.ROLE_BUYER.name());
+                    log.info("Now add role {} to user {}", newUserForm.getRole(), newUserForm.getUsername());
                     Thread.sleep(1000);
-                    addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
+                    addARoleToAUser(createdUser.getUsername(), AppRolesEnum.ROLE_BUYER.name());
                 }
             } catch (NotFoundException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-
         return newUser;
     }
 
     @Override
-    public Models.AppUser updateAUser(String username, UserUpdateForm updateForm) throws Exception {
-        Models.AppUser user = getAUserByUid(username).orElse(null);
+    public Models.AppUser updateAUser(String uid, UserUpdateForm updateForm) throws Exception {
+        Models.AppUser user = getAUserByUid(uid).orElse(null);
 
         if (user == null) {
-            throw new UsernameNotFoundException(username + ", not found");
+            throw new UsernameNotFoundException(uid + ", not found");
         }
 
         if (updateForm != null) {
@@ -148,15 +147,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 addARoleToAUser(user.getUsername(), updateForm.getRole());
             }
 
-            if (updateForm.getPassword() != null) {
-                user.setPassword(passwordEncoder.encode(updateForm.getPassword()));
-
-            }
-
-            if (updateForm.getEmailAddress() != null) {
-                user.setEmailAddress(updateForm.getEmailAddress());
-
-            }
 
             if (updateForm.getName() != null) {
                 user.setNames(updateForm.getName());
@@ -177,17 +167,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.setBio(updateForm.getBio());
             }
 
+            if (updateForm.getTutorial() != null) {
+                user.setTutorial(updateForm.getTutorial());
+            }
 
             user.setUpdatedAt(getNowFormattedFullDate().toString());
         }
 
         return userRepo.save(user);
-    }
-
-    @Override
-    public Models.AppUser updateAUser(Models.AppUser appUser) throws ParseException, JsonProcessingException {
-        appUser.setUpdatedAt(getNowFormattedFullDate().toString());
-        return userRepo.save(appUser);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.api.fooddistribution.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.cloud.firestore.annotation.DocumentId;
@@ -32,6 +34,14 @@ public abstract class AbstractFirestoreRepository<T> {
         String documentId = getDocumentId(model);
         ApiFuture<WriteResult> resultApiFuture = collectionReference.document(documentId).set(model);
 
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+
+        try {
+            System.out.println(mapper.writeValueAsString(model));;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         try {
             log.info("{}-{} saved at{}", collectionName, documentId, resultApiFuture.get().getUpdateTime());
