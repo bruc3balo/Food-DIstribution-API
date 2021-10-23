@@ -79,6 +79,8 @@ public class TokenHelper {
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(FORBIDDEN.value());
 
+        response.sendError(FORBIDDEN.value(),failed.getMessage());
+
 
         JsonResponse failResponse = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), failed.getMessage(), "");
        // handler.onAuthenticationFailure(request,response,failed);

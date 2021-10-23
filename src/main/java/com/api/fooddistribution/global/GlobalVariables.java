@@ -64,12 +64,12 @@ public class GlobalVariables {
 
     @Autowired
     public void setExpirationDate() {
-        GlobalVariables.accessTokenTime = new Date(System.currentTimeMillis() + 10 * 60 * 1000);
+        GlobalVariables.accessTokenTime = new Date(System.currentTimeMillis() + 86400000);
     }
 
     @Autowired
     public void setRefreshTokenTIme() {
-        GlobalVariables.refreshTokenTime = new Date(System.currentTimeMillis() + 10 * 60 * 1000 * 10);
+        GlobalVariables.refreshTokenTime = new Date(System.currentTimeMillis() + 172800000);
     }
 
     @Value("${server.servlet.context-path}")
