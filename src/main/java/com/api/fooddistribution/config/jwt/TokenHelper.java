@@ -81,9 +81,9 @@ public class TokenHelper {
 
 
         JsonResponse failResponse = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), failed.getMessage(), "");
+       // handler.onAuthenticationFailure(request,response,failed);
 
         new ObjectMapper().writeValue(response.getOutputStream(), failResponse);
-        handler.onAuthenticationFailure(request,response,failed);
     }
 
     public static void JwtTokenVerify(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
