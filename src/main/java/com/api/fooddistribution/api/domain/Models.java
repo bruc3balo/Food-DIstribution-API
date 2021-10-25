@@ -72,11 +72,14 @@ public class Models {
         @JsonProperty(TUTORIAL)
         private boolean tutorial;
 
+        @JsonProperty(VERIFIED)
+        private boolean verified;
+
         public AppUser() {
 
         }
 
-        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial) {
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial,boolean verified) {
             this.uid = uid;
             this.documentId = uid;
             this.names = names;
@@ -93,6 +96,7 @@ public class Models {
             this.disabled = disabled;
             this.deleted = deleted;
             this.tutorial = tutorial;
+            this.verified = verified;
         }
 
 
@@ -179,28 +183,32 @@ public class Models {
         @JsonProperty(PRODUCT_CATEGORY)
         private ProductCategory productCategory;
 
-
+        @JsonProperty(PRICE)
         private BigDecimal price;
 
+        @JsonProperty(IMAGE)
         private String image;
 
+        @JsonProperty(SELLERS)
+        private Set<String> sellers = new HashSet<>();
 
-        private Set<AppUser> sellers = new HashSet<>();
+        @JsonProperty(BUYERS)
+        private Set<String> buyers = new HashSet<>();
 
-
-        private Set<AppUser> buyers = new HashSet<>();
-
-
+        @JsonProperty(CREATED_AT)
         private Date createdAt;
 
-
+        @JsonProperty(UPDATED_AT)
         private Date updatedAt;
 
-
+        @JsonProperty(DELETED)
         private Boolean deleted;
 
-
+        @JsonProperty(DISABLED)
         private Boolean disabled;
+
+        @JsonProperty(UNIT)
+        private String unit;
 
         public Product() {
 
@@ -221,6 +229,19 @@ public class Models {
             this.disabled = disabled;
         }
 
+        public Product(String id, String name, ProductCategory productCategory, BigDecimal price, String image, Date createdAt, Date updatedAt, Boolean deleted, Boolean disabled, String unit) {
+            this.id = id;
+            this.name = name;
+            this.productCategory = productCategory;
+            this.price = price;
+            this.image = image;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.deleted = deleted;
+            this.disabled = disabled;
+            this.unit = unit;
+        }
+
         public Product(String id, String name, Boolean deleted, Boolean disabled) {
             this.id = id;
             this.name = name;
@@ -234,7 +255,7 @@ public class Models {
 
     public static class ProductCategory {
 
-        private Long id;
+        private String id;
 
         private String name;
 
@@ -264,14 +285,14 @@ public class Models {
             this.updatedAt = updatedAt;
         }
 
-        public ProductCategory(Long id, String name, Boolean deleted, Boolean disabled) {
+        public ProductCategory(String id, String name, Boolean deleted, Boolean disabled) {
             this.name = name;
             this.deleted = deleted;
             this.disabled = disabled;
             this.id = id;
         }
 
-        public ProductCategory(Long id, String name) {
+        public ProductCategory(String id, String name) {
             this.id =id;
             this.name = name;
         }

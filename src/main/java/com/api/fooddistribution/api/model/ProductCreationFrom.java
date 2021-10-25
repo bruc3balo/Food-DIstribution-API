@@ -6,25 +6,35 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+import static com.api.fooddistribution.global.GlobalVariables.*;
+
 @Getter
 @Setter
 public class ProductCreationFrom {
 
-    @JsonProperty(value = "product_name")
+    @JsonProperty(PRODUCT_NAME)
     @NotBlank(message = "product name required")
     private String productName;
 
-    @JsonProperty(value = "product_price")
+    @JsonProperty(PRODUCT_PRICE)
     @NotBlank(message = "product price required")
     private String productPrice;
 
-    @JsonProperty(value = "product_category_name")
+    @JsonProperty(PRODUCT_CATEGORY_NAME)
     @NotBlank(message = "product category required")
     private String productCategoryName;
 
-    @JsonProperty(value = "image")
+    @JsonProperty(IMAGE)
     @NotBlank(message = "image required")
     private String image;
+
+    @JsonProperty(UNIT)
+    @NotBlank(message = "unit required")
+    private String unit;
+
+    @JsonProperty(PRODUCT_DESCRIPTION)
+    @NotBlank(message = "description required")
+    private String productDescription;
 
 
     public ProductCreationFrom() {

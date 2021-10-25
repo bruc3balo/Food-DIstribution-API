@@ -35,6 +35,7 @@ public class GlobalVariables {
     public static final String DISABLED = "disabled";
     public static final String DELETED = "deleted";
     public static final String TUTORIAL = "tutorial";
+    public static final String VERIFIED = "verified";
 
     //Role
     public static final String NAME = "name";
@@ -42,6 +43,18 @@ public class GlobalVariables {
 
     //permissions
     public static final String PERMISSIONS = "permissions";
+
+
+    //product
+    public static final String PRICE = "price";
+    public static final String IMAGE = "image";
+    public static final String SELLERS = "sellers";
+    public static final String BUYERS = "buyers";
+    public static final String UNIT = "unit";
+    public static final String PRODUCT_CATEGORY_NAME = "product_category_name";
+    public static final String PRODUCT_PRICE = "product_price";
+    public static final String PRODUCT_NAME = "product_name";
+    public static final String PRODUCT_DESCRIPTION = "product_description";
 
     public static Algorithm myAlgorithm;
 

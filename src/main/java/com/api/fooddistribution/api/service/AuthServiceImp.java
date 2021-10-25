@@ -236,7 +236,7 @@ public class AuthServiceImp implements AuthService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            NewUserForm buyerF = new NewUserForm("buyer", "buyer", "buyer@buyer.com", "buyer", "+254700000005", "6", "chop", AppRolesEnum.ROLE_BUYER.name());
+            NewUserForm buyerF = new NewUserForm("buyer", "buyer", "buyer@buyer.com", "buyerr", "+254700000005", "6", "chop", AppRolesEnum.ROLE_BUYER.name());
             UserRecord buyer = authService.authenticateNewUser(buyerF);
             if (buyer != null) {
                 buyerF.setUid(buyer.getUid());

@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false,false);
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false,false,false );
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
