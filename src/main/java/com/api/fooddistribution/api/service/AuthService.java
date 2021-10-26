@@ -20,6 +20,8 @@ public interface AuthService {
 
     UserRecord enableUser (String uid);
 
+    String sendVerificationEmail(String email);
+
     void defaults () throws Exception;
     void clearDb () throws Exception;
 }

@@ -12,6 +12,7 @@ import com.api.fooddistribution.config.security.AppRolesEnum;
 import com.api.fooddistribution.utils.DataOps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.type.LatLngOrBuilder;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
 import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
@@ -131,6 +133,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return newUser;
+    }
+
+    private void sendVerificationEmail (String email) throws FirebaseAuthException {
+       String link = firebaseAuth.generateEmailVerificationLink(email);
     }
 
     @Override

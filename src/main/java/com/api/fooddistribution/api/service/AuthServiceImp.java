@@ -141,6 +141,17 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
+    public String sendVerificationEmail(String email) {
+
+        try {
+            return firebaseAuth.generateEmailVerificationLink(email);
+        } catch (FirebaseAuthException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
     public void defaults () throws Exception {
 
             //permissions

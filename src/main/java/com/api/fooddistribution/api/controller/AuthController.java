@@ -200,6 +200,21 @@ public class AuthController {
 
     }
 
+    @PostMapping("/verify")
+    @PreAuthorize("hasAuthority('user:update')")
+    public ResponseEntity<?> verifyEmail(@RequestParam(name = EMAIL_ADDRESS) String email) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/addroletouser").toUriString());
 
+        try {
+            String link = authService.sendVerificationEmail(email);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), null, link);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
 }
