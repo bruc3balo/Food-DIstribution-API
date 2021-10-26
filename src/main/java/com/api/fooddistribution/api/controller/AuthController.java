@@ -217,4 +217,22 @@ public class AuthController {
 
     }
 
+
+    @GetMapping("/verifyStatus")
+    @PreAuthorize("hasAuthority('user:update')")
+    public ResponseEntity<?> verifyEmailStatus(@RequestParam(name = EMAIL_ADDRESS) String email) {
+
+        try {
+            Models.AppUser verifiedUser = authService.isVerified(email);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), null, verifiedUser);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
 }

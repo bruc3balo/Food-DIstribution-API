@@ -1,5 +1,6 @@
 package com.api.fooddistribution.api.service;
 
+import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -21,6 +22,8 @@ public interface AuthService {
     UserRecord enableUser (String uid);
 
     String sendVerificationEmail(String email);
+
+    Models.AppUser isVerified(String email);
 
     void defaults () throws Exception;
     void clearDb () throws Exception;

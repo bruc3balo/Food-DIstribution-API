@@ -177,6 +177,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.setTutorial(updateForm.getTutorial());
             }
 
+            if (updateForm.getVerified() != null) {
+                user.setTutorial(updateForm.getVerified());
+            }
+
             user.setUpdatedAt(getNowFormattedFullDate().toString());
         }
 

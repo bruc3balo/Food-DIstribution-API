@@ -28,8 +28,15 @@ public class UserUpdateForm {
     @JsonProperty(TUTORIAL)
     private Boolean tutorial;
 
+    @JsonProperty(VERIFIED)
+    private Boolean verified;
+
     public UserUpdateForm() {
 
+    }
+
+    public UserUpdateForm(Boolean verified) {
+        this.verified = verified;
     }
 
     public UserUpdateForm(String name, String role) {
