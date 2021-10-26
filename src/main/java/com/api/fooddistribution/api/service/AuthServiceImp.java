@@ -156,9 +156,12 @@ public class AuthServiceImp implements AuthService {
     public Models.AppUser isVerified(String email) {
         try {
             UserRecord userRecord = firebaseAuth.getUserByEmail(email);
+
             if (userRecord.isEmailVerified()) {
+                log.info("USER IS VERIFIED");
                 return userService.updateAUser(userRecord.getUid(), new UserUpdateForm(true));
             } else {
+                log.info("USER IS NOT VERIFIED");
                 return null;
             }
         } catch (Exception e) {
