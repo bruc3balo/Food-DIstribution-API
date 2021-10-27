@@ -98,53 +98,56 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false,false,false );
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, false);
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
         Models.AppUser createdUser = userRepo.save(newUser);
 
-        if (newUserForm.getRole() != null) {
 
-            if (!newUserForm.getRole().isBlank()) {
-                if (!newUserForm.getRole().isEmpty()) {
-                    try {
-                        if (createdUser.getUsername() != null) {
-                            log.info("Now add role {} to user {}", newUserForm.getRole(), createdUser.getUsername());
-                            Thread.sleep(1000);
-                            addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
-                        }
-                    } catch (NotFoundException | InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        authService.sendVerificationEmail(newUserForm.getEmailAddress());
-                        log.info("SEND VERIFICATION EMAIL");
+        if (newUserForm.getRole() != null && !newUserForm.getRole().isBlank() && !newUserForm.getRole().isEmpty()) {
 
-                    }
+            try {
+                if (createdUser.getUsername() != null) {
+                    log.info("Now add role {} to user {}", newUserForm.getRole(), createdUser.getUsername());
+                    Thread.sleep(1000);
+                    newUser =   addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
+                }
+            } catch (NotFoundException | InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+               String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                if (link != null) {
+                    log.info("SEND VERIFICATION EMAIL");
+                } else {
+                    log.info("FAILED TO SEND VERIFICATION EMAIL");
                 }
             }
-
         } else {
             log.info("No role for user " + createdUser.getUsername());
             try {
                 if (createdUser.getUsername() != null) {
                     log.info("Now add role {} to user {}", newUserForm.getRole(), newUserForm.getUsername());
                     Thread.sleep(1000);
-                    addARoleToAUser(createdUser.getUsername(), AppRolesEnum.ROLE_BUYER.name());
+                   newUser = addARoleToAUser(createdUser.getUsername(), AppRolesEnum.ROLE_BUYER.name());
                 }
             } catch (NotFoundException | InterruptedException e) {
                 e.printStackTrace();
             } finally {
-                authService.sendVerificationEmail(newUserForm.getEmailAddress());
-                log.info("SEND VERIFICATION EMAIL");
+               String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                if (link != null) {
+                    log.info("SEND VERIFICATION EMAIL");
+                } else {
+                    log.info("FAILED TO SEND VERIFICATION EMAIL");
+                }
             }
         }
 
         return newUser;
     }
 
-    private void sendVerificationEmail (String email) throws FirebaseAuthException {
-       String link = firebaseAuth.generateEmailVerificationLink(email);
+    private void sendVerificationEmail(String email) throws FirebaseAuthException {
+        String link = firebaseAuth.generateEmailVerificationLink(email);
     }
 
     @Override
@@ -323,8 +326,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return appRoleRepo.retrieveAll();
     }
 
+
+
     @Override
-    public void addARoleToAUser(String username, String roleName) throws Exception {
+    public Models.AppUser addARoleToAUser(String username, String roleName) throws Exception {
         Models.AppUser user = findByUsername(username).orElse(null);
         Models.AppRole role = findByRoleName(roleName).orElse(null);
 
@@ -362,7 +367,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         user.setRole(role);
-        userRepo.save(user);
+       return userRepo.save(user);
     }
 
     @Override

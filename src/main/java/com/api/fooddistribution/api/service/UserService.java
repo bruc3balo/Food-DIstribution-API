@@ -2,6 +2,7 @@ package com.api.fooddistribution.api.service;
 
 
 
+import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.domain.Models.*;
 import com.api.fooddistribution.api.model.NewUserForm;
 import com.api.fooddistribution.api.model.RoleCreationForm;
@@ -40,7 +41,7 @@ public interface UserService {
     Optional<AppRole> findByRoleName(String roleName); //works
     boolean deleteRole(String roleId);
     AppRole updateRole(AppRole appRole) throws ParseException, JsonProcessingException;
-    void addARoleToAUser(String username, String roleName) throws Exception; //working
+    Models.AppUser addARoleToAUser(String username, String roleName) throws Exception; //working
 
 
     //Permission
