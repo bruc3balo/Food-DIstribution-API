@@ -118,6 +118,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         e.printStackTrace();
                     } finally {
                         authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                        log.info("SEND VERIFICATION EMAIL");
+
                     }
                 }
             }
@@ -134,6 +136,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 e.printStackTrace();
             } finally {
                 authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                log.info("SEND VERIFICATION EMAIL");
             }
         }
 
