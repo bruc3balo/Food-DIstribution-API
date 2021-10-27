@@ -153,7 +153,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 addARoleToAUser(user.getUsername(), updateForm.getRole());
             }
 
-
             if (updateForm.getName() != null) {
                 user.setNames(updateForm.getName());
 
@@ -163,10 +162,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.setPhoneNumber(updateForm.getPhoneNumber());
             }
 
-
             if (updateForm.getIdNumber() != null) {
                 user.setIdNumber(updateForm.getIdNumber());
-
             }
 
             if (updateForm.getBio() != null) {
