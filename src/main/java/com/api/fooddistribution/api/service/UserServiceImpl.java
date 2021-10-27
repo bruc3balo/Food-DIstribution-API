@@ -235,6 +235,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepo.retrieveAll().stream().map(Models.AppUser::getUsername).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    @Override
+    public List<String> getAllEmails() {
+        return userRepo.retrieveAll().stream().map(Models.AppUser::getEmailAddress).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
 
     @Override
     public List<String> getAllPhoneNumbers() {

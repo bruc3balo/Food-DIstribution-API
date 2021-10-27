@@ -30,6 +30,7 @@ public interface UserService {
     List<AppUser> getAllUsers(); //works
     List<String> getAllUsernames(); //works
     List<String> getAllPhoneNumbers(); //works
+    List<String> getAllEmails(); //works
 
     //Role
    // Models.AppRole saveARole(String name) throws NotFoundException; //works
