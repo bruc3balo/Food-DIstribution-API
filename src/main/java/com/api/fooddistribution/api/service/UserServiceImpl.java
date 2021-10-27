@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
+import static com.api.fooddistribution.global.GlobalService.authService;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
 import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
@@ -115,6 +116,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         }
                     } catch (NotFoundException | InterruptedException e) {
                         e.printStackTrace();
+                    } finally {
+                        authService.sendVerificationEmail(newUserForm.getEmailAddress());
                     }
                 }
             }
@@ -129,6 +132,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 }
             } catch (NotFoundException | InterruptedException e) {
                 e.printStackTrace();
+            } finally {
+                authService.sendVerificationEmail(newUserForm.getEmailAddress());
             }
         }
 
