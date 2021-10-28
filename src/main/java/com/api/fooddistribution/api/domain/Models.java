@@ -189,17 +189,17 @@ public class Models {
         @JsonProperty(IMAGE)
         private String image;
 
-        @JsonProperty(SELLERS)
-        private Set<String> sellers = new HashSet<>();
+        @JsonProperty(SELLERS_ID)
+        private Set<String> sellersId = new HashSet<>();
 
-        @JsonProperty(BUYERS)
-        private Set<String> buyers = new HashSet<>();
+        @JsonProperty(BUYERS_ID)
+        private Set<String> buyersId = new HashSet<>();
 
         @JsonProperty(CREATED_AT)
-        private Date createdAt;
+        private String createdAt;
 
         @JsonProperty(UPDATED_AT)
-        private Date updatedAt;
+        private String updatedAt;
 
         @JsonProperty(DELETED)
         private Boolean deleted;
@@ -210,6 +210,9 @@ public class Models {
         @JsonProperty(UNIT)
         private String unit;
 
+        @JsonProperty(PRODUCT_DESCRIPTION)
+        private String product_description;
+
         public Product() {
 
         }
@@ -219,7 +222,7 @@ public class Models {
             this.name = name;
         }
 
-        public Product(String name, BigDecimal price, String image, Date createdAt, Date updatedAt, Boolean deleted, Boolean disabled) {
+        public Product(String name, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled) {
             this.name = name;
             this.price = price;
             this.image = image;
@@ -229,7 +232,7 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(String id, String name, ProductCategory productCategory, BigDecimal price, String image, Date createdAt, Date updatedAt, Boolean deleted, Boolean disabled, String unit) {
+        public Product(String id, String name, ProductCategory productCategory, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit,String product_description) {
             this.id = id;
             this.name = name;
             this.productCategory = productCategory;
@@ -240,6 +243,7 @@ public class Models {
             this.deleted = deleted;
             this.disabled = disabled;
             this.unit = unit;
+            this.product_description = product_description;
         }
 
         public Product(String id, String name, Boolean deleted, Boolean disabled) {
@@ -252,20 +256,25 @@ public class Models {
 
     @Getter
     @Setter
-
     public static class ProductCategory {
 
+        @JsonProperty(ID)
         private String id;
 
+        @JsonProperty(NAME)
         private String name;
 
+        @JsonProperty(DELETED)
         private Boolean deleted;
 
+        @JsonProperty(DISABLED)
         private Boolean disabled;
 
-        private Date createdAt;
+        @JsonProperty(CREATED_AT)
+        private String createdAt;
 
-        private Date updatedAt;
+        @JsonProperty(UPDATED_AT)
+        private String updatedAt;
 
         public ProductCategory() {
 
@@ -277,7 +286,7 @@ public class Models {
 
 
 
-        public ProductCategory(String name, Boolean deleted, Boolean disabled, Date createdAt, Date updatedAt) {
+        public ProductCategory(String name, Boolean deleted, Boolean disabled, String createdAt, String updatedAt) {
             this.name = name;
             this.deleted = deleted;
             this.disabled = disabled;
@@ -295,6 +304,15 @@ public class Models {
         public ProductCategory(String id, String name) {
             this.id =id;
             this.name = name;
+        }
+
+        public ProductCategory(String id, String name, Boolean deleted, Boolean disabled, String createdAt, String updatedAt) {
+            this.id = id;
+            this.name = name;
+            this.deleted = deleted;
+            this.disabled = disabled;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
         }
     }
 

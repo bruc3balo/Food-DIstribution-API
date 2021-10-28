@@ -118,7 +118,7 @@ public class UserController {
 
     @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<?> getUser(@RequestParam(name = UID, required = false) String uid, @RequestParam(name = "username", required = false) String username) {
+    public ResponseEntity<?> getUser(@RequestParam(name = UID, required = false) String uid, @RequestParam(name = USERNAME, required = false) String username) {
         try {
             Models.AppUser user;
 
@@ -154,9 +154,7 @@ public class UserController {
 
     @PutMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('user:update')")
-    public ResponseEntity<?> updateUser(HttpServletRequest request,
-                                        @RequestParam(name = UID) String uid,
-                                        @RequestBody UserUpdateForm updateForm) {
+    public ResponseEntity<?> updateUser(HttpServletRequest request, @RequestParam(name = UID) String uid, @RequestBody UserUpdateForm updateForm) {
         try {
 
             List<String> unknownParams = filterRequestParams(request, List.of(UID));

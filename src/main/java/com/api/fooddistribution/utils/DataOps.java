@@ -88,6 +88,13 @@ public class DataOps {
         return new KeyGenerator(4).nextString().concat(HY).concat(name).concat(HY).concat("PM");
     }
 
+    public static String generateProductID(String name) {
+        return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("P");
+    }
+
+    public static String generateProductCategoryID(String name) {
+        return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("PC");
+    }
 
     public static Integer strToInteger(String value) {
         try {
