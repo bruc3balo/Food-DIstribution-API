@@ -1,6 +1,7 @@
 package com.api.fooddistribution.global;
 
 import com.api.fooddistribution.api.service.AuthService;
+import com.api.fooddistribution.api.service.ProductService;
 import com.api.fooddistribution.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class GlobalService {
 
     public static UserService userService;
+    public static ProductService productService;
     public static AuthService authService;
     public static UserDetailsService userDetailsService;
     public static PasswordEncoder passwordEncoder;
@@ -25,6 +27,11 @@ public class GlobalService {
 */
 
     @Autowired
+    public void setProductService(ProductService productService) {
+        GlobalService.productService = productService;
+    }
+
+    @Autowired
     public void setUserService(UserService userService) {
         GlobalService.userService = userService;
     }
@@ -33,7 +40,6 @@ public class GlobalService {
     public void setAuthService(AuthService authService) {
         GlobalService.authService = authService;
     }
-    
 
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {

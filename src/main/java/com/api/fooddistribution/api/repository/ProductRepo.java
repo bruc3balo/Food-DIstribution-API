@@ -12,7 +12,7 @@ import static com.api.fooddistribution.global.GlobalVariables.*;
 public class ProductRepo extends AbstractFirestoreRepository<Models.Product> {
 
     protected ProductRepo(Firestore firestore) {
-        super(firestore, PRODUCT);
+        super(firestore, PRODUCT_COLLECTION);
     }
 
 }

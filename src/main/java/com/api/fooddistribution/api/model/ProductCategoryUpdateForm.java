@@ -8,7 +8,7 @@ import static com.api.fooddistribution.global.GlobalVariables.*;
 
 @Getter
 @Setter
-public class ProductCategoryUpdateFor {
+public class ProductCategoryUpdateForm {
     @JsonProperty(NAME)
     private String name;
 

@@ -3,7 +3,7 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models.Product;
 import com.api.fooddistribution.api.domain.Models.ProductCategory;
-import com.api.fooddistribution.api.model.ProductCategoryUpdateFor;
+import com.api.fooddistribution.api.model.ProductCategoryUpdateForm;
 import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.ProductUpdateForm;
 import javassist.NotFoundException;
@@ -16,16 +16,24 @@ import java.util.Optional;
 public interface ProductService {
 
     //Name
+    //Create
     Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException;
-    Product updateProduct(ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException;
-    Optional<Product> findProductById(String id);
-
-
-    //Category
     ProductCategory saveNewProductCategory(String name) throws DuplicateMemberException, ParseException;
-    ProductCategory updateProductCategory(String name, ProductCategoryUpdateFor productCategoryUpdateForm) throws DuplicateMemberException, ParseException, NotFoundException;
-    List<ProductCategory> getAllProductCategories();
+
+    //read
+    Optional<Product> findProductById(String id);
     Optional<ProductCategory> findCategoryByName(String name);
     Optional<ProductCategory>  findCategoryById(String id);
+    List<ProductCategory> getAllProductCategories();
+    List<Product> getAllProducts();
+    List<Product> getAllProductsWithCategory(String categoryName);
+
+
+    //update //delete
+    Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException;
+    ProductCategory updateProductCategory(String name, ProductCategoryUpdateForm productCategoryUpdateForm) throws DuplicateMemberException, ParseException, NotFoundException;
+
+    //Delete
+
 
 }

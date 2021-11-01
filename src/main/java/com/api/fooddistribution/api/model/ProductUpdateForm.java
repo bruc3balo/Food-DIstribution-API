@@ -34,8 +34,13 @@ public class ProductUpdateForm {
     @JsonProperty(PRODUCT_DESCRIPTION)
     private String productDescription;
 
-    public ProductUpdateForm() {
-    }
+    @JsonProperty(DISABLED)
+    private Boolean disabled;
+
+    @JsonProperty(DELETED)
+    private Boolean deleted;
+
+    public ProductUpdateForm() {  }
 
     public ProductUpdateForm(String productName, String productPrice, String productCategoryName, String image,String productDescription) {
         this.productName = productName;
@@ -45,5 +50,15 @@ public class ProductUpdateForm {
         this.productDescription = productDescription;
     }
 
-
+    public ProductUpdateForm(String id, String productName, String productPrice, String productCategoryName, String image, String unit, String productDescription, Boolean disabled, Boolean deleted) {
+        this.id = id;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.productCategoryName = productCategoryName;
+        this.image = image;
+        this.unit = unit;
+        this.productDescription = productDescription;
+        this.disabled = disabled;
+        this.deleted = deleted;
+    }
 }

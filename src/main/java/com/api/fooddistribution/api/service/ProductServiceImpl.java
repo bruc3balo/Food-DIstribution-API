@@ -1,7 +1,7 @@
 package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models.*;
-import com.api.fooddistribution.api.model.ProductCategoryUpdateFor;
+import com.api.fooddistribution.api.model.ProductCategoryUpdateForm;
 import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.ProductUpdateForm;
 import javassist.NotFoundException;
@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalRepositories.productCategoryRepo;
 import static com.api.fooddistribution.global.GlobalRepositories.productRepo;
@@ -37,10 +38,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException {
+    public Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException {
 
-        Optional<Product> oldProduct = findProductById(productUpdateForm.getId());
-
+        Optional<Product> oldProduct = findProductById(productId);
 
         if (oldProduct.isEmpty()) {
             throw new NotFoundException("Product not found");
@@ -77,6 +77,14 @@ public class ProductServiceImpl implements ProductService {
             newProduct.setProduct_description(productUpdateForm.getProductDescription());
         }
 
+        if (productUpdateForm.getDeleted() != null) {
+            newProduct.setDeleted(productUpdateForm.getDeleted());
+        }
+
+        if (productUpdateForm.getDisabled() != null) {
+            newProduct.setDisabled(productUpdateForm.getDisabled());
+        }
+
         newProduct.setUpdatedAt(getNowFormattedFullDate().toString());
 
         return productRepo.save(newProduct);
@@ -100,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductCategory updateProductCategory(String name,ProductCategoryUpdateFor productCategoryUpdateForm) throws NotFoundException, ParseException {
+    public ProductCategory updateProductCategory(String name, ProductCategoryUpdateForm productCategoryUpdateForm) throws NotFoundException, ParseException {
 
         Optional<ProductCategory> existing = findCategoryByName(name);
 
@@ -128,6 +136,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductCategory> getAllProductCategories() {
         return productCategoryRepo.retrieveAll();
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepo.retrieveAll();
+    }
+
+    @Override
+    public List<Product> getAllProductsWithCategory(String categoryName) {
+        return getAllProducts().stream().filter(f-> f.getProductCategory().getName().equals(categoryName)).collect(Collectors.toList());
     }
 
     @Override
