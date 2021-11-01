@@ -119,7 +119,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = {"/specific"})
+    @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
         try {
@@ -144,7 +144,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = {"category/specific"})
+    @GetMapping(value = {"category/specific"})
     @PreAuthorize("hasAuthority('product_category:read')")
     public ResponseEntity<?> getProductCategory(HttpServletRequest request, @RequestParam(name = ID, required = false) String categoryId, @RequestParam(name = PRODUCT_CATEGORY_NAME, required = false) String name) {
         Models.ProductCategory productCategory;
@@ -180,7 +180,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping(value = {"/update"})
+    @PutMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('product:update')")
     public ResponseEntity<?> updateProduct(HttpServletRequest request, @RequestParam(name = ID) String categoryId, @RequestBody ProductUpdateForm productUpdateForm) {
         try {
@@ -205,7 +205,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping(value = {"/category/update"})
+    @PutMapping(value = {"/category/update"})
     @PreAuthorize("hasAuthority('product_category:update')")
     public ResponseEntity<?> updateProductCategory(HttpServletRequest request, @RequestParam(name = PRODUCT_CATEGORY_NAME) String name , @RequestBody ProductCategoryUpdateForm productCategoryUpdateForm) {
         try {
