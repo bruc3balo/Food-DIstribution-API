@@ -121,7 +121,7 @@ public class ProductController {
 
     @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('product:read')")
-    public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
+        public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
         try {
 
             List<String> unknownParams = filterRequestParams(request, List.of(ID));

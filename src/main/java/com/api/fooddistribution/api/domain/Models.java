@@ -190,10 +190,10 @@ public class Models {
         private String image;
 
         @JsonProperty(SELLERS_ID)
-        private Set<String> sellersId = new HashSet<>();
+        private List<String> sellersId = new LinkedList<>();
 
         @JsonProperty(BUYERS_ID)
-        private Set<String> buyersId = new HashSet<>();
+        private List<String> buyersId = new LinkedList<>();
 
         @JsonProperty(CREATED_AT)
         private String createdAt;

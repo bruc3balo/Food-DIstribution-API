@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import static com.api.fooddistribution.global.GlobalService.authService;
+
 @SpringBootApplication
 @EnableScheduling
 @CrossOrigin("*")

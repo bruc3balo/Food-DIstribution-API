@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException {
 
-        Optional<ProductCategory> productCategory = findCategoryByName(productCreationFrom.getProductName());
+        Optional<ProductCategory> productCategory = findCategoryByName(productCreationFrom.getProductCategoryName());
         if (productCategory.isEmpty()) {
             throw new NotFoundException("Product Category not found");
         }

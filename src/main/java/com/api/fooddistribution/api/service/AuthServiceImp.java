@@ -3,6 +3,7 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
+import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.RoleCreationForm;
 import com.api.fooddistribution.api.model.UserUpdateForm;
 import com.api.fooddistribution.config.FirestoreConfig;
@@ -173,7 +174,7 @@ public class AuthServiceImp implements AuthService {
     @Override
     public void defaults() throws Exception {
 
-        //permissions
+        /*//permissions
         Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
         //userService.savePermissionList(newP);
         newP.forEach(p -> {
@@ -282,27 +283,34 @@ public class AuthServiceImp implements AuthService {
         if (seller != null) {
             sellerF.setUid(seller.getUid());
             userService.saveAUser(sellerF);
-        }
-          /*  String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
-            String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
-            String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
-            String strawberries = "http://www.howtogrowstuff.com/wp-content/uploads/Strawberries1.jpg";
-            String vegetable = "https://www.greenlife.co.ke/wp-content/uploads/2020/02/Cabbage.jpg";
+        }*/
+        String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
+        String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
+        String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
+        String strawberries = "http://www.howtogrowstuff.com/wp-content/uploads/Strawberries1.jpg";
+        String vegetable = "https://www.greenlife.co.ke/wp-content/uploads/2020/02/Cabbage.jpg";
 
 
-            //category
-            dataService.saveNewProductCategory("Beverage");
-            dataService.saveNewProductCategory("Vegetables");
-            dataService.saveNewProductCategory("Fruits");
-            dataService.saveNewProductCategory("Proteins");
+        /*//category
+        Models.ProductCategory beverage = productService.saveNewProductCategory("Beverage");
+        Thread.sleep(2000);
+        Models.ProductCategory vegetables = productService.saveNewProductCategory("Vegetables");
+        Thread.sleep(2000);
+        Models.ProductCategory fruits = productService.saveNewProductCategory("Fruits");
+        Thread.sleep(2000);
+        Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
+        Thread.sleep(2000);*/
 
-
-            //product
-            dataService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage));
-            dataService.saveNewProduct(new ProductCreationFrom("coffee", "200", "Beverage", coffeeImage));
-            dataService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage));
-            dataService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries));
-            dataService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable));*/
+        //product
+        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage));
+        Thread.sleep(2000);
+        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage));
+        Thread.sleep(2000);
+        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage));
+        Thread.sleep(2000);
+        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries));
+        Thread.sleep(2000);
+        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable));
 
 
     }
