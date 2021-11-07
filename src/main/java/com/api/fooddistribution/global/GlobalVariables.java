@@ -62,6 +62,9 @@ public class GlobalVariables {
     public static final String PRODUCT_PRICE = "product_price";
     public static final String PRODUCT_NAME = "product_name";
     public static final String PRODUCT_DESCRIPTION = "product_description";
+    public static final String SOLID = "Solid";
+    public static final String LIQUID = "Liquid";
+    public static final String GAS = "Gas";
 
     public static Algorithm myAlgorithm;
 

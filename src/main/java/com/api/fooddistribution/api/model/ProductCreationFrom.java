@@ -41,10 +41,12 @@ public class ProductCreationFrom {
 
     }
 
-    public ProductCreationFrom(String productName, String productPrice, String productCategoryName, String image) {
+    public ProductCreationFrom(String productName, String productPrice, String productCategoryName, String image,String unit,String productDescription) {
         this.productName = productName;
         this.productPrice = productPrice;
         this.productCategoryName = productCategoryName;
         this.image = image;
+        this.unit = unit;
+        this.productDescription = productDescription;
     }
 }
