@@ -36,7 +36,7 @@ public class GlobalVariables {
 
 
     public static final String PRODUCT = "Product";
-    public static final String PRODUCT_CATEGORY = "ProductCategory";
+    public static final String PRODUCT_CATEGORY = "product_category";
     public static final String DISABLED = "disabled";
     public static final String DELETED = "deleted";
     public static final String TUTORIAL = "tutorial";

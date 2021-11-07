@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
                 throw new NotFoundException("Product category not found");
             }
 
-            newProduct.setProductCategory(productCategory.get());
+            newProduct.setProduct_category(productCategory.get());
         }
 
         if (productUpdateForm.getImage() != null) {
@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProductsWithCategory(String categoryName) {
-        return getAllProducts().stream().filter(f-> f.getProductCategory().getName().equals(categoryName)).collect(Collectors.toList());
+        return getAllProducts().stream().filter(f-> f.getProduct_category().getName().equals(categoryName)).collect(Collectors.toList());
     }
 
     @Override

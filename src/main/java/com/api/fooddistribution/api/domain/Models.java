@@ -3,16 +3,12 @@ package com.api.fooddistribution.api.domain;
 import com.api.fooddistribution.api.validation.email.ValidEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.firestore.annotation.DocumentId;
-import com.google.type.LatLng;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalVariables.*;
 
@@ -181,7 +177,7 @@ public class Models {
         private String name;
 
         @JsonProperty(PRODUCT_CATEGORY)
-        private ProductCategory productCategory;
+        private ProductCategory product_category;
 
         @JsonProperty(PRICE)
         private BigDecimal price;
@@ -232,10 +228,10 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(String id, String name, ProductCategory productCategory, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit,String product_description) {
+        public Product(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description) {
             this.id = id;
             this.name = name;
-            this.productCategory = productCategory;
+            this.product_category = product_category;
             this.price = price;
             this.image = image;
             this.createdAt = createdAt;
