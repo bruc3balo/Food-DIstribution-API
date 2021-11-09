@@ -9,6 +9,7 @@ import javassist.bytecode.DuplicateMemberException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.NotActiveException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
@@ -25,11 +26,15 @@ import static com.api.fooddistribution.utils.DataOps.*;
 public class ProductServiceImpl implements ProductService {
 
     @Override
-    public Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException {
+    public Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException, NotActiveException {
 
         Optional<ProductCategory> productCategory = findCategoryByName(productCreationFrom.getProductCategoryName());
         if (productCategory.isEmpty()) {
             throw new NotFoundException("Product Category not found");
+        }
+
+        if (productCategory.get().getDeleted() || productCategory.get().getDisabled()) {
+            throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
         }
 
         Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription());
@@ -38,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException {
+    public Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException {
 
         Optional<Product> oldProduct = findProductById(productId);
 
@@ -61,6 +66,10 @@ public class ProductServiceImpl implements ProductService {
             Optional<ProductCategory> productCategory = findCategoryByName(productUpdateForm.getProductCategoryName());
             if (productCategory.isEmpty()) {
                 throw new NotFoundException("Product category not found");
+            }
+
+            if (productCategory.get().getDeleted() || productCategory.get().getDisabled()) {
+                throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
             }
 
             newProduct.setProduct_category(productCategory.get());

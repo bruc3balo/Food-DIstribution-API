@@ -9,6 +9,7 @@ import com.api.fooddistribution.api.model.ProductUpdateForm;
 import javassist.NotFoundException;
 import javassist.bytecode.DuplicateMemberException;
 
+import java.io.NotActiveException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public interface ProductService {
 
     //Name
     //Create
-    Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException;
+    Product saveNewProduct(ProductCreationFrom productCreationFrom) throws NotFoundException, ParseException, NotActiveException;
     ProductCategory saveNewProductCategory(String name) throws DuplicateMemberException, ParseException;
 
     //read
@@ -30,7 +31,7 @@ public interface ProductService {
 
 
     //update //delete
-    Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException;
+    Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException;
     ProductCategory updateProductCategory(String name, ProductCategoryUpdateForm productCategoryUpdateForm) throws DuplicateMemberException, ParseException, NotFoundException;
 
     //Delete
