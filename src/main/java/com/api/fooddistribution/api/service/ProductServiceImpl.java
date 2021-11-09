@@ -38,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription());
+        newProduct.getSellersId().add(productCreationFrom.getUsername());
+
 
         return productRepo.save(newProduct);
     }
@@ -151,6 +153,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> getAllProducts() {
         return productRepo.retrieveAll();
+    }
+
+    @Override
+    public List<Product> getAllSellerProducts(String username) {
+        return productRepo.retrieveAll().stream().filter(u->u.getSellersId().contains(username)).collect(Collectors.toList());
     }
 
     @Override

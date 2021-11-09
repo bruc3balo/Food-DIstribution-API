@@ -292,7 +292,7 @@ public class AuthServiceImp implements AuthService {
         String beans = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi0.wp.com%2Fimages-prod.healthline.com%2Fhlcmsresource%2Fimages%2FAN_images%2Fkidney-beans-1296x728-feature.jpg%3Fw%3D1155%26h%3D1528&f=1&nofb=1";
 
 
-        //category
+   /*     //category
         Models.ProductCategory beverage = productService.saveNewProductCategory("Beverage");
         Thread.sleep(2000);
         Models.ProductCategory vegetables = productService.saveNewProductCategory("Vegetables");
@@ -301,19 +301,19 @@ public class AuthServiceImp implements AuthService {
         Thread.sleep(2000);
         Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
         Thread.sleep(2000);
-
+*/
         //product
-        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea"));
+        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea","seller"));
         Thread.sleep(2000);
-        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage,LIQUID,"Cups of coffee"));
+        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage,LIQUID,"Cups of coffee","seller"));
         Thread.sleep(2000);
-        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage,SOLID,"A single tomatoe"));
+        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage,SOLID,"A single tomatoe","seller"));
         Thread.sleep(2000);
-        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries"));
+        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries","seller"));
         Thread.sleep(2000);
-        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash"));
+        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash","seller"));
         Thread.sleep(2000);
-        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans"));
+        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans","seller"));
 
 
     }

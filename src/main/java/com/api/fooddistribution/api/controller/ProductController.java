@@ -4,6 +4,7 @@ import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.ProductCategoryUpdateForm;
 import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.ProductUpdateForm;
+import com.api.fooddistribution.global.GlobalVariables;
 import com.api.fooddistribution.utils.ApiCode;
 import com.api.fooddistribution.utils.JsonResponse;
 import com.api.fooddistribution.utils.JsonSetErrorResponse;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ public class ProductController {
 
     @PostMapping(value = {"/new"})
     @PreAuthorize("hasAuthority('product:write')")
-    public ResponseEntity<?> addProduct(@RequestBody ProductCreationFrom form) {
+    public ResponseEntity<?> addProduct(@Valid @RequestBody ProductCreationFrom form) {
         try {
 
             Models.Product savedProduct = productService.saveNewProduct(form);
@@ -67,6 +69,27 @@ public class ProductController {
     public ResponseEntity<?> getProductList() {
         try {
             List<Models.Product> productList = productService.getAllProducts();
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get products", getTransactionId(PRODUCT_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = {"/allSeller"})
+    @PreAuthorize("hasAuthority('product:read')")
+    public ResponseEntity<?> getSellerProductList(HttpServletRequest request, @RequestParam(GlobalVariables.USERNAME) String username) {
+        try {
+
+
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, USERNAME);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<Models.Product> productList = productService.getAllSellerProducts(username);
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productList);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -115,7 +138,7 @@ public class ProductController {
 
     @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('product:read')")
-        public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
+    public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
         try {
 
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
@@ -139,7 +162,7 @@ public class ProductController {
         Models.ProductCategory productCategory;
         try {
 
-            List<String> unknownParams = filterRequestParams(request, Arrays.asList(PRODUCT_CATEGORY_NAME,ID));
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList(PRODUCT_CATEGORY_NAME, ID));
             ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
             if (unknownResponse != null) return unknownResponse;
 
@@ -167,7 +190,7 @@ public class ProductController {
 
     @PutMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('product:update')")
-    public ResponseEntity<?> updateProduct(HttpServletRequest request, @RequestParam(name = ID) String categoryId, @RequestBody ProductUpdateForm productUpdateForm) {
+    public ResponseEntity<?> updateProduct(HttpServletRequest request, @RequestParam(name = ID) String categoryId,@Valid @RequestBody ProductUpdateForm productUpdateForm) {
         try {
 
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
@@ -175,7 +198,7 @@ public class ProductController {
 
             Models.Product updatedProduct = productService.updateProduct(categoryId, productUpdateForm);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProduct != null ? updatedProduct + "updated product "+updatedProduct.getName() : "update product not found", getTransactionId(PRODUCT_COLLECTION), updatedProduct);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProduct != null ? updatedProduct + "updated product " + updatedProduct.getName() : "update product not found", getTransactionId(PRODUCT_COLLECTION), updatedProduct);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,14 +210,14 @@ public class ProductController {
 
     @PutMapping(value = {"/category/update"})
     @PreAuthorize("hasAuthority('product_category:update')")
-    public ResponseEntity<?> updateProductCategory(HttpServletRequest request, @RequestParam(name = PRODUCT_CATEGORY_NAME) String name , @RequestBody ProductCategoryUpdateForm productCategoryUpdateForm) {
+    public ResponseEntity<?> updateProductCategory(HttpServletRequest request, @RequestParam(name = PRODUCT_CATEGORY_NAME) String name, @RequestBody ProductCategoryUpdateForm productCategoryUpdateForm) {
         try {
 
-            ResponseEntity<?> unknownResponse =checkUnknownParameters(request, PRODUCT_CATEGORY_NAME);
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, PRODUCT_CATEGORY_NAME);
             if (unknownResponse != null) return unknownResponse;
 
             Models.ProductCategory updatedProductCategory = productService.updateProductCategory(name, productCategoryUpdateForm);
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProductCategory != null ? updatedProductCategory + "updated product category "+updatedProductCategory.getName() : "update product category not found", getTransactionId(PRODUCT_COLLECTION), updatedProductCategory);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProductCategory != null ? updatedProductCategory + "updated product category " + updatedProductCategory.getName() : "update product category not found", getTransactionId(PRODUCT_COLLECTION), updatedProductCategory);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

@@ -27,6 +27,7 @@ public interface ProductService {
     Optional<ProductCategory>  findCategoryById(String id);
     List<ProductCategory> getAllProductCategories();
     List<Product> getAllProducts();
+    List<Product> getAllSellerProducts(String username);
     List<Product> getAllProductsWithCategory(String categoryName);
 
 
