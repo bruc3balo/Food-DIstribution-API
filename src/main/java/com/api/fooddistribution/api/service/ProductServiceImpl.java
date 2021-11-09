@@ -48,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product newProduct = oldProduct.get();
 
+
         if (productUpdateForm.getProductName() != null) {
             newProduct.setName(productUpdateForm.getProductName());
         }

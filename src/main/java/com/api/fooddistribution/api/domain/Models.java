@@ -169,8 +169,10 @@ public class Models {
     @Setter
     @AllArgsConstructor
     public static class Product {
-
         @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
         private String id;
 
         @JsonProperty(NAME)
@@ -216,6 +218,8 @@ public class Models {
         public Product(String id, String name) {
             this.id = id;
             this.name = name;
+            this.documentId = id;
+
         }
 
         public Product(String name, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled) {
@@ -240,6 +244,8 @@ public class Models {
             this.disabled = disabled;
             this.unit = unit;
             this.product_description = product_description;
+            this.documentId = id;
+
         }
 
         public Product(String id, String name, Boolean deleted, Boolean disabled) {
@@ -247,12 +253,17 @@ public class Models {
             this.name = name;
             this.deleted = deleted;
             this.disabled = disabled;
+            this.documentId = id;
+
         }
     }
 
     @Getter
     @Setter
     public static class ProductCategory {
+
+        @DocumentId
+        private String documentId;
 
         @JsonProperty(ID)
         private String id;
@@ -295,15 +306,19 @@ public class Models {
             this.deleted = deleted;
             this.disabled = disabled;
             this.id = id;
+            this.documentId = id;
+
         }
 
         public ProductCategory(String id, String name) {
             this.id =id;
+            this.documentId = id;
             this.name = name;
         }
 
         public ProductCategory(String id, String name, Boolean deleted, Boolean disabled, String createdAt, String updatedAt) {
             this.id = id;
+            this.documentId = id;
             this.name = name;
             this.deleted = deleted;
             this.disabled = disabled;

@@ -289,9 +289,10 @@ public class AuthServiceImp implements AuthService {
         String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
         String strawberries = "http://www.howtogrowstuff.com/wp-content/uploads/Strawberries1.jpg";
         String vegetable = "https://www.greenlife.co.ke/wp-content/uploads/2020/02/Cabbage.jpg";
+        String beans = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi0.wp.com%2Fimages-prod.healthline.com%2Fhlcmsresource%2Fimages%2FAN_images%2Fkidney-beans-1296x728-feature.jpg%3Fw%3D1155%26h%3D1528&f=1&nofb=1";
 
 
-        /*//category
+        //category
         Models.ProductCategory beverage = productService.saveNewProductCategory("Beverage");
         Thread.sleep(2000);
         Models.ProductCategory vegetables = productService.saveNewProductCategory("Vegetables");
@@ -299,7 +300,7 @@ public class AuthServiceImp implements AuthService {
         Models.ProductCategory fruits = productService.saveNewProductCategory("Fruits");
         Thread.sleep(2000);
         Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
-        Thread.sleep(2000);*/
+        Thread.sleep(2000);
 
         //product
         Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea"));
@@ -311,6 +312,8 @@ public class AuthServiceImp implements AuthService {
         Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries"));
         Thread.sleep(2000);
         Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash"));
+        Thread.sleep(2000);
+        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans"));
 
 
     }
