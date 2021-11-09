@@ -66,6 +66,10 @@ public class GlobalVariables {
     public static final String LIQUID = "Liquid";
     public static final String GAS = "Gas";
 
+
+    public static final String ACCESS_TOKEN = "access_token";
+
+
     public static Algorithm myAlgorithm;
 
     public static Date accessTokenTime;

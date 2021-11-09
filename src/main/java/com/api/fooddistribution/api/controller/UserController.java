@@ -3,6 +3,7 @@ package com.api.fooddistribution.api.controller;
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.NewUserForm;
 import com.api.fooddistribution.api.model.UserUpdateForm;
+import com.api.fooddistribution.config.jwt.TokenHelper;
 import com.api.fooddistribution.utils.ApiCode;
 import com.api.fooddistribution.utils.JsonResponse;
 import com.api.fooddistribution.utils.JsonSetErrorResponse;
@@ -16,13 +17,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalService.userService;
 import static com.api.fooddistribution.global.GlobalVariables.*;
-import static com.api.fooddistribution.utils.DataOps.filterRequestParams;
-import static com.api.fooddistribution.utils.DataOps.getTransactionId;
+import static com.api.fooddistribution.utils.DataOps.*;
 
 
 @RestController
@@ -157,13 +159,8 @@ public class UserController {
     public ResponseEntity<?> updateUser(HttpServletRequest request, @RequestParam(name = UID) String uid, @RequestBody UserUpdateForm updateForm) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, List.of(UID));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, UID);
+            if (unknownResponse != null) return unknownResponse;
 
             log.info("UPDATED RECEIVED "+new ObjectMapper().writeValueAsString(updateForm) + " for user "+uid);
 
@@ -178,5 +175,33 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping(value = "/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, @RequestParam(name = ACCESS_TOKEN) String token) {
+
+        try {
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ACCESS_TOKEN);
+            if (unknownResponse != null) return unknownResponse;
+
+            String refresh = TokenHelper.refreshToken(token);
+
+            if (refresh == null) {
+                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Invalid token", null);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            Map<String, String> map = new HashMap<>();
+            map.put("refresh_token",refresh);
+            map.put("auth_type", tokenPrefix);
+
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

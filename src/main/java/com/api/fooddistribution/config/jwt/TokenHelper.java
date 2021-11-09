@@ -33,6 +33,7 @@ import static com.api.fooddistribution.global.GlobalVariables.*;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -69,21 +70,46 @@ public class TokenHelper {
         Map<String, String> tokens = new HashMap<>();
 
         tokens.put("access_token", accessToken);
-        tokens.put("refresh_token", refreshToken);
+        //  tokens.put("refresh_token", refreshToken);
         tokens.put("auth_type", authType);
 
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
 
-    public static void unsuccessfulAuthenticationAuthFilter(HttpServletRequest request,HttpServletResponse response, AuthenticationException failed, AuthenticationFailureHandler handler) throws IOException, ServletException {
-        response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(FORBIDDEN.value());
+    public static String refreshToken(String token) {
+        try {
+            JWTVerifier verifier = JWT.require(myAlgorithm).build();
+            DecodedJWT decodedJWT = verifier.verify(token);
 
-        response.sendError(FORBIDDEN.value(),failed.getMessage());
+
+            String username = decodedJWT.getSubject();
+            String[] roles = decodedJWT.getClaim("authorities").asArray(String.class);
+
+            return JWT.create().withSubject(username).withExpiresAt(refreshTokenTime).withIssuer("/refresh").withClaim("authorities", Arrays.asList(roles)).withJWTId("REFRESH").sign(myAlgorithm);
+        } catch (Exception e) {
+
+            if (e instanceof TokenExpiredException) {
+                DecodedJWT decodedJWT = JWT.decode(token);
+                String username = decodedJWT.getSubject();
+                String[] roles = decodedJWT.getClaim("authorities").asArray(String.class);
+
+                return JWT.create().withSubject(username).withExpiresAt(refreshTokenTime).withIssuer("/refresh").withClaim("authorities", Arrays.asList(roles)).withJWTId("REFRESH").sign(myAlgorithm);
+            }
+
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void unsuccessfulAuthenticationAuthFilter(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed, AuthenticationFailureHandler handler) throws IOException, ServletException {
+        response.setContentType(APPLICATION_JSON_VALUE);
+        response.setStatus(UNAUTHORIZED.value());
+
+        response.sendError(UNAUTHORIZED.value(), failed.getMessage());
 
 
         JsonResponse failResponse = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), failed.getMessage(), "");
-       // handler.onAuthenticationFailure(request,response,failed);
+        // handler.onAuthenticationFailure(request,response,failed);
 
         new ObjectMapper().writeValue(response.getOutputStream(), failResponse);
     }

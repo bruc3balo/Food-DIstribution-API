@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalService.productService;
 import static com.api.fooddistribution.global.GlobalVariables.*;
-import static com.api.fooddistribution.utils.DataOps.filterRequestParams;
-import static com.api.fooddistribution.utils.DataOps.getTransactionId;
+import static com.api.fooddistribution.utils.DataOps.*;
 
 @RestController
 @RequestMapping(value = "/product")
@@ -84,13 +83,8 @@ public class ProductController {
     public ResponseEntity<?> getProductListWithCategory(HttpServletRequest request, @RequestParam(name = PRODUCT_CATEGORY_NAME) String name) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, List.of(PRODUCT_CATEGORY_NAME));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, PRODUCT_CATEGORY_NAME);
+            if (unknownResponse != null) return unknownResponse;
 
             List<Models.Product> productList = productService.getAllProductsWithCategory(name);
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productList);
@@ -124,13 +118,8 @@ public class ProductController {
         public ResponseEntity<?> getSpecificProduct(HttpServletRequest request, @RequestParam(name = ID) String productId) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, List.of(ID));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
+            if (unknownResponse != null) return unknownResponse;
 
             Models.Product product = productService.findProductById(productId).orElse(null);
 
@@ -151,12 +140,8 @@ public class ProductController {
         try {
 
             List<String> unknownParams = filterRequestParams(request, Arrays.asList(PRODUCT_CATEGORY_NAME,ID));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
 
             if (categoryId != null) {
                 productCategory = productService.findCategoryById(categoryId).orElse(null);
@@ -185,13 +170,8 @@ public class ProductController {
     public ResponseEntity<?> updateProduct(HttpServletRequest request, @RequestParam(name = ID) String categoryId, @RequestBody ProductUpdateForm productUpdateForm) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, List.of(ID));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
+            if (unknownResponse != null) return unknownResponse;
 
             Models.Product updatedProduct = productService.updateProduct(categoryId, productUpdateForm);
 
@@ -210,13 +190,8 @@ public class ProductController {
     public ResponseEntity<?> updateProductCategory(HttpServletRequest request, @RequestParam(name = PRODUCT_CATEGORY_NAME) String name , @RequestBody ProductCategoryUpdateForm productCategoryUpdateForm) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, List.of(PRODUCT_CATEGORY_NAME));
-            if (!unknownParams.isEmpty()) {
-                // get all errors
-                String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
-                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
+            ResponseEntity<?> unknownResponse =checkUnknownParameters(request, PRODUCT_CATEGORY_NAME);
+            if (unknownResponse != null) return unknownResponse;
 
             Models.ProductCategory updatedProductCategory = productService.updateProductCategory(name, productCategoryUpdateForm);
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProductCategory != null ? updatedProductCategory + "updated product category "+updatedProductCategory.getName() : "update product category not found", getTransactionId(PRODUCT_COLLECTION), updatedProductCategory);

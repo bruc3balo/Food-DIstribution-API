@@ -1,6 +1,8 @@
 package com.api.fooddistribution.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalVariables.HY;
 
@@ -27,6 +30,23 @@ public class DataOps {
         List<String> list = Collections.list(query);
         list.removeAll(knownParams);
         return list;
+    }
+
+    public static ResponseEntity<?> checkUnknownParameters(HttpServletRequest request, String accessToken) {
+        List<String> unknownParams = filterRequestParams(request, List.of(accessToken));
+        ResponseEntity<?> response = unknownParameterList(unknownParams);
+        if (response != null) return response;
+        return null;
+    }
+
+    public static ResponseEntity<?> unknownParameterList(List<String> unknownParams) {
+        if (!unknownParams.isEmpty()) {
+            // get all errors
+            String apiDesc = unknownParams.stream().map(x -> "'" + x.toUpperCase() + "'").collect(Collectors.joining(", ")) + " : Not valid Parameters";
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), apiDesc, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        return null;
     }
 
     public static Date getNowFormattedDate() throws ParseException {
