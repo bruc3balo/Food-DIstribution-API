@@ -118,6 +118,22 @@ public class UserController {
 
     }
 
+    @GetMapping("/roles")
+    @PreAuthorize("hasAuthority('user:read')")
+    public ResponseEntity<?> getAllRoles() {
+
+        try {
+            List<Models.AppRole> roleList = userService.getAllRoles();
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), null, roleList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
     @GetMapping(value = {"/specific"})
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<?> getUser(@RequestParam(name = UID, required = false) String uid, @RequestParam(name = USERNAME, required = false) String username) {
@@ -201,6 +217,8 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
 
 
