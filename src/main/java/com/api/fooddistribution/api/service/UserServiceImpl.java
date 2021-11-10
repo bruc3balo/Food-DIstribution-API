@@ -13,6 +13,7 @@ import com.api.fooddistribution.utils.DataOps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
 import com.google.type.LatLngOrBuilder;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
@@ -98,12 +99,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, true); //tochange
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, true, HY); //tochange
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
         Models.AppUser createdUser = userRepo.save(newUser);
-
 
         if (newUserForm.getRole() != null && !newUserForm.getRole().isBlank() && !newUserForm.getRole().isEmpty()) {
 
@@ -187,6 +187,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (updateForm.getVerified() != null) {
                 user.setVerified(updateForm.getVerified());
+            }
+
+            if (updateForm.getProfilePicture() != null) {
+                UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(uid);
+                updateRequest.setPhotoUrl(updateForm.getProfilePicture().equals(HY) ? null : updateForm.getProfilePicture());
+                firebaseAuth.updateUser(updateRequest);
+                user.setProfilePicture(updateForm.getProfilePicture());
             }
 
             user.setUpdatedAt(getNowFormattedFullDate().toString());

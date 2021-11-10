@@ -71,11 +71,14 @@ public class Models {
         @JsonProperty(VERIFIED)
         private boolean verified;
 
+        @JsonProperty(PROFILE_PICTURE)
+        private String profilePicture;
+
         public AppUser() {
 
         }
 
-        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial,boolean verified) {
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial,boolean verified,String profilePicture) {
             this.uid = uid;
             this.documentId = uid;
             this.names = names;
@@ -93,6 +96,7 @@ public class Models {
             this.deleted = deleted;
             this.tutorial = tutorial;
             this.verified = verified;
+            this.profilePicture = profilePicture;
         }
 
 

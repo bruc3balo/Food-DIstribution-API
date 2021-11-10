@@ -32,6 +32,7 @@ public class GlobalVariables {
     public static final String NAMES = "names";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String PROFILE_PICTURE = "profile_picture";
 
 
 

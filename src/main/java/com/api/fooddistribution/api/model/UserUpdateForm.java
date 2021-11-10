@@ -31,6 +31,9 @@ public class UserUpdateForm {
     @JsonProperty(VERIFIED)
     private Boolean verified;
 
+    @JsonProperty(PROFILE_PICTURE)
+    private String profilePicture;
+
     public UserUpdateForm() {
 
     }
@@ -51,5 +54,9 @@ public class UserUpdateForm {
         this.idNumber = idNumber;
         this.bio = bio;
         this.tutorial = tutorial;
+    }
+
+    public UserUpdateForm(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
