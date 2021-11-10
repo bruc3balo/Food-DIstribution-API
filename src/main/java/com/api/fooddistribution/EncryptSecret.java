@@ -26,7 +26,7 @@ import static com.api.fooddistribution.utils.DataOps.*;
 public class EncryptSecret {
 
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         //secret
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         System.out.println(passwordEncoder.encode("secret"));
@@ -51,7 +51,8 @@ public class EncryptSecret {
             c[0]++;
         });
 
-
+        Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, AppRolesEnum.ROLE_SELLER.name()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(AppRolesEnum.ROLE_SELLER.name()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
+        System.out.println("permissions "+permissionsList);
 
     }
 

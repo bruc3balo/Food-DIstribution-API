@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, false);
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, true); //tochange
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
@@ -111,12 +111,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 if (createdUser.getUsername() != null) {
                     log.info("Now add role {} to user {}", newUserForm.getRole(), createdUser.getUsername());
                     Thread.sleep(1000);
-                    newUser =   addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
+                    newUser = addARoleToAUser(createdUser.getUsername(), newUserForm.getRole());
                 }
             } catch (NotFoundException | InterruptedException e) {
                 e.printStackTrace();
             } finally {
-               String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
                 if (link != null) {
                     log.info("SEND VERIFICATION EMAIL");
                 } else {
@@ -129,12 +129,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 if (createdUser.getUsername() != null) {
                     log.info("Now add role {} to user {}", newUserForm.getRole(), newUserForm.getUsername());
                     Thread.sleep(1000);
-                   newUser = addARoleToAUser(createdUser.getUsername(), AppRolesEnum.ROLE_BUYER.name());
+                    newUser = addARoleToAUser(createdUser.getUsername(), AppRolesEnum.ROLE_BUYER.name());
                 }
             } catch (NotFoundException | InterruptedException e) {
                 e.printStackTrace();
             } finally {
-               String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
+                String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
                 if (link != null) {
                     log.info("SEND VERIFICATION EMAIL");
                 } else {
@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        return newUser;
+        return userRepo.save(newUser);
     }
 
     private void sendVerificationEmail(String email) throws FirebaseAuthException {
@@ -332,7 +332,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
-
     @Override
     public Models.AppUser addARoleToAUser(String username, String roleName) throws Exception {
         Models.AppUser user = findByUsername(username).orElse(null);
@@ -346,33 +345,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new Exception("Role not found " + roleName);
         }
 
-        if (user.getRole() != null) {
+        //update role
+        Models.AppRole finalRole = role;
+        Set<String> hardCodedPermissionList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(finalRole.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
+        for (String permission : hardCodedPermissionList) {
+            if (!role.getPermissions().stream().map(Models.Permissions::getName).collect(Collectors.toList()).contains(permission)) {
+                role = addAPermissionToARole(role.getName(), permission);
+            }
+        }
 
 
-            if (user.getRole().getPermissions().isEmpty()) { //check if permissions is empty
-                try {
-                    Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, role.getName()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(role.getName()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
-                    addPermissionListToARole(role.getName(), permissionsList);
-                } catch (NotFoundException e) {
-                    e.printStackTrace();
-                }
-            } else {
-
-
-                if (user.getRole().getName().equals(role.getName())) {
-                    throw new DuplicateRequestException("User already has role " + role);
+        if (user.getRole() != null) { //user has a role
+            if (user.getRole().getName().equals(role.getName())) {
+                //if role is same
+                //update role
+                if (user.getRole().getPermissions().isEmpty()) { //check if permissions is empty
+                    try {
+                        role = addPermissionListToARole(role.getName(), hardCodedPermissionList);
+                    } catch (NotFoundException e) {
+                        e.printStackTrace();
+                    }
                 } else {
-                    //do nothing
-                    log.info("No changes made for " + username);
+                    for (String permission : hardCodedPermissionList) {
+                        if (!user.getRole().getPermissions().stream().map(Models.Permissions::getName).collect(Collectors.toList()).contains(permission)) {
+                            role = addAPermissionToARole(role.getName(), permission);
+                        }
+                    }
                 }
             }
 
         } else { //role doesn't exists
-            log.info("Adding role {} to  {}", role.getName(), user.getUsername()); //will save because @Transactional
+            log.info("Adding role {} to  {}", role.getName(), user.getUsername());
         }
 
         user.setRole(role);
-       return userRepo.save(user);
+        return userRepo.save(user);
     }
 
     @Override
@@ -494,7 +501,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
         log.info("Adding permission {} to role {}", permissions.getName(), role.getName());
-        role.getPermissions().add(permissions); //will save because @Transactional
+        role.getPermissions().add(permissions);
 
         return appRoleRepo.save(role);
     }

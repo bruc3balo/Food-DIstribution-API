@@ -174,7 +174,7 @@ public class AuthServiceImp implements AuthService {
     @Override
     public void defaults() throws Exception {
 
-        /*//permissions
+        //permissions
         Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
         //userService.savePermissionList(newP);
         newP.forEach(p -> {
@@ -208,7 +208,6 @@ public class AuthServiceImp implements AuthService {
         });
 
         System.out.println("role list " + roleCreationFormSet.size());
-
         //Users
         NewUserForm superAdminF = new NewUserForm("super admin", "superadmin", "superadmin@admin.com", "superadmin", "+254700000000", "1", "power", AppRolesEnum.ROLE_ADMIN.name());
         UserRecord superAdmin = authService.authenticateNewUser(superAdminF);
@@ -283,7 +282,7 @@ public class AuthServiceImp implements AuthService {
         if (seller != null) {
             sellerF.setUid(seller.getUid());
             userService.saveAUser(sellerF);
-        }*/
+        }
         String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
         String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
         String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
@@ -292,7 +291,7 @@ public class AuthServiceImp implements AuthService {
         String beans = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi0.wp.com%2Fimages-prod.healthline.com%2Fhlcmsresource%2Fimages%2FAN_images%2Fkidney-beans-1296x728-feature.jpg%3Fw%3D1155%26h%3D1528&f=1&nofb=1";
 
 
-   /*     //category
+        //category
         Models.ProductCategory beverage = productService.saveNewProductCategory("Beverage");
         Thread.sleep(2000);
         Models.ProductCategory vegetables = productService.saveNewProductCategory("Vegetables");
@@ -301,7 +300,6 @@ public class AuthServiceImp implements AuthService {
         Thread.sleep(2000);
         Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
         Thread.sleep(2000);
-*/
         //product
         Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea","seller"));
         Thread.sleep(2000);
