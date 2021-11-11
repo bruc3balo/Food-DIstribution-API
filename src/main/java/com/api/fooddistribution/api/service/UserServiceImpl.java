@@ -79,13 +79,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Optional<Models.AppUser> findByUsername(String username) {
         List<Models.AppUser> users = getAllUsers().stream().filter(p -> p.getUsername().equals(username)).collect(Collectors.toList());
-
         if (!users.isEmpty()) {
             return Optional.of(users.get(0));
         } else {
             return Optional.empty();
         }
-
     }
 
     @Override
@@ -99,7 +97,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
         }
 
-        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, true, HY); //tochange
+        Models.AppUser newUser = new Models.AppUser(newUserForm.getUid(), newUserForm.getName(), newUserForm.getUsername(), newUserForm.getIdNumber(), newUserForm.getEmailAddress(), newUserForm.getPhoneNumber(), passwordEncoder.encode(newUserForm.getPassword()), newUserForm.getBio(), HY, getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), null, false, false, false, false, HY); //toChange
 
         log.info("Saving new user {} to db", newUser.getUsername());
 
@@ -236,7 +234,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepo.retrieveAll();
     }
 
-
     @Override
     public List<String> getAllUsernames() {
         return userRepo.retrieveAll().stream().map(Models.AppUser::getUsername).filter(Objects::nonNull).collect(Collectors.toList());
@@ -246,7 +243,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public List<String> getAllEmails() {
         return userRepo.retrieveAll().stream().map(Models.AppUser::getEmailAddress).filter(Objects::nonNull).collect(Collectors.toList());
     }
-
 
     @Override
     public List<String> getAllPhoneNumbers() {
@@ -337,7 +333,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.info("Fetching all roles");
         return appRoleRepo.retrieveAll();
     }
-
 
     @Override
     public Models.AppUser addARoleToAUser(String username, String roleName) throws Exception {
