@@ -31,6 +31,12 @@ public class UserUpdateForm {
     @JsonProperty(VERIFIED)
     private Boolean verified;
 
+    @JsonProperty(DISABLED)
+    private Boolean disabled;
+
+    @JsonProperty(DELETED)
+    private Boolean deleted;
+
     @JsonProperty(PROFILE_PICTURE)
     private String profilePicture;
 

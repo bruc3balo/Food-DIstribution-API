@@ -187,6 +187,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.setVerified(updateForm.getVerified());
             }
 
+            if (updateForm.getDeleted() != null) {
+                user.setDeleted(updateForm.getDeleted());
+            }
+
+            if (updateForm.getDisabled() != null) {
+                user.setDisabled(updateForm.getDisabled());
+            }
+
             if (updateForm.getProfilePicture() != null) {
                 UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(uid);
                 updateRequest.setPhotoUrl(updateForm.getProfilePicture().equals(HY) ? null : updateForm.getProfilePicture());
