@@ -40,6 +40,12 @@ public class ProductUpdateForm {
     @JsonProperty(DELETED)
     private Boolean deleted;
 
+    @JsonProperty(UNIT)
+    private Integer unitsLeft;
+
+    @JsonProperty(SELLERS_ID)
+    private String sellerId;
+
     public ProductUpdateForm() {  }
 
     public ProductUpdateForm(String productName, String productPrice, String productCategoryName, String image,String productDescription) {

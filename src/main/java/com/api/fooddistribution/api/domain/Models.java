@@ -168,7 +168,6 @@ public class Models {
     }
 
     //product
-
     @Getter
     @Setter
     @AllArgsConstructor
@@ -191,11 +190,8 @@ public class Models {
         @JsonProperty(IMAGE)
         private String image;
 
-        @JsonProperty(SELLERS_ID)
-        private List<String> sellersId = new LinkedList<>();
-
-        @JsonProperty(BUYERS_ID)
-        private List<String> buyersId = new LinkedList<>();
+        @JsonProperty(PRODUCT_AMOUNT)
+        private List<ProductAmount> productAmounts = new LinkedList<>();
 
         @JsonProperty(CREATED_AT)
         private String createdAt;
@@ -259,6 +255,23 @@ public class Models {
             this.disabled = disabled;
             this.documentId = id;
 
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class ProductAmount {
+        @JsonProperty(SELLERS_ID)
+        private String sellerId;
+        @JsonProperty(UNIT)
+        private int unitsLeft;
+
+        public ProductAmount() {
+        }
+
+        public ProductAmount(String sellerId, int unitsLeft) {
+            this.sellerId = sellerId;
+            this.unitsLeft = unitsLeft;
         }
     }
 
@@ -335,7 +348,6 @@ public class Models {
 
     @Getter
     @Setter
-
     public static class Purchase {
 
         private Long id;
@@ -361,9 +373,7 @@ public class Models {
 
     @Getter
     @Setter
-
     public static class Distribution {
-
 
         private Long id;
 

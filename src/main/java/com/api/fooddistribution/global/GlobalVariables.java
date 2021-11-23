@@ -66,6 +66,7 @@ public class GlobalVariables {
     public static final String SOLID = "Solid";
     public static final String LIQUID = "Liquid";
     public static final String GAS = "Gas";
+    public static final String PRODUCT_AMOUNT = "productAmount";
 
 
     public static final String ACCESS_TOKEN = "access_token";
