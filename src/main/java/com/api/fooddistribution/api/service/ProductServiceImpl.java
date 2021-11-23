@@ -45,9 +45,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException {
+    public Product updateProduct(ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException {
 
-        Optional<Product> oldProduct = findProductById(productId);
+        Optional<Product> oldProduct = findProductById(productUpdateForm.getId());
 
         if (oldProduct.isEmpty()) {
             throw new NotFoundException("Product not found");

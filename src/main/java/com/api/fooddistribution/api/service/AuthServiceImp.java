@@ -208,7 +208,7 @@ public class AuthServiceImp implements AuthService {
 
        // System.out.println("role list " + roleCreationFormSet.size());
         //Users
-        NewUserForm superAdminF = new NewUserForm("super admin", "superadmin", "superadmin@admin.com", "superadmin", "+254700000000", "1", "power", AppRolesEnum.ROLE_ADMIN.name());
+       /* NewUserForm superAdminF = new NewUserForm("super admin", "superadmin", "superadmin@admin.com", "superadmin", "+254700000000", "1", "power", AppRolesEnum.ROLE_ADMIN.name());
         UserRecord superAdmin = authService.authenticateNewUser(superAdminF);
         if (superAdmin != null) {
             superAdminF.setUid(superAdmin.getUid());
@@ -281,7 +281,7 @@ public class AuthServiceImp implements AuthService {
         if (seller != null) {
             sellerF.setUid(seller.getUid());
             userService.saveAUser(sellerF);
-        }
+        }*/
         String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
         String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
         String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";

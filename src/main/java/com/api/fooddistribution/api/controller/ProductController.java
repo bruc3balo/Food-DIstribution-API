@@ -190,20 +190,17 @@ public class ProductController {
 
     @PutMapping(value = {"/update"})
     @PreAuthorize("hasAuthority('product:update')")
-    public ResponseEntity<?> updateProduct(HttpServletRequest request, @RequestParam(name = ID) String categoryId,@Valid @RequestBody ProductUpdateForm productUpdateForm) {
+    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductUpdateForm productUpdateForm) {
         try {
 
-            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
-            if (unknownResponse != null) return unknownResponse;
-
-            Models.Product updatedProduct = productService.updateProduct(categoryId, productUpdateForm);
+            Models.Product updatedProduct = productService.updateProduct(productUpdateForm);
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), updatedProduct != null ? updatedProduct + "updated product " + updatedProduct.getName() : "update product not found", getTransactionId(PRODUCT_COLLECTION), updatedProduct);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
 
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to update product with id " + categoryId, getTransactionId(PRODUCT_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to update product ", getTransactionId(PRODUCT_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

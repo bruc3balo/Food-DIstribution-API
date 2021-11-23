@@ -59,6 +59,7 @@ public class GlobalVariables {
     public static final String BUYERS = "buyers";
     public static final String BUYERS_ID = "buyersId";
     public static final String UNIT = "unit";
+    public static final String UNITS_LEFT = "unitsLeft";
     public static final String PRODUCT_CATEGORY_NAME = "product_category_name";
     public static final String PRODUCT_PRICE = "product_price";
     public static final String PRODUCT_NAME = "product_name";

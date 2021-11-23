@@ -32,7 +32,7 @@ public interface ProductService {
 
 
     //update //delete
-    Product updateProduct(String productId,ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException;
+    Product updateProduct(ProductUpdateForm productUpdateForm) throws NotFoundException, ParseException, NotActiveException;
     ProductCategory updateProductCategory(String name, ProductCategoryUpdateForm productCategoryUpdateForm) throws DuplicateMemberException, ParseException, NotFoundException;
 
     //Delete

@@ -40,7 +40,7 @@ public class ProductUpdateForm {
     @JsonProperty(DELETED)
     private Boolean deleted;
 
-    @JsonProperty(UNIT)
+    @JsonProperty(UNITS_LEFT)
     private Integer unitsLeft;
 
     @JsonProperty(SELLERS_ID)
