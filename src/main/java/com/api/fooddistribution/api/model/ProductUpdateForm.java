@@ -41,10 +41,9 @@ public class ProductUpdateForm {
     private Boolean deleted;
 
     @JsonProperty(UNITS_LEFT)
-    private Integer unitsLeft;
+    private Double unitsLeft;
 
-    @JsonProperty(SELLERS_ID)
-    private String sellerId;
+
 
     public ProductUpdateForm() {  }
 

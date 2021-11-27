@@ -37,8 +37,7 @@ public class ProductServiceImpl implements ProductService {
             throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
         }
 
-        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription());
-        newProduct.getProductAmounts().add(new ProductAmount(productCreationFrom.getUsername(),0));
+        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername());
 
 
         return productRepo.save(newProduct);
@@ -96,18 +95,8 @@ public class ProductServiceImpl implements ProductService {
             newProduct.setDisabled(productUpdateForm.getDisabled());
         }
 
-        if (productUpdateForm.getUnitsLeft() != null && productUpdateForm.getSellerId() != null) {
-            if (newProduct.getProductAmounts().stream().map(ProductAmount::getSellerId).collect(Collectors.toList()).contains(productUpdateForm.getSellerId())) {
-                for (ProductAmount p : newProduct.getProductAmounts()) {
-                    if (p.getSellerId().equals(productUpdateForm.getSellerId())) {
-                        p.setUnitsLeft(productUpdateForm.getUnitsLeft());
-                        System.out.println("Units updated");
-                        break;
-                    }
-                }
-            } else {
-                newProduct.getProductAmounts().add(new ProductAmount(productUpdateForm.getSellerId(),productUpdateForm.getUnitsLeft()));
-            }
+        if (productUpdateForm.getUnitsLeft() != null) {
+            newProduct.setUnitsLeft(productUpdateForm.getUnitsLeft());
         }
 
         newProduct.setUpdatedAt(getNowFormattedFullDate().toString());
@@ -170,7 +159,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllSellerProducts(String username) {
-        return productRepo.retrieveAll().stream().filter(u-> u.getProductAmounts().stream().map(ProductAmount::getSellerId).collect(Collectors.toList()).contains(username)).collect(Collectors.toList());
+        return productRepo.retrieveAll().stream().filter(u-> u.getSellerId().equals(username)).collect(Collectors.toList());
     }
 
     @Override

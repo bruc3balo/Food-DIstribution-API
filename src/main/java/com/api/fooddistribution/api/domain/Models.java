@@ -190,8 +190,11 @@ public class Models {
         @JsonProperty(IMAGE)
         private String image;
 
-        @JsonProperty(PRODUCT_AMOUNT)
-        private List<ProductAmount> productAmounts = new LinkedList<>();
+        @JsonProperty(SELLERS_ID)
+        private String sellerId;
+
+        @JsonProperty(UNITS_LEFT)
+        private Double unitsLeft;
 
         @JsonProperty(CREATED_AT)
         private String createdAt;
@@ -232,7 +235,7 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description) {
+        public Product(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
             this.id = id;
             this.name = name;
             this.product_category = product_category;
@@ -245,6 +248,8 @@ public class Models {
             this.unit = unit;
             this.product_description = product_description;
             this.documentId = id;
+            this.sellerId = sellerId;
+            this.unitsLeft = unitsLeft;
 
         }
 
@@ -258,22 +263,6 @@ public class Models {
         }
     }
 
-    @Getter
-    @Setter
-    public static class ProductAmount {
-        @JsonProperty(SELLERS_ID)
-        private String sellerId;
-        @JsonProperty(UNIT)
-        private int unitsLeft;
-
-        public ProductAmount() {
-        }
-
-        public ProductAmount(String sellerId, int unitsLeft) {
-            this.sellerId = sellerId;
-            this.unitsLeft = unitsLeft;
-        }
-    }
 
     @Getter
     @Setter
