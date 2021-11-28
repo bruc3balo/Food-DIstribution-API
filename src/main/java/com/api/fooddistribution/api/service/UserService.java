@@ -57,4 +57,8 @@ public interface UserService {
     AppRole addPermissionListToARole(String roleName, Set<String> permissionName) throws Exception; //works
 
 
+    Cart saveACart(Cart cart);
+    List<Cart> getUserCarts(String userid);
+    Optional<Cart> getCart(String cartId);
+
 }

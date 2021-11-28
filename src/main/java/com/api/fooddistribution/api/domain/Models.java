@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.firestore.annotation.DocumentId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -103,7 +106,6 @@ public class Models {
 
     }
 
-
     @Getter
     @Setter
     public static class AppRole {
@@ -181,8 +183,8 @@ public class Models {
         @JsonProperty(NAME)
         private String name;
 
-        @JsonProperty(PRODUCT_CATEGORY)
-        private ProductCategory product_category;
+        @JsonProperty(PRODUCT_CATEGORY_ID)
+        private String product_category_id;
 
         @JsonProperty(PRICE)
         private BigDecimal price;
@@ -235,10 +237,10 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
+        public Product(String id, String name, String product_category_id, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
             this.id = id;
             this.name = name;
-            this.product_category = product_category;
+            this.product_category_id = product_category_id;
             this.price = price;
             this.image = image;
             this.createdAt = createdAt;
@@ -263,6 +265,194 @@ public class Models {
         }
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class ProductModel {
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private String id;
+
+        @JsonProperty(NAME)
+        private String name;
+
+        @JsonProperty(PRODUCT_CATEGORY)
+        private ProductCategory product_category;
+
+        @JsonProperty(PRICE)
+        private BigDecimal price;
+
+        @JsonProperty(IMAGE)
+        private String image;
+
+        @JsonProperty(SELLERS_ID)
+        private String sellerId;
+
+        @JsonProperty(UNITS_LEFT)
+        private Double unitsLeft;
+
+        @JsonProperty(CREATED_AT)
+        private String createdAt;
+
+        @JsonProperty(UPDATED_AT)
+        private String updatedAt;
+
+        @JsonProperty(DELETED)
+        private Boolean deleted;
+
+        @JsonProperty(DISABLED)
+        private Boolean disabled;
+
+        @JsonProperty(UNIT)
+        private String unit;
+
+        @JsonProperty(PRODUCT_DESCRIPTION)
+        private String product_description;
+
+        public ProductModel() {
+
+        }
+
+        public ProductModel(String id, String name) {
+            this.id = id;
+            this.name = name;
+            this.documentId = id;
+
+        }
+
+        public ProductModel(String name, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled) {
+            this.name = name;
+            this.price = price;
+            this.image = image;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.deleted = deleted;
+            this.disabled = disabled;
+        }
+
+        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
+            this.id = id;
+            this.name = name;
+            this.product_category = product_category;
+            this.price = price;
+            this.image = image;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.deleted = deleted;
+            this.disabled = disabled;
+            this.unit = unit;
+            this.product_description = product_description;
+            this.documentId = id;
+            this.sellerId = sellerId;
+            this.unitsLeft = unitsLeft;
+
+        }
+
+        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String sellerId, Double unitsLeft, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description) {
+            this.id = id;
+            this.documentId = id;
+            this.name = name;
+            this.product_category = product_category;
+            this.price = price;
+            this.image = image;
+            this.sellerId = sellerId;
+            this.unitsLeft = unitsLeft;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.deleted = deleted;
+            this.disabled = disabled;
+            this.unit = unit;
+            this.product_description = product_description;
+        }
+
+        public ProductModel(String id, String name, Boolean deleted, Boolean disabled) {
+            this.id = id;
+            this.name = name;
+            this.deleted = deleted;
+            this.disabled = disabled;
+            this.documentId = id;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class Cart{
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private String id;
+
+        @JsonProperty("userId")
+        @NotBlank(message = "user id cannot be blank")
+        private String userId;
+
+        @JsonProperty("productId")
+        @NotBlank(message = "product cannot be blank")
+        private String productId;
+
+        @JsonProperty("numberOfItems")
+        @NotBlank(message = "product cannot be blank")
+        private Double numberOfItems;
+
+        public Cart(String id, String userId, String productId, Double numberOfItems) {
+            this.id = id;
+            this.documentId = id;
+            this.userId = userId;
+            this.productId = productId;
+            this.numberOfItems = numberOfItems;
+        }
+
+        public Cart(String userId, String productId, Double numberOfItems) {
+            this.userId = userId;
+            this.productId = productId;
+            this.numberOfItems = numberOfItems;
+        }
+
+        public String getDocumentId() {
+            return documentId;
+        }
+
+        public void setDocumentId(String documentId) {
+            this.documentId = documentId;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @NonNull
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(@NonNull String userId) {
+            this.userId = userId;
+        }
+
+        public String getProductId() {
+            return productId;
+        }
+
+        public void setProductId(String productId) {
+            this.productId = productId;
+        }
+
+        public Double getNumberOfItems() {
+            return numberOfItems;
+        }
+
+        public void setNumberOfItems(Double numberOfItems) {
+            this.numberOfItems = numberOfItems;
+        }
+    }
 
     @Getter
     @Setter
@@ -332,7 +522,6 @@ public class Models {
             this.updatedAt = updatedAt;
         }
     }
-
     //purchase
 
     @Getter

@@ -527,7 +527,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Models.Permissions updatePermission(Models.Permissions permissions) throws ParseException, JsonProcessingException {
+    public Models.Permissions updatePermission(Models.Permissions permissions) {
         return permissionsRepo.save(permissions);
+    }
+
+    @Override
+    public List<Models.Cart> getUserCarts(String userid) {
+        return cartRepo.retrieveAll().stream().filter(i->i.getUserId().equals(userid)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Models.Cart> getCart(String cartId) {
+        return cartRepo.retrieveAll().stream().filter(i->i.getId().equals(cartId)).findFirst();
+    }
+
+    @Override
+    public Models.Cart saveACart(Models.Cart cart) {
+        return cartRepo.save(cart);
     }
 }

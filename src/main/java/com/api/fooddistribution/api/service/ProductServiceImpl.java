@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
             throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
         }
 
-        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername());
+        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get().getId(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername());
 
 
         return productRepo.save(newProduct);
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
                 throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
             }
 
-            newProduct.setProduct_category(productCategory.get());
+            newProduct.setProduct_category_id(productCategory.get().getId());
         }
 
         if (productUpdateForm.getImage() != null) {
@@ -163,8 +163,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProductsWithCategory(String categoryName) {
-        return getAllProducts().stream().filter(f-> f.getProduct_category().getName().equals(categoryName)).collect(Collectors.toList());
+    public List<Product> getAllProductsWithCategory(String categoryId) {
+        return getAllProducts().stream().filter(f-> f.getProduct_category_id().equals(categoryId)).collect(Collectors.toList());
     }
 
     @Override

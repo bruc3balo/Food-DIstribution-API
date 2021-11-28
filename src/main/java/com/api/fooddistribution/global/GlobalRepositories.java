@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class GlobalRepositories {
 
     public static UserRepo userRepo;
+    public static CartRepo cartRepo;
     public static AppRoleRepo appRoleRepo;
     public static PermissionsRepo permissionsRepo;
     public static ProductRepo productRepo;

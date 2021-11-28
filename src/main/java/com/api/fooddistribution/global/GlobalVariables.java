@@ -14,6 +14,7 @@ public class GlobalVariables {
     public static final String PACKAGE = "com.api.fooddistribution";
 
     public static final String USER_COLLECTION = "users";
+    public static final String CART_COLLECTION = "cart";
     public static final String ROLE_COLLECTION = "roles";
     public static final String PERMISSION_COLLECTION = "permissions";
     public static final String PRODUCT_COLLECTION = "product";
@@ -33,8 +34,6 @@ public class GlobalVariables {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     public static final String PROFILE_PICTURE = "profile_picture";
-
-
 
     public static final String PRODUCT = "Product";
     public static final String PRODUCT_CATEGORY = "product_category";
@@ -61,6 +60,7 @@ public class GlobalVariables {
     public static final String UNIT = "unit";
     public static final String UNITS_LEFT = "unitsLeft";
     public static final String PRODUCT_CATEGORY_NAME = "product_category_name";
+    public static final String PRODUCT_CATEGORY_ID = "product_category_id";
     public static final String PRODUCT_PRICE = "product_price";
     public static final String PRODUCT_NAME = "product_name";
     public static final String PRODUCT_DESCRIPTION = "product_description";

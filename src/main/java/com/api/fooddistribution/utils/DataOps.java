@@ -1,5 +1,6 @@
 package com.api.fooddistribution.utils;
 
+import com.api.fooddistribution.api.domain.Models;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.api.fooddistribution.global.GlobalService.productService;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
 
 public class DataOps {
@@ -114,6 +116,13 @@ public class DataOps {
 
     public static String generateProductCategoryID(String name) {
         return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("PC");
+    }
+
+    public static Models.ProductModel getProductModelFromProduct(Models.Product product){
+        if (product == null) {
+            return new Models.ProductModel();
+        }
+        return new Models.ProductModel(product.getId(), product.getName(), productService.findCategoryById(product.getProduct_category_id()).orElse(null), product.getPrice(), product.getImage(), product.getSellerId(),product.getUnitsLeft(), product.getCreatedAt(), product.getUpdatedAt(),product.getDeleted(), product.getDisabled(), product.getUnit(), product.getProduct_description());
     }
 
     public static Integer strToInteger(String value) {

@@ -9,6 +9,7 @@ import com.api.fooddistribution.utils.JsonResponse;
 import com.api.fooddistribution.utils.JsonSetErrorResponse;
 import com.api.fooddistribution.utils.JsonSetSuccessResponse;
 
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +145,7 @@ public class UserController {
             if (uid != null) {
                 user = userService.getAUserByUid(uid).orElse(null);
 
-            } else if (username != null){
+            } else if (username != null) {
                 user = userService.findByUsername(username).orElse(null);
 
             } else {
@@ -178,7 +180,7 @@ public class UserController {
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, UID);
             if (unknownResponse != null) return unknownResponse;
 
-            log.info("UPDATED RECEIVED "+new ObjectMapper().writeValueAsString(updateForm) + " for user "+uid);
+            log.info("UPDATED RECEIVED " + new ObjectMapper().writeValueAsString(updateForm) + " for user " + uid);
 
             Models.AppUser updateUser = userService.updateAUser(uid, updateForm);
 
@@ -207,7 +209,7 @@ public class UserController {
             }
 
             Map<String, String> map = new HashMap<>();
-            map.put("refresh_token",refresh);
+            map.put("refresh_token", refresh);
             map.put("auth_type", tokenPrefix);
 
             return new ResponseEntity<>(map, HttpStatus.OK);
@@ -219,7 +221,43 @@ public class UserController {
     }
 
 
+    @PostMapping(value = {"/cart"})
+    public ResponseEntity<?> saveNewCar(@Valid @RequestBody Models.Cart cart) {
+        try {
+            Models.Cart newCart = userService.saveACart(cart);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(CART_COLLECTION), newCart);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), "");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    @GetMapping(value = {"/cart"})
+    public ResponseEntity<?> getCarts( HttpServletRequest request,@RequestParam(name = UID) String uid) {
+        try {
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, UID);
+            if (unknownResponse != null) return unknownResponse;
 
+            List<Models.Cart> cartList = userService.getUserCarts(uid);
 
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(CART_COLLECTION), cartList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), "");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = {"/cart"})
+    public ResponseEntity<?> updateCart(@Valid @RequestBody Models.Cart cart) {
+        try {
+            Models.Cart newCart = userService.saveACart(cart);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(CART_COLLECTION), newCart);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), "");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
