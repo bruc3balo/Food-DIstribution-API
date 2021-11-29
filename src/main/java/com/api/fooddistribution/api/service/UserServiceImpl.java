@@ -543,6 +543,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Models.Cart saveACart(Models.Cart cart) {
-        return cartRepo.save(cart);
+
+        if (userRepo.get(cart.getUserId()).isEmpty()) {
+            throw new UsernameNotFoundException("user not found");
+        }
+
+        return cartRepo.save(new Models.Cart(generateCartID(cart.getUserId()),cart.getUserId(),cart.getProductId(),cart.getNumberOfItems()));
     }
 }

@@ -32,6 +32,11 @@ public class GlobalRepositories {
     }
 
     @Autowired
+    public void setCartRepo(CartRepo cartRepo) {
+        GlobalRepositories.cartRepo = cartRepo;
+    }
+
+    @Autowired
     public void setProductRepo(ProductRepo productRepo) {
         GlobalRepositories.productRepo = productRepo;
     }

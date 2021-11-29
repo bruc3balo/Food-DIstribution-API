@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
@@ -378,7 +379,7 @@ public class Models {
 
     @Getter
     @Setter
-    public static class Cart{
+    public static class Cart {
 
         @DocumentId
         private String documentId;
@@ -395,8 +396,11 @@ public class Models {
         private String productId;
 
         @JsonProperty("numberOfItems")
-        @NotBlank(message = "product cannot be blank")
+        @NotNull(message = "product cannot be blank")
         private Double numberOfItems;
+
+        public Cart() {
+        }
 
         public Cart(String id, String userId, String productId, Double numberOfItems) {
             this.id = id;

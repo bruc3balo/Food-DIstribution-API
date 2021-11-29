@@ -15,6 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -220,20 +221,28 @@ public class UserController {
         }
     }
 
-
     @PostMapping(value = {"/cart"})
-    public ResponseEntity<?> saveNewCar(@Valid @RequestBody Models.Cart cart) {
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<?> saveNewCart(@Valid @RequestBody Models.Cart cart) {
         try {
             Models.Cart newCart = userService.saveACart(cart);
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(CART_COLLECTION), newCart);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
+
+            if (e instanceof UsernameNotFoundException) {
+                JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getLocalizedMessage(), "");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
             JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), "");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping(value = {"/cart"})
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<?> getCarts( HttpServletRequest request,@RequestParam(name = UID) String uid) {
         try {
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, UID);
@@ -250,6 +259,7 @@ public class UserController {
     }
 
     @PutMapping(value = {"/cart"})
+    @PreAuthorize("hasAuthority('user:update')")
     public ResponseEntity<?> updateCart(@Valid @RequestBody Models.Cart cart) {
         try {
             Models.Cart newCart = userService.saveACart(cart);

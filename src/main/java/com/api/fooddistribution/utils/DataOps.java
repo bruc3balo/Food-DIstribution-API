@@ -118,6 +118,10 @@ public class DataOps {
         return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("PC");
     }
 
+    public static String generateCartID(String name) {
+        return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("CT");
+    }
+
     public static Models.ProductModel getProductModelFromProduct(Models.Product product){
         if (product == null) {
             return new Models.ProductModel();
