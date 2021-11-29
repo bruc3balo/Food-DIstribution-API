@@ -60,5 +60,6 @@ public interface UserService {
     Cart saveACart(Cart cart);
     List<Cart> getUserCarts(String userid);
     Optional<Cart> getCart(String cartId);
+    Boolean deleteCart(String id);
 
 }

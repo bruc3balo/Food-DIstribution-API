@@ -270,4 +270,20 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @DeleteMapping(value = {"/cart"})
+    @PreAuthorize("hasAuthority('user:update')")
+    public ResponseEntity<?> deleteCart(HttpServletRequest request,@RequestParam(name = ID) String id) {
+        try {
+            ResponseEntity<?> unknownResponse = checkUnknownParameters(request, ID);
+            if (unknownResponse != null) return unknownResponse;
+
+            Boolean deleted = userService.deleteCart(id);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(deleted ?ApiCode.SUCCESS.getCode() : ApiCode.FAILED.getCode(), deleted ? ApiCode.SUCCESS.getDescription() : ApiCode.FAILED.getDescription(), getTransactionId(CART_COLLECTION), deleted);
+            return new ResponseEntity<>(response, deleted ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), ApiCode.FAILED.getDescription(), "");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

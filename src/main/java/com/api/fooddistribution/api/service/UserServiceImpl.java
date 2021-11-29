@@ -550,4 +550,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return cartRepo.save(new Models.Cart(generateCartID(cart.getUserId()),cart.getUserId(),cart.getProductId(),cart.getNumberOfItems()));
     }
+
+    @Override
+    public Boolean deleteCart(String id) {
+        return cartRepo.remove(id);
+    }
 }

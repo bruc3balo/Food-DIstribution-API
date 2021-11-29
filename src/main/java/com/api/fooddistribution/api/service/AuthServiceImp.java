@@ -284,8 +284,8 @@ public class AuthServiceImp implements AuthService {
         }*/
         String teaImage = "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/v1555352925/shape/mentalfloss/istock_000059566150_small.jpg?itok=qh2qo4eB";
         String coffeeImage = "https://s-i.huffpost.com/gen/1693731/images/o-COFFEE-facebook.jpg";
-        String tomatoesImage = "http://www.bhg.com.au/media/13840/170920-growing-tomatoes.jpg";
-        String strawberries = "http://www.howtogrowstuff.com/wp-content/uploads/Strawberries1.jpg";
+        String tomatoesImage = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Flivestly.com%2Fwp-content%2Fuploads%2F2020%2F05%2Ftomatoes-1528841836-1024x683.jpg&f=1&nofb=1";
+        String strawberries = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpost.healthline.com%2Fwp-content%2Fuploads%2F2020%2F08%2Fstrawberries-1200x628-facebook.20180419205234528-1200x628.jpg&f=1&nofb=1";
         String vegetable = "https://www.greenlife.co.ke/wp-content/uploads/2020/02/Cabbage.jpg";
         String beans = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi0.wp.com%2Fimages-prod.healthline.com%2Fhlcmsresource%2Fimages%2FAN_images%2Fkidney-beans-1296x728-feature.jpg%3Fw%3D1155%26h%3D1528&f=1&nofb=1";
 
