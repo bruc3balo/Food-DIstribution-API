@@ -35,7 +35,6 @@ public class ProductController {
 
             Models.Product savedProduct = productService.saveNewProduct(form);
 
-
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), savedProduct != null ? savedProduct.getName() + " saved" : "Product not saved", getTransactionId(PRODUCT_COLLECTION), getProductModelFromProduct(savedProduct));
             return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -90,12 +89,10 @@ public class ProductController {
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, USERNAME);
             if (unknownResponse != null) return unknownResponse;
 
-            List<Models.Product> productList = productService.getAllSellerProducts(username);
-            List<Models.ProductModel> productModelList = new ArrayList<>();
-            productList.forEach(i-> productModelList.add(getProductModelFromProduct(i)));
+            List<Models.ProductModel> productModelList = productService.getAllSellerProducts(username).stream().map(DataOps::getProductModelFromProduct).collect(Collectors.toList());
 
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productModelList);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productModelList.isEmpty() ? productModelList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productModelList);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,11 +110,8 @@ public class ProductController {
             ResponseEntity<?> unknownResponse = checkUnknownParameters(request, PRODUCT_CATEGORY_NAME);
             if (unknownResponse != null) return unknownResponse;
 
-            List<Models.Product> productList = productService.getAllProductsWithCategory(name);
-            List<Models.ProductModel> productModelList = new ArrayList<>();
-            productList.forEach(i-> productModelList.add(getProductModelFromProduct(i)));
-
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productModelList);
+            List<Models.ProductModel> productList = productService.getAllProductsWithCategory(name).stream().map(DataOps::getProductModelFromProduct).collect(Collectors.toList());
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), !productList.isEmpty() ? productList.size() + "products found" : "products Not found", getTransactionId(PRODUCT_COLLECTION), productList);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -230,5 +224,7 @@ public class ProductController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
 }

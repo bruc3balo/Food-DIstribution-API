@@ -14,6 +14,9 @@ public class GlobalVariables {
     public static final String PACKAGE = "com.api.fooddistribution";
 
     public static final String USER_COLLECTION = "users";
+    public static final String PURCHASE_COLLECTION = "purchase";
+    public static final String DISTRIBTUION_COLLECTION = "distribution";
+    public static final String REMARKS_COLLECTION = "remarks";
     public static final String CART_COLLECTION = "cart";
     public static final String ROLE_COLLECTION = "roles";
     public static final String PERMISSION_COLLECTION = "permissions";
@@ -45,6 +48,16 @@ public class GlobalVariables {
     //Role
     public static final String NAME = "name";
     public static final String ID = "id";
+    public static final String DONOR = "donor";
+    public static final String REPORTED = "reported";
+    public static final String REMARKS = "remarks";
+    public static final String TRANSPORTER = "transporter";
+    public static final String BENEFICIARY = "beneficiary";
+    public static final String DISTRIBUTION_ID = "distribution_id";
+    public static final String STATUS = "status";
+    public static final String COMPLETED_AT = "completed_at";
+    public static final String PURCHASE_ID = "purchasesId";
+    public static final String PAID = "paid";
 
     //permissions
     public static final String PERMISSIONS = "permissions";
@@ -57,6 +70,8 @@ public class GlobalVariables {
     public static final String SELLERS_ID = "sellersId";
     public static final String BUYERS = "buyers";
     public static final String BUYERS_ID = "buyersId";
+    public static final String LOCATION = "location";
+    public static final String ADDRESS = "address";
     public static final String UNIT = "unit";
     public static final String UNITS_LEFT = "unitsLeft";
     public static final String PRODUCT_CATEGORY_NAME = "product_category_name";

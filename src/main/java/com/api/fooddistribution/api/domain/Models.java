@@ -1,5 +1,7 @@
 package com.api.fooddistribution.api.domain;
 
+import com.api.fooddistribution.api.model.ProductCountModel;
+import com.api.fooddistribution.api.model.ProductDoneModel;
 import com.api.fooddistribution.api.validation.email.ValidEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.firestore.annotation.DocumentId;
@@ -82,7 +84,11 @@ public class Models {
 
         }
 
-        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted,boolean tutorial,boolean verified,String profilePicture) {
+        public AppUser(String username) {
+            this.username = username;
+        }
+
+        public AppUser(String uid, String names, String username, String idNumber, String emailAddress, String phoneNumber, String password, String bio, String lastKnownLocation, String createdAt, String updatedAt, AppRole role, boolean disabled, boolean deleted, boolean tutorial, boolean verified, String profilePicture) {
             this.uid = uid;
             this.documentId = uid;
             this.names = names;
@@ -102,7 +108,6 @@ public class Models {
             this.verified = verified;
             this.profilePicture = profilePicture;
         }
-
 
 
     }
@@ -211,6 +216,9 @@ public class Models {
         @JsonProperty(DISABLED)
         private Boolean disabled;
 
+        @JsonProperty(LOCATION)
+        private String location;
+
         @JsonProperty(UNIT)
         private String unit;
 
@@ -238,7 +246,7 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public Product(String id, String name, String product_category_id, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
+        public Product(String id, String name, String product_category_id, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description, Double unitsLeft, String sellerId, String location) {
             this.id = id;
             this.name = name;
             this.product_category_id = product_category_id;
@@ -253,6 +261,7 @@ public class Models {
             this.documentId = id;
             this.sellerId = sellerId;
             this.unitsLeft = unitsLeft;
+            this.location = location;
 
         }
 
@@ -265,6 +274,7 @@ public class Models {
 
         }
     }
+
 
     @Getter
     @Setter
@@ -312,6 +322,9 @@ public class Models {
         @JsonProperty(PRODUCT_DESCRIPTION)
         private String product_description;
 
+        @JsonProperty(LOCATION)
+        private String location;
+
         public ProductModel() {
 
         }
@@ -333,7 +346,7 @@ public class Models {
             this.disabled = disabled;
         }
 
-        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description,Double unitsLeft,String sellerId) {
+        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description, Double unitsLeft, String sellerId) {
             this.id = id;
             this.name = name;
             this.product_category = product_category;
@@ -348,10 +361,9 @@ public class Models {
             this.documentId = id;
             this.sellerId = sellerId;
             this.unitsLeft = unitsLeft;
-
         }
 
-        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String sellerId, Double unitsLeft, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description) {
+        public ProductModel(String id, String name, ProductCategory product_category, BigDecimal price, String image, String sellerId, Double unitsLeft, String createdAt, String updatedAt, Boolean deleted, Boolean disabled, String unit, String product_description, String location) {
             this.id = id;
             this.documentId = id;
             this.name = name;
@@ -366,6 +378,7 @@ public class Models {
             this.disabled = disabled;
             this.unit = unit;
             this.product_description = product_description;
+            this.location = location;
         }
 
         public ProductModel(String id, String name, Boolean deleted, Boolean disabled) {
@@ -492,7 +505,6 @@ public class Models {
         }
 
 
-
         public ProductCategory(String name, Boolean deleted, Boolean disabled, String createdAt, String updatedAt) {
             this.name = name;
             this.deleted = deleted;
@@ -511,7 +523,7 @@ public class Models {
         }
 
         public ProductCategory(String id, String name) {
-            this.id =id;
+            this.id = id;
             this.documentId = id;
             this.name = name;
         }
@@ -532,24 +544,98 @@ public class Models {
     @Setter
     public static class Purchase {
 
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
         private Long id;
 
+        @JsonProperty(BUYERS_ID)
+        private String buyerId;
 
-        private AppUser seller;
+        @JsonProperty(LOCATION)
+        private String location;
 
-        // @Column(name = "buyer")
-        private AppUser buyer;
+        @JsonProperty(ADDRESS)
+        private String address;
 
-
+        @JsonProperty(CREATED_AT)
         private Date createdAt;
 
+        @JsonProperty(PRODUCT)
+        private LinkedHashMap<String, Integer> products = new LinkedHashMap<>();
 
-        private Set<Product> products = new HashSet<>();
+        private boolean deleted;
 
+        private boolean complete;
 
-        private Boolean deleted;
+        private String assigned;
+
 
         public Purchase() {
+
+        }
+
+        public Purchase(Long id) {
+            this.id = id;
+        }
+
+        public Purchase(Long id, String location, String address, String buyerId, Date createdAt, LinkedHashMap<String, Integer> products) {
+            this.id = id;
+            this.documentId = String.valueOf(id);
+            this.buyerId = buyerId;
+            this.location = location;
+            this.createdAt = createdAt;
+            this.products = products;
+            this.address = address;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class PurchaseModel {
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty(BUYERS_ID)
+        private String buyerId;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(LOCATION)
+        private String location;
+
+        @JsonProperty(ADDRESS)
+        private String address;
+
+        @JsonProperty(PRODUCT)
+        private LinkedHashSet<ProductCountModel> products = new LinkedHashSet<>();
+
+        private boolean deleted;
+
+        private boolean complete;
+
+        private String assigned;
+
+        public PurchaseModel() {
+
+        }
+
+        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products,boolean deleted,String assigned) {
+            this.id = id;
+            this.documentId = String.valueOf(id);
+            this.buyerId = buyerId;
+            this.createdAt = createdAt;
+            this.products = products;
+            this.location = location;
+            this.address = address;
+            this.deleted = deleted;
+            this.assigned = assigned;
         }
     }
 
@@ -557,40 +643,179 @@ public class Models {
     @Setter
     public static class Distribution {
 
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
         private Long id;
 
-        // @Column(name = "certified_authority")
+        @JsonProperty(DONOR)
+        private String donor;
 
-        public AppUser certifiedAuthority;
+        @JsonProperty(TRANSPORTER)
+        private String transporter;
 
-        //@Column(name = "transporter")
+        @JsonProperty(BENEFICIARY)
+        private String beneficiary;
 
-        public AppUser transporter;
+        @JsonProperty(STATUS)
+        private Integer status;
 
-
-        public Integer status;
-
-
+        @JsonProperty(CREATED_AT)
         private Date createdAt;
 
-
+        @JsonProperty(UPDATED_AT)
         private Date updatedAt;
 
-
+        @JsonProperty(COMPLETED_AT)
         private Date completedAt;
 
+        @JsonProperty(PURCHASE_ID)
+        private Long purchasesId;
 
-        private Set<Purchase> purchases = new HashSet<>();
-
-
+        @JsonProperty(LAST_LOCATION)
         private String lastKnownLocation;
 
-
+        @JsonProperty(DELETED)
         private Boolean deleted;
+
+        @JsonProperty(PAID)
+        private Boolean paid;
+
+        @JsonProperty(REPORTED)
+        private Boolean reported;
+
+        @JsonProperty(REMARKS)
+        private Long remarks;
+
 
         public Distribution() {
 
         }
+
+        public Distribution(Long id, String donor, String transporter, String beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long purchasesId, String lastKnownLocation, Boolean deleted, Boolean paid,Boolean reported,Long remarks) {
+            this.id = id;
+            this.documentId = String.valueOf(id);
+            this.donor = donor;
+            this.transporter = transporter;
+            this.beneficiary = beneficiary;
+            this.status = status;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.completedAt = completedAt;
+            this.purchasesId = purchasesId;
+            this.lastKnownLocation = lastKnownLocation;
+            this.deleted = deleted;
+            this.paid = paid;
+            this.reported = reported;
+            this.remarks = remarks;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class DistributionModel {
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty(DONOR)
+        public AppUser donor;
+
+        @JsonProperty(TRANSPORTER)
+        public AppUser transporter;
+
+        @JsonProperty(BENEFICIARY)
+        public AppUser beneficiary;
+
+        @JsonProperty(STATUS)
+        public Integer status;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(UPDATED_AT)
+        private Date updatedAt;
+
+        @JsonProperty(COMPLETED_AT)
+        private Date completedAt;
+
+        @JsonProperty(PURCHASE_COLLECTION)
+        private Models.PurchaseModel purchases;
+
+        @JsonProperty(LAST_LOCATION)
+        private String lastKnownLocation;
+
+        @JsonProperty(DELETED)
+        private Boolean deleted;
+
+        @JsonProperty(PAID)
+        private Boolean paid;
+
+        @JsonProperty(REPORTED)
+        private Boolean reported;
+
+        @JsonProperty(REMARKS)
+        private Remarks remarks;
+
+
+        public DistributionModel() {
+
+        }
+
+        public DistributionModel(String documentId, Long id, AppUser donor, AppUser transporter, AppUser beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, PurchaseModel purchases, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Remarks remarks) {
+            this.documentId = documentId;
+            this.id = id;
+            this.donor = donor;
+            this.transporter = transporter;
+            this.beneficiary = beneficiary;
+            this.status = status;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.completedAt = completedAt;
+            this.purchases = purchases;
+            this.lastKnownLocation = lastKnownLocation;
+            this.deleted = deleted;
+            this.paid = paid;
+            this.reported = reported;
+            this.remarks = remarks;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class Remarks {
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty(DONOR)
+        private String donor;
+
+        @JsonProperty(TRANSPORTER)
+        private String transporter;
+
+        @JsonProperty(BENEFICIARY)
+        private String beneficiary;
+
+        @JsonProperty(DISTRIBUTION_ID)
+        private Long distributionId;
+
+        public Remarks() {
+
+        }
+
+        public Remarks(Long id) {
+            this.id = id;
+        }
+
+
     }
 }
 

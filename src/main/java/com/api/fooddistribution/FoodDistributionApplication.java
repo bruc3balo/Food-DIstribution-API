@@ -24,7 +24,7 @@ public class FoodDistributionApplication {
     @Bean
     CommandLineRunner run() {
         return args -> {
-             // authService.defaults();
+              //authService.defaults();
         };
     }
 

@@ -44,10 +44,15 @@ public class ProductUpdateForm {
     private Double unitsLeft;
 
 
+    public ProductUpdateForm(String id, Double unitsLeft) {
+        this.id = id;
+        this.unitsLeft = unitsLeft;
+    }
 
-    public ProductUpdateForm() {  }
+    public ProductUpdateForm() {
+    }
 
-    public ProductUpdateForm(String productName, String productPrice, String productCategoryName, String image,String productDescription) {
+    public ProductUpdateForm(String productName, String productPrice, String productCategoryName, String image, String productDescription) {
         this.productName = productName;
         this.productPrice = productPrice;
         this.productCategoryName = productCategoryName;

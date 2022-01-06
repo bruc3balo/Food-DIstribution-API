@@ -1,10 +1,7 @@
 package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
-import com.api.fooddistribution.api.model.NewUserForm;
-import com.api.fooddistribution.api.model.ProductCreationFrom;
-import com.api.fooddistribution.api.model.RoleCreationForm;
-import com.api.fooddistribution.api.model.UserUpdateForm;
+import com.api.fooddistribution.api.model.*;
 import com.api.fooddistribution.config.FirestoreConfig;
 import com.api.fooddistribution.config.security.AppRolesEnum;
 import com.api.fooddistribution.config.security.AppUserPermission;
@@ -26,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
+import static com.api.fooddistribution.config.FirestoreConfig.firebaseDatabase;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.*;
 import static com.api.fooddistribution.global.GlobalVariables.*;
@@ -173,6 +171,10 @@ public class AuthServiceImp implements AuthService {
     @Override
     public void defaults() throws Exception {
 
+       // firebaseDatabase.getReference("Cart").removeValue((databaseError, databaseReference) -> System.out.println("Deleted"));
+
+
+
         //permissions
        /* Set<String> newP = Arrays.stream(AppUserPermission.values()).map(AppUserPermission::getPermission).collect(Collectors.toSet());
         //userService.savePermissionList(newP);
@@ -300,18 +302,25 @@ public class AuthServiceImp implements AuthService {
 //        Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
 //        Thread.sleep(2000);
 //        //product
-        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea","seller"));
+        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea","seller",HY));
         Thread.sleep(2000);
-        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage,LIQUID,"Cups of coffee","seller"));
+        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage,LIQUID,"Cups of coffee","seller",HY));
         Thread.sleep(2000);
-        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage,SOLID,"A single tomatoe","seller"));
+        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage,SOLID,"A single tomatoe","seller",HY));
         Thread.sleep(2000);
-        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries","seller"));
+        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries","seller",HY));
         Thread.sleep(2000);
-        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash","seller"));
+        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash","seller",HY));
         Thread.sleep(2000);
-        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans","seller"));
+        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans","seller",HY));
 
+
+        tea = productService.updateProduct(new ProductUpdateForm(tea.getId(),200.0));
+        coffee = productService.updateProduct(new ProductUpdateForm(coffee.getId(),7.0));
+        tomatoes = productService.updateProduct(new ProductUpdateForm(tomatoes.getId(),8.0));
+        strawberry = productService.updateProduct(new ProductUpdateForm(strawberry.getId(),150.0));
+        cabbage = productService.updateProduct(new ProductUpdateForm(cabbage.getId(),15.0));
+        bean = productService.updateProduct(new ProductUpdateForm(bean.getId(),11.0));
 
     }
 

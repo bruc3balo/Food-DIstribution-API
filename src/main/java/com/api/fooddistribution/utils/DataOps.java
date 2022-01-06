@@ -1,6 +1,7 @@
 package com.api.fooddistribution.utils;
 
 import com.api.fooddistribution.api.domain.Models;
+import com.api.fooddistribution.api.model.ProductCountModel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.api.fooddistribution.global.GlobalRepositories.purchaseRepo;
+import static com.api.fooddistribution.global.GlobalRepositories.remarksRepo;
 import static com.api.fooddistribution.global.GlobalService.productService;
+import static com.api.fooddistribution.global.GlobalService.userService;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
 
 public class DataOps {
@@ -36,9 +40,7 @@ public class DataOps {
 
     public static ResponseEntity<?> checkUnknownParameters(HttpServletRequest request, String accessToken) {
         List<String> unknownParams = filterRequestParams(request, List.of(accessToken));
-        ResponseEntity<?> response = unknownParameterList(unknownParams);
-        if (response != null) return response;
-        return null;
+        return unknownParameterList(unknownParams);
     }
 
     public static ResponseEntity<?> unknownParameterList(List<String> unknownParams) {
@@ -122,12 +124,32 @@ public class DataOps {
         return new KeyGenerator(6).nextString().concat(HY).concat(name).concat(HY).concat("CT");
     }
 
+    public static Models.DistributionModel getDistributionModelFromDistribution(Models.Distribution distribution) {
+
+        if (distribution == null) {
+            return null;
+        }
+
+        Optional<Models.AppUser> transporterOpt = userService.findByUsername(distribution.getTransporter());
+        return new Models.DistributionModel(distribution.getDocumentId(), distribution.getId(), distribution.getDonor() != null ? userService.findByUsername(distribution.getDonor()).orElse(new Models.AppUser(distribution.getDonor())) : null, distribution.getTransporter() != null ? transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())) : null, distribution.getBeneficiary() != null ? userService.findByUsername(distribution.getBeneficiary()).orElse(new Models.AppUser(distribution.getBeneficiary())) : null, distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getPurchaseModelFromPurchase(purchaseRepo.get(String.valueOf(distribution.getPurchasesId())).orElse(new Models.Purchase(distribution.getPurchasesId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getPaid(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null);
+    }
+
     public static Models.ProductModel getProductModelFromProduct(Models.Product product){
         if (product == null) {
             return new Models.ProductModel();
         }
-        return new Models.ProductModel(product.getId(), product.getName(), productService.findCategoryById(product.getProduct_category_id()).orElse(null), product.getPrice(), product.getImage(), product.getSellerId(),product.getUnitsLeft(), product.getCreatedAt(), product.getUpdatedAt(),product.getDeleted(), product.getDisabled(), product.getUnit(), product.getProduct_description());
+        return new Models.ProductModel(product.getId(), product.getName(), productService.findCategoryById(product.getProduct_category_id()).orElse(null), product.getPrice(), product.getImage(), product.getSellerId(),product.getUnitsLeft(), product.getCreatedAt(), product.getUpdatedAt(),product.getDeleted(), product.getDisabled(), product.getUnit(), product.getProduct_description(),product.getLocation());
     }
+
+    public static Models.PurchaseModel getPurchaseModelFromPurchase (Models.Purchase purchase) {
+        LinkedHashSet<ProductCountModel> products = new LinkedHashSet<>();
+        purchase.getProducts().forEach((pid,items)-> {
+            Optional<Models.Product> optionalProduct = productService.findProductById(pid);
+            optionalProduct.ifPresent(p-> products.add(new ProductCountModel(p,items)));
+        });
+        return new Models.PurchaseModel(purchase.getId(),purchase.getBuyerId(),purchase.getLocation(),purchase.getAddress(),purchase.getCreatedAt(),products,purchase.isDeleted(),purchase.getAssigned());
+    }
+
 
     public static Integer strToInteger(String value) {
         try {

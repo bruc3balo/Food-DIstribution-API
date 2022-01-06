@@ -37,9 +37,7 @@ public class ProductServiceImpl implements ProductService {
             throw new NotActiveException(productCategory.get().getName().concat(" is not active"));
         }
 
-        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get().getId(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername());
-
-
+        Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get().getId(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername(),productCreationFrom.getLocation());
         return productRepo.save(newProduct);
     }
 

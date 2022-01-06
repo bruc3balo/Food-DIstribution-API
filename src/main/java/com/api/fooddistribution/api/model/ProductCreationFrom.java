@@ -40,11 +40,15 @@ public class ProductCreationFrom {
     @NotBlank(message = "product owner required")
     private String username;
 
+    @JsonProperty(LOCATION)
+    @NotBlank(message = "location of product required")
+    private String location;
+
     public ProductCreationFrom() {
 
     }
 
-    public ProductCreationFrom(String productName, String productPrice, String productCategoryName, String image, String unit, String productDescription, String username) {
+    public ProductCreationFrom(String productName, String productPrice, String productCategoryName, String image, String unit, String productDescription, String username,String location) {
         this.productName = productName;
         this.productPrice = productPrice;
         this.productCategoryName = productCategoryName;
@@ -52,5 +56,6 @@ public class ProductCreationFrom {
         this.unit = unit;
         this.productDescription = productDescription;
         this.username = username;
+        this.location = location;
     }
 }
