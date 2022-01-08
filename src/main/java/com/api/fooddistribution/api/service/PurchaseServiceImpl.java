@@ -4,6 +4,7 @@ import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.DistributionUpdateForm;
 import com.api.fooddistribution.api.model.PurchaseCreationForm;
 import com.api.fooddistribution.config.security.AppRolesEnum;
+import com.api.fooddistribution.utils.DataOps;
 import com.api.fooddistribution.utils.DistributionStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,9 +105,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
 
 
+            Map<String, Integer> productStatus = new HashMap<>();
+            purchase.getProducts().keySet().forEach(pid -> productStatus.put(pid, 0));
+
             Models.Distribution distribution = new Models.Distribution(getNextDistributionId(), buyerOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_DONOR.name()) ? buyerOptional.get().getUsername() : null,
                     optionalTransporter.get().getUsername(), buyerOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name()) ? buyerOptional.get().getUsername() : null,
-                    DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, purchase.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, false, null);
+                    DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, purchase.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, false, null, productStatus);
 
 
             return getDistributionModelFromDistribution(distributionRepo.save(distribution));
@@ -116,25 +120,18 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     private Long getNextDistributionId() {
-        final Long[] id = {0L};
-        distributionRepo.retrieveAll().stream().map(Models.Distribution::getId).forEach(i -> {
-            if (i > id[0]) {
-                id[0] = i + id[0];
-            }
-        });
-
-        return id[0] + 1;
+        final List<Long> ids = distributionRepo.retrieveAll().stream().map(Models.Distribution::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        return ids.isEmpty() ? 1 : ids.get(0) + 1;
     }
 
     private Long getNextPurchaseId() {
-        final Long[] id = {0L};
-        purchaseRepo.retrieveAll().stream().map(Models.Purchase::getId).forEach(i -> {
-            if (i > id[0]) {
-                id[0] = i + id[0];
-            }
-        });
+        final List<Long> ids = purchaseRepo.retrieveAll().stream().map(Models.Purchase::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        return ids.isEmpty() ? 1 : ids.get(0) + 1;
+    }
 
-        return id[0] + 1;
+    private Long getNextRemarkId() {
+        final List<Long> ids = remarksRepo.retrieveAll().stream().map(Models.Remarks::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        return ids.isEmpty() ? 1 : ids.get(0) + 1;
     }
 
     @Override
@@ -147,7 +144,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public List<Models.DistributionModel> getDistribution(String transporter, String beneficiary, String sellerId, String donor, Boolean paid, Boolean deleted, Long purchasesId, Integer status) {
+    public List<Models.DistributionModel> getDistribution(String transporter, String beneficiary, String sellerId, String donor, Boolean paid, Boolean deleted, Long purchasesId, Integer status,Boolean completed) {
         List<Models.Distribution> allDistributions = distributionRepo.retrieveAll();
         List<Models.DistributionModel> allDistributionModels = new ArrayList<>();
 
@@ -175,13 +172,19 @@ public class PurchaseServiceImpl implements PurchaseService {
             allDistributions.removeIf(i -> !(i.getDeleted() == deleted));
         }
 
+        if (completed != null) {
+            allDistributions.removeIf(i -> completed == (i.getCompletedAt() != null));
+        }
+
         if (purchasesId != null) {
-            allDistributions.removeIf(i-> !(Objects.equals(i.getPurchasesId(), purchasesId)));
+            allDistributions.removeIf(i -> !(Objects.equals(i.getPurchasesId(), purchasesId)));
         }
 
         if (status != null) {
-            allDistributions.removeIf(i-> !(Objects.equals(i.getStatus(), status)));
+            allDistributions.removeIf(i -> !(Objects.equals(i.getStatus(), status)));
         }
+
+        allDistributions.forEach(d-> allDistributionModels.add(getDistributionModelFromDistribution(d)));
 
         return allDistributionModels;
     }
@@ -217,25 +220,88 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         if (form.getStatus() != null) {
+            updatedDistribution.setStatus(form.getStatus());
+
             switch (form.getStatus()) {
 
+                //COLLECTING_ITEMS
                 case 1:
                     break;
+
+                 //ON_THE_WAY
                 case 2:
                     break;
+
+                 //ARRIVED
                 case 3:
                     break;
+
+                 //COMPLETE
                 case 4:
+                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    Optional<Models.Purchase> optionalPurchase = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
+                    optionalPurchase.ifPresent(p-> {
+                        p.setComplete(true);
+                        purchaseRepo.save(p);
+                    });
                     break;
+
+                 //DNF
                 case 5:
+                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
                     break;
             }
         }
 
+        if (form.getProductStatus() != null) {
+            form.getProductStatus().forEach((pid, status) -> {
+                Optional<Map.Entry<String, Integer>> pStatus = updatedDistribution.getProductStatus().entrySet().stream().filter(i -> i.getKey().equals(pid)).findFirst();
+                pStatus.ifPresent((pStatusObj) -> pStatusObj.setValue(status));
+            });
+
+        }
 
         updatedDistribution.setUpdatedAt(getNowFormattedFullDate());
         return getDistributionModelFromDistribution(distributionRepo.save(updatedDistribution));
     }
 
+    @Override
+    public Models.Remarks createNewRemark(Models.Remarks remarks) throws NotFoundException {
 
+        Optional<Models.Distribution> optionalDistribution = distributionRepo.get(String.valueOf(remarks.getDistributionId()));
+
+        if(optionalDistribution.isEmpty()) {
+            throw new NotFoundException("distribution not found");
+        }
+
+
+        remarks.setId(getNextRemarkId());
+        remarks.setDocumentId(String.valueOf(remarks.getId()));
+
+
+        Models.Remarks savedRemark = remarksRepo.save(remarks);
+
+
+        optionalDistribution.get().setRemarks(savedRemark.getId());
+        distributionRepo.save(optionalDistribution.get());
+
+        return savedRemark;
+    }
+
+    @Override
+    public Models.Remarks updateRemark(Models.Remarks remarks) throws NotFoundException {
+
+        Optional<Models.Remarks> optionalRemarks = remarksRepo.get(String.valueOf(remarks.getId()));
+
+        if (optionalRemarks.isEmpty()) {
+            throw new NotFoundException("Remarks not found");
+        }
+
+        return remarksRepo.save(remarks);
+    }
+
+    @Override
+    public Optional<Models.Remarks> getRemark(Long id) {
+        return remarksRepo.get(String.valueOf(id));
+    }
 }

@@ -6,14 +6,14 @@ import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Repository;
 
 import static com.api.fooddistribution.global.GlobalVariables.PURCHASE_COLLECTION;
+import static com.api.fooddistribution.global.GlobalVariables.REMARKS;
 
 
 @Repository
 public class RemarksRepo extends AbstractFirestoreRepository<Models.Remarks> {
 
     protected RemarksRepo(Firestore firestore) {
-        super(firestore,PURCHASE_COLLECTION);
+        super(firestore,REMARKS);
     }
-
 
 }

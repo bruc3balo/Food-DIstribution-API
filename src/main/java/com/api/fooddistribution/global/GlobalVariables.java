@@ -15,7 +15,7 @@ public class GlobalVariables {
 
     public static final String USER_COLLECTION = "users";
     public static final String PURCHASE_COLLECTION = "purchase";
-    public static final String DISTRIBTUION_COLLECTION = "distribution";
+    public static final String DISTRIBUTION_COLLECTION = "distribution";
     public static final String REMARKS_COLLECTION = "remarks";
     public static final String CART_COLLECTION = "cart";
     public static final String ROLE_COLLECTION = "roles";
@@ -55,9 +55,12 @@ public class GlobalVariables {
     public static final String BENEFICIARY = "beneficiary";
     public static final String DISTRIBUTION_ID = "distribution_id";
     public static final String STATUS = "status";
+    public static final String PRODUCT_STATUS = "product_status";
     public static final String COMPLETED_AT = "completed_at";
     public static final String PURCHASE_ID = "purchasesId";
     public static final String PAID = "paid";
+    public static final String COMPLETE = "complete";
+    public static final String REVIEW = "review";
 
     //permissions
     public static final String PERMISSIONS = "permissions";

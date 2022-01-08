@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.Map;
+
 import static com.api.fooddistribution.global.GlobalVariables.*;
 
 @Getter
@@ -19,7 +21,7 @@ public class DistributionUpdateForm {
     @JsonProperty(DELETED)
     private Boolean deleted;
 
-    @JsonProperty(DONOR)
+    @JsonProperty(PAID)
     private Boolean paid;
 
     @JsonProperty(LAST_LOCATION)
@@ -30,6 +32,9 @@ public class DistributionUpdateForm {
 
     @JsonProperty(REMARKS)
     private Long remarks;
+
+    @JsonProperty(PRODUCT_STATUS)
+    private Map<String, Integer> productStatus;
 
     public DistributionUpdateForm() {
 

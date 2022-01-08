@@ -210,7 +210,7 @@ public class UserController {
             }
 
             Map<String, String> map = new HashMap<>();
-            map.put("refresh_token", refresh);
+            map.put("access_token", refresh);
             map.put("auth_type", tokenPrefix);
 
             return new ResponseEntity<>(map, HttpStatus.OK);

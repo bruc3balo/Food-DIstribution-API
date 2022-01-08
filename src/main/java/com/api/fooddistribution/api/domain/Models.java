@@ -626,7 +626,7 @@ public class Models {
 
         }
 
-        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products,boolean deleted,String assigned) {
+        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products, boolean deleted, String assigned) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.buyerId = buyerId;
@@ -688,12 +688,15 @@ public class Models {
         @JsonProperty(REMARKS)
         private Long remarks;
 
+        @JsonProperty(PRODUCT_STATUS)
+        private Map<String, Integer> productStatus;
+
 
         public Distribution() {
 
         }
 
-        public Distribution(Long id, String donor, String transporter, String beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long purchasesId, String lastKnownLocation, Boolean deleted, Boolean paid,Boolean reported,Long remarks) {
+        public Distribution(Long id, String donor, String transporter, String beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long purchasesId, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Long remarks, Map<String, Integer> productStatus) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.donor = donor;
@@ -709,6 +712,7 @@ public class Models {
             this.paid = paid;
             this.reported = reported;
             this.remarks = remarks;
+            this.productStatus = productStatus;
         }
     }
 
@@ -761,12 +765,15 @@ public class Models {
         @JsonProperty(REMARKS)
         private Remarks remarks;
 
+        @JsonProperty(PRODUCT_STATUS)
+        private Map<String, Integer> productStatus;
+
 
         public DistributionModel() {
 
         }
 
-        public DistributionModel(String documentId, Long id, AppUser donor, AppUser transporter, AppUser beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, PurchaseModel purchases, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Remarks remarks) {
+        public DistributionModel(String documentId, Long id, AppUser donor, AppUser transporter, AppUser beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, PurchaseModel purchases, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Remarks remarks,Map<String, Integer> productStatus) {
             this.documentId = documentId;
             this.id = id;
             this.donor = donor;
@@ -782,6 +789,7 @@ public class Models {
             this.paid = paid;
             this.reported = reported;
             this.remarks = remarks;
+            this.productStatus = productStatus;
         }
     }
 
@@ -805,6 +813,7 @@ public class Models {
         private String beneficiary;
 
         @JsonProperty(DISTRIBUTION_ID)
+        @NotNull(message = "missing distribution")
         private Long distributionId;
 
         public Remarks() {

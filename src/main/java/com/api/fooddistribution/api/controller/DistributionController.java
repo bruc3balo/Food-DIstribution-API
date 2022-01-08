@@ -37,12 +37,12 @@ public class DistributionController {
 
             Models.DistributionModel distributionModel = purchaseService.saveNewDistribution(purchaseId,transporterUsername);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), distributionModel != null ? distributionModel.getId() + " saved" : "Distribution not saved", getTransactionId(DISTRIBTUION_COLLECTION), distributionModel);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), distributionModel != null ? distributionModel.getId() + " saved" : "Distribution not saved", getTransactionId(DISTRIBUTION_COLLECTION), distributionModel);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to save distribution from with name " + purchaseId, getTransactionId(DISTRIBTUION_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to save distribution from with name " + purchaseId, getTransactionId(DISTRIBUTION_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -56,22 +56,24 @@ public class DistributionController {
                                              @RequestParam(name = TRANSPORTER, required = false) String transporter,
                                              @RequestParam(name = DONOR, required = false) String donor,
                                              @RequestParam(name = PAID, required = false) Boolean paid,
+                                             @RequestParam(name = COMPLETE, required = false) Boolean complete,
                                              @RequestParam(name = DELETED, required = false) Boolean deleted,
                                              @RequestParam(name = SELLERS_ID, required = false) String sellerId) {
         try {
 
-            List<String> unknownParams = filterRequestParams(request, Arrays.asList(STATUS,TRANSPORTER,PURCHASE_ID,BENEFICIARY,DONOR,PAID,DELETED, SELLERS_ID));
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList(STATUS,TRANSPORTER,PURCHASE_ID,BENEFICIARY,DONOR,PAID,DELETED, SELLERS_ID,COMPLETE));
             ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+
             if (unknownResponse != null) return unknownResponse;
 
-            List<Models.DistributionModel> distributionModels = purchaseService.getDistribution(transporter,beneficiary,sellerId,donor,paid,deleted,purchasesId,status);
+            List<Models.DistributionModel> distributionModels = purchaseService.getDistribution(transporter,beneficiary,sellerId,donor,paid,deleted,purchasesId,status,complete);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(DISTRIBTUION_COLLECTION), distributionModels);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(DISTRIBUTION_COLLECTION), distributionModels);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(DISTRIBTUION_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(DISTRIBUTION_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -84,12 +86,12 @@ public class DistributionController {
 
             Models.DistributionModel distributionModels = purchaseService.updateDistribution(form);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(DISTRIBTUION_COLLECTION), distributionModels);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(DISTRIBUTION_COLLECTION), distributionModels);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(DISTRIBTUION_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(DISTRIBUTION_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

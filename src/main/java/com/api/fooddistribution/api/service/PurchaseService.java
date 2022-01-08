@@ -14,6 +14,10 @@ public interface PurchaseService {
     List<Models.Purchase> getPurchases(String buyerId,String sellerId);
     Models.DistributionModel saveNewDistribution(Long purchaseId,String transporterUsername) throws NotFoundException, ParseException;
     Optional<Models.DistributionModel> getDistributionById(Long id) throws NotFoundException;
-    List<Models.DistributionModel> getDistribution(String transporter,String beneficiary, String sellerId,String donor,Boolean paid,Boolean deleted,Long purchasesId,Integer status);
+    List<Models.DistributionModel> getDistribution(String transporter,String beneficiary, String sellerId,String donor,Boolean paid,Boolean deleted,Long purchasesId,Integer status,Boolean complete);
     Models.DistributionModel updateDistribution(DistributionUpdateForm form) throws NotFoundException, ParseException;
+
+    Models.Remarks createNewRemark(Models.Remarks remarks) throws NotFoundException;
+    Models.Remarks updateRemark(Models.Remarks remarks) throws NotFoundException;
+    Optional<Models.Remarks> getRemark(Long id);
 }
