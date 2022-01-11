@@ -1,6 +1,7 @@
 package com.api.fooddistribution.utils;
 
 import com.api.fooddistribution.api.domain.Models;
+import com.api.fooddistribution.api.model.DonorItem;
 import com.api.fooddistribution.api.model.ProductCountModel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.api.fooddistribution.global.GlobalRepositories.purchaseRepo;
-import static com.api.fooddistribution.global.GlobalRepositories.remarksRepo;
+import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.productService;
 import static com.api.fooddistribution.global.GlobalService.userService;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
@@ -131,7 +131,29 @@ public class DataOps {
         }
 
         Optional<Models.AppUser> transporterOpt = userService.findByUsername(distribution.getTransporter());
-        return new Models.DistributionModel(distribution.getDocumentId(), distribution.getId(), distribution.getDonor() != null ? userService.findByUsername(distribution.getDonor()).orElse(new Models.AppUser(distribution.getDonor())) : null, distribution.getTransporter() != null ? transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())) : null, distribution.getBeneficiary() != null ? userService.findByUsername(distribution.getBeneficiary()).orElse(new Models.AppUser(distribution.getBeneficiary())) : null, distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getPurchaseModelFromPurchase(purchaseRepo.get(String.valueOf(distribution.getPurchasesId())).orElse(new Models.Purchase(distribution.getPurchasesId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getPaid(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null, distribution.getProductStatus());
+        return new Models.DistributionModel(distribution.getDocumentId(), distribution.getId(), distribution.getTransporter() != null ? transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())) : null, distribution.getBeneficiary() != null ? userService.findByUsername(distribution.getBeneficiary()).orElse(new Models.AppUser(distribution.getBeneficiary())) : null, distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getPurchaseModelFromPurchase(purchaseRepo.get(String.valueOf(distribution.getPurchasesId())).orElse(new Models.Purchase(distribution.getPurchasesId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getPaid(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null, distribution.getProductStatus());
+    }
+
+
+    public static Models.DonationDistributionModel getDonorDistributionModelFromDistributionDonor(Models.DonationDistribution distribution) {
+
+        if (distribution == null) {
+            return null;
+        }
+
+        Optional<Models.AppUser> transporterOpt = userService.findByUsername(distribution.getTransporter());
+        Optional<Models.AppUser> donorOpt = userService.findByUsername(distribution.getDonor());
+        Optional<Models.AppUser> beneficiaryOpt = userService.findByUsername(distribution.getBeneficiary());
+
+        return new Models.DonationDistributionModel(distribution.getId(), transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())), beneficiaryOpt.orElse(new Models.AppUser(distribution.getBeneficiary())), donorOpt.orElse(new Models.AppUser(distribution.getDonor())),distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getDonationModelFromDonation(donationRepo.get(String.valueOf(distribution.getDonationId())).orElse(new Models.Donation(distribution.getDonationId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null);
+    }
+
+    public static Models.DonationModel getDonationModelFromDonation (Models.Donation donation) {
+
+        Optional<Models.AppUser> donorOpt = userService.findByUsername(donation.getDonorUsername());
+        Optional<Models.AppUser> beneOpt = userService.findByUsername(donation.getBeneficiaryUsername());
+
+        return new Models.DonationModel(donation.getId(),donorOpt.orElse(new Models.AppUser(donation.getDonorUsername())) ,beneOpt.orElse(new Models.AppUser(donation.getBeneficiaryUsername())),donation.getCreatedAt(),donation.getDeliveryLocation(),donation.getDeliveryAddress(),donation.getCollectionLocation(),donation.getCollectionAddress(),donation.isDeleted(),donation.isComplete(),donation.getAssigned(), donation.getProducts());
     }
 
     public static Models.ProductModel getProductModelFromProduct(Models.Product product){
@@ -147,9 +169,8 @@ public class DataOps {
             Optional<Models.Product> optionalProduct = productService.findProductById(pid);
             optionalProduct.ifPresent(p-> products.add(new ProductCountModel(p,items)));
         });
-        return new Models.PurchaseModel(purchase.getId(),purchase.getBuyerId(),purchase.getLocation(),purchase.getAddress(),purchase.getCreatedAt(),products,purchase.isDeleted(),purchase.getAssigned());
+        return new Models.PurchaseModel(purchase.getId(),purchase.getBuyerId(),purchase.getLocation(),purchase.getAddress(),purchase.getCreatedAt(),products,purchase.isDeleted(),purchase.isComplete(),purchase.getAssigned());
     }
-
 
     public static Integer strToInteger(String value) {
         try {

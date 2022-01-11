@@ -15,7 +15,9 @@ public class GlobalVariables {
 
     public static final String USER_COLLECTION = "users";
     public static final String PURCHASE_COLLECTION = "purchase";
+    public static final String DONATION_COLLECTION = "donation";
     public static final String DISTRIBUTION_COLLECTION = "distribution";
+    public static final String DONATION_DISTRIBUTION_COLLECTION = "donation_distribution";
     public static final String REMARKS_COLLECTION = "remarks";
     public static final String CART_COLLECTION = "cart";
     public static final String ROLE_COLLECTION = "roles";
@@ -54,10 +56,12 @@ public class GlobalVariables {
     public static final String TRANSPORTER = "transporter";
     public static final String BENEFICIARY = "beneficiary";
     public static final String DISTRIBUTION_ID = "distribution_id";
+    public static final String DONATION_DISTRIBUTION_ID = "donation_distribution_id";
     public static final String STATUS = "status";
     public static final String PRODUCT_STATUS = "product_status";
     public static final String COMPLETED_AT = "completed_at";
     public static final String PURCHASE_ID = "purchasesId";
+    public static final String DONATION_ID = "donationId";
     public static final String PAID = "paid";
     public static final String COMPLETE = "complete";
     public static final String REVIEW = "review";
@@ -74,7 +78,11 @@ public class GlobalVariables {
     public static final String BUYERS = "buyers";
     public static final String BUYERS_ID = "buyersId";
     public static final String LOCATION = "location";
+    public static final String DELIVERY_LOCATION = "delivery_location";
+    public static final String COLLECTION_LOCATION = "collection_location";
     public static final String ADDRESS = "address";
+    public static final String DELIVERY_ADDRESS = "delivery_address";
+    public static final String COLLECTION_ADDRESS = "collection_address";
     public static final String UNIT = "unit";
     public static final String UNITS_LEFT = "unitsLeft";
     public static final String PRODUCT_CATEGORY_NAME = "product_category_name";
@@ -82,9 +90,9 @@ public class GlobalVariables {
     public static final String PRODUCT_PRICE = "product_price";
     public static final String PRODUCT_NAME = "product_name";
     public static final String PRODUCT_DESCRIPTION = "product_description";
-    public static final String SOLID = "Solid";
-    public static final String LIQUID = "Liquid";
-    public static final String GAS = "Gas";
+    public static final String TONNE = "Tonne";
+    public static final String KILOGRAM = "Kilogram";
+    public static final String GRAM = "Gram";
     public static final String PRODUCT_AMOUNT = "productAmount";
 
 

@@ -2,6 +2,8 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.DistributionUpdateForm;
+import com.api.fooddistribution.api.model.DonationCreationForm;
+import com.api.fooddistribution.api.model.DonorDistributionUpdateForm;
 import com.api.fooddistribution.api.model.PurchaseCreationForm;
 import com.api.fooddistribution.config.security.AppRolesEnum;
 import com.api.fooddistribution.utils.DataOps;
@@ -19,8 +21,7 @@ import static com.api.fooddistribution.config.FirestoreConfig.firebaseDatabase;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.productService;
 import static com.api.fooddistribution.global.GlobalService.userService;
-import static com.api.fooddistribution.utils.DataOps.getDistributionModelFromDistribution;
-import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
+import static com.api.fooddistribution.utils.DataOps.*;
 import static java.lang.String.valueOf;
 
 @Service
@@ -79,7 +80,29 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public List<Models.Purchase> getPurchases(String buyerId, String sellerId) {
-        return buyerId == null ? sellerId == null ? purchaseRepo.retrieveAll() : purchaseRepo.retrieveAll().stream().filter(i -> i.getProducts().keySet().stream().map(id -> productService.findProductById(id).get().getSellerId()).collect(Collectors.toList()).contains(sellerId)).collect(Collectors.toList()) : purchaseRepo.retrieveAll().stream().filter(i -> i.getBuyerId().equals(buyerId)).collect(Collectors.toList());
+
+        return purchaseRepo.retrieveAll().stream().filter(i -> {
+            boolean add = true;
+
+            if (buyerId != null) {
+                add = i.getBuyerId().equals(buyerId);
+            }
+
+            if (sellerId != null) {
+                final List<String> sellerNames = i.getProducts().keySet().stream().map(id -> {
+                    final Optional<Models.Product> productById = productService.findProductById(id);
+                    if (productById.isPresent()) {
+                      return  productById.get().getSellerId();
+                    } else {
+                        return id;
+                    }
+                }).collect(Collectors.toList());
+                add = sellerNames.contains(sellerId);
+            }
+
+            return add;
+        }).collect(Collectors.toList());
+
     }
 
     @Override
@@ -108,7 +131,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             Map<String, Integer> productStatus = new HashMap<>();
             purchase.getProducts().keySet().forEach(pid -> productStatus.put(pid, 0));
 
-            Models.Distribution distribution = new Models.Distribution(getNextDistributionId(), buyerOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_DONOR.name()) ? buyerOptional.get().getUsername() : null,
+            Models.Distribution distribution = new Models.Distribution(getNextDistributionId(),
                     optionalTransporter.get().getUsername(), buyerOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name()) ? buyerOptional.get().getUsername() : null,
                     DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, purchase.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, false, null, productStatus);
 
@@ -121,6 +144,16 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private Long getNextDistributionId() {
         final List<Long> ids = distributionRepo.retrieveAll().stream().map(Models.Distribution::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        return ids.isEmpty() ? 1 : ids.get(0) + 1;
+    }
+
+    private Long getNextDonationDistributionId() {
+        final List<Long> ids = donationDistributionRepo.retrieveAll().stream().map(Models.DonationDistribution::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        return ids.isEmpty() ? 1 : ids.get(0) + 1;
+    }
+
+    private Long getNextDonationId() {
+        final List<Long> ids = donationRepo.retrieveAll().stream().map(Models.Donation::getId).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
         return ids.isEmpty() ? 1 : ids.get(0) + 1;
     }
 
@@ -144,7 +177,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public List<Models.DistributionModel> getDistribution(String transporter, String beneficiary, String sellerId, String donor, Boolean paid, Boolean deleted, Long purchasesId, Integer status,Boolean completed) {
+    public List<Models.DistributionModel> getDistribution(String transporter, String beneficiary, String sellerId, Boolean paid, Boolean deleted, Long purchasesId, Integer status, Boolean completed) {
         List<Models.Distribution> allDistributions = distributionRepo.retrieveAll();
         List<Models.DistributionModel> allDistributionModels = new ArrayList<>();
 
@@ -160,9 +193,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             allDistributions.removeIf(i -> !getDistributionModelFromDistribution(i).getPurchases().getProducts().stream().map(m -> m.getProduct().getSellerId()).collect(Collectors.toList()).contains(sellerId));
         }
 
-        if (donor != null) {
-            allDistributions.removeIf(i -> !i.getDonor().equals(donor));
-        }
 
         if (paid != null) {
             allDistributions.removeIf(i -> !(i.getPaid() == paid));
@@ -184,7 +214,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             allDistributions.removeIf(i -> !(Objects.equals(i.getStatus(), status)));
         }
 
-        allDistributions.forEach(d-> allDistributionModels.add(getDistributionModelFromDistribution(d)));
+        allDistributions.forEach(d -> allDistributionModels.add(getDistributionModelFromDistribution(d)));
 
         return allDistributionModels;
     }
@@ -228,25 +258,25 @@ public class PurchaseServiceImpl implements PurchaseService {
                 case 1:
                     break;
 
-                 //ON_THE_WAY
+                //ON_THE_WAY
                 case 2:
                     break;
 
-                 //ARRIVED
+                //ARRIVED
                 case 3:
                     break;
 
-                 //COMPLETE
+                //COMPLETE
                 case 4:
                     updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
                     Optional<Models.Purchase> optionalPurchase = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
-                    optionalPurchase.ifPresent(p-> {
+                    optionalPurchase.ifPresent(p -> {
                         p.setComplete(true);
                         purchaseRepo.save(p);
                     });
                     break;
 
-                 //DNF
+                //DNF
                 case 5:
                     updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
                     break;
@@ -268,22 +298,37 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Models.Remarks createNewRemark(Models.Remarks remarks) throws NotFoundException {
 
-        Optional<Models.Distribution> optionalDistribution = distributionRepo.get(String.valueOf(remarks.getDistributionId()));
+        Models.Remarks savedRemark;
 
-        if(optionalDistribution.isEmpty()) {
+        if (remarks.getDistributionId() != null) {
+            Optional<Models.Distribution> optionalDistribution = distributionRepo.get(String.valueOf(remarks.getDistributionId()));
+            if (optionalDistribution.isEmpty()) {
+                throw new NotFoundException("distribution not found");
+            }
+
+            remarks.setId(getNextRemarkId());
+            remarks.setDocumentId(String.valueOf(remarks.getId()));
+            savedRemark = remarksRepo.save(remarks);
+
+            optionalDistribution.get().setRemarks(savedRemark.getId());
+            distributionRepo.save(optionalDistribution.get());
+
+        } else if (remarks.getDonationDistributionId() != null) {
+            Optional<Models.DonationDistribution> optionalDonationDistribution = donationDistributionRepo.get(String.valueOf(remarks.getDonationDistributionId()));
+            if (optionalDonationDistribution.isEmpty()) {
+                throw new NotFoundException("donation distribution not found");
+            }
+
+            remarks.setId(getNextRemarkId());
+            remarks.setDocumentId(String.valueOf(remarks.getId()));
+            savedRemark = remarksRepo.save(remarks);
+
+            optionalDonationDistribution.get().setRemarks(savedRemark.getId());
+            donationDistributionRepo.save(optionalDonationDistribution.get());
+
+        } else {
             throw new NotFoundException("distribution not found");
         }
-
-
-        remarks.setId(getNextRemarkId());
-        remarks.setDocumentId(String.valueOf(remarks.getId()));
-
-
-        Models.Remarks savedRemark = remarksRepo.save(remarks);
-
-
-        optionalDistribution.get().setRemarks(savedRemark.getId());
-        distributionRepo.save(optionalDistribution.get());
 
         return savedRemark;
     }
@@ -299,9 +344,208 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         return remarksRepo.save(remarks);
     }
-
-    @Override
+ 
     public Optional<Models.Remarks> getRemark(Long id) {
         return remarksRepo.get(String.valueOf(id));
     }
+
+    @Override
+    public Models.Donation createNewDonation(DonationCreationForm creationForm) throws NotFoundException, ParseException {
+
+        Long id = getNextDonationId();
+
+        Optional<Models.AppUser> bene = userService.findByUsername(creationForm.getBeneficiary());
+
+        if (bene.isEmpty()) {
+            throw new NotFoundException("Beneficiary has not been found");
+        }
+
+        Optional<Models.AppUser> donor = userService.findByUsername(creationForm.getDonor());
+
+        if (donor.isEmpty()) {
+            throw new NotFoundException("donor has not been found");
+        }
+
+        Models.Donation donation = new Models.Donation(id, creationForm.getDonor(), creationForm.getBeneficiary(), DataOps.getNowFormattedFullDate(), creationForm.getDeliveryLocation(), creationForm.getDeliveryAddress(), creationForm.getCollectionLocation(), creationForm.getCollectionAddress(), false, false, null, creationForm.getProducts());
+        Models.Donation createdDonation = donationRepo.save(donation);
+
+
+        if (createdDonation != null) {
+            //todo notify beneficiary
+        }
+
+        return createdDonation;
+    }
+
+    @Override
+    public List<Models.Donation> getDonations(String donorName, String beneficiaryName) {
+
+
+        return donationRepo.retrieveAll().stream().filter(i -> {
+            boolean add = true;
+
+            if (donorName != null) {
+                add = i.getDonorUsername().equals(donorName);
+            }
+
+            if (beneficiaryName != null) {
+                add = i.getBeneficiaryUsername().equals(beneficiaryName);
+            }
+
+            return add;
+        }).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public Models.DonationDistributionModel saveNewDonation(Long donationId, String transporterUsername) throws NotFoundException, ParseException {
+
+        Optional<Models.Donation> optionalDonation = donationRepo.get(valueOf(donationId));
+        if (optionalDonation.isEmpty()) {
+            throw new NotFoundException("donation with id " + donationId + " not found");
+        }
+
+        Optional<Models.AppUser> optionalTransporter = userService.findByUsername(transporterUsername);
+        if (optionalTransporter.isEmpty()) {
+            throw new NotFoundException("user with name " + transporterUsername + " not found");
+        }
+
+
+        optionalDonation.get().setAssigned(optionalTransporter.get().getUsername());
+        Models.Donation donation = donationRepo.save(optionalDonation.get());
+
+
+        if (donation != null) {
+
+            Optional<Models.AppUser> beneficiaryOptional = userService.findByUsername(donation.getBeneficiaryUsername());
+            if (beneficiaryOptional.isEmpty()) {
+                throw new NotFoundException("user with name " + donation.getBeneficiaryUsername() + " not found");
+            }
+
+            Models.DonationDistribution distribution = new Models.DonationDistribution(getNextDonationDistributionId(),
+                    optionalTransporter.get().getUsername(), beneficiaryOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name()) ? beneficiaryOptional.get().getUsername() : null,
+                    optionalDonation.get().getDonorUsername(),
+                    DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, donation.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, null);
+
+
+            return getDonorDistributionModelFromDistributionDonor(donationDistributionRepo.save(distribution));
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Optional<Models.DonationDistributionModel> getDonorDistributionById(Long id) {
+        Optional<Models.DonationDistribution> d = donationDistributionRepo.get(valueOf(id));
+        if (d.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(getDonorDistributionModelFromDistributionDonor(d.orElse(null)));
+    }
+
+    @Override
+    public List<Models.DonationDistributionModel> getDonorDistribution(String transporter, String beneficiary, String donorId, Boolean deleted, Long donationId, Integer status, Boolean complete) {
+        List<Models.DonationDistribution> allDistributions = donationDistributionRepo.retrieveAll();
+        List<Models.DonationDistributionModel> allDistributionModels = new ArrayList<>();
+
+        if (transporter != null) {
+            allDistributions.removeIf(i -> !i.getTransporter().equals(transporter));
+        }
+
+        if (beneficiary != null) {
+            allDistributions.removeIf(i -> !i.getBeneficiary().equals(beneficiary));
+        }
+
+        if (donorId != null) {
+            allDistributions.removeIf(i -> !i.getDonor().equals(donorId));
+        }
+
+
+        if (deleted != null) {
+            allDistributions.removeIf(i -> !(i.getDeleted() == deleted));
+        }
+
+        if (complete != null) {
+            allDistributions.removeIf(i -> complete == (i.getCompletedAt() != null));
+        }
+
+        if (donationId != null) {
+            allDistributions.removeIf(i -> !(Objects.equals(i.getDonationId(), donationId)));
+        }
+
+        if (status != null) {
+            allDistributions.removeIf(i -> !(Objects.equals(i.getStatus(), status)));
+        }
+
+        allDistributions.forEach(d -> allDistributionModels.add(getDonorDistributionModelFromDistributionDonor(d)));
+
+        return allDistributionModels;
+    }
+
+    @Override
+    public Models.DonationDistributionModel updateDonorDistribution(DonorDistributionUpdateForm form) throws NotFoundException, ParseException {
+
+        Optional<Models.DonationDistribution> optionalDistribution = donationDistributionRepo.get(valueOf(form.getId()));
+        if (optionalDistribution.isEmpty()) {
+            throw new NotFoundException("distribution not found");
+        }
+
+        Models.DonationDistribution updatedDistribution = optionalDistribution.get();
+
+        if (form.getDeleted() != null) {
+            updatedDistribution.setDeleted(form.getDeleted());
+        }
+
+        if (form.getLastKnownLocation() != null) {
+            updatedDistribution.setLastKnownLocation(form.getLastKnownLocation());
+        }
+
+        if (form.getRemarks() != null) {
+            Optional<Models.Remarks> optionalRemarks = remarksRepo.get(valueOf(form.getRemarks()));
+            if (optionalRemarks.isEmpty()) {
+                throw new NotFoundException("Remark not found");
+            }
+            updatedDistribution.setRemarks(optionalRemarks.get().getId());
+        }
+
+        if (form.getStatus() != null) {
+            updatedDistribution.setStatus(form.getStatus());
+
+            switch (form.getStatus()) {
+
+                //COLLECTING_ITEMS
+                case 1:
+                    break;
+
+                //ON_THE_WAY
+                case 2:
+                    break;
+
+                //ARRIVED
+                case 3:
+                    break;
+
+                //COMPLETE
+                case 4:
+                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    Optional<Models.Donation> optionalDonation = donationRepo.get(String.valueOf(updatedDistribution.getDonationId()));
+                    optionalDonation.ifPresent(p -> {
+                        p.setComplete(true);
+                        donationRepo.save(p);
+                    });
+                    break;
+
+                //DNF
+                case 5:
+                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    break;
+            }
+        }
+
+
+        updatedDistribution.setUpdatedAt(getNowFormattedFullDate());
+
+        return getDonorDistributionModelFromDistributionDonor(donationDistributionRepo.save(updatedDistribution));
+    }
+
 }

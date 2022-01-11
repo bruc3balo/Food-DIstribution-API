@@ -1,7 +1,7 @@
 package com.api.fooddistribution.api.domain;
 
+import com.api.fooddistribution.api.model.DonorItem;
 import com.api.fooddistribution.api.model.ProductCountModel;
-import com.api.fooddistribution.api.model.ProductDoneModel;
 import com.api.fooddistribution.api.validation.email.ValidEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.firestore.annotation.DocumentId;
@@ -12,7 +12,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -626,7 +625,7 @@ public class Models {
 
         }
 
-        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products, boolean deleted, String assigned) {
+        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products, boolean deleted, boolean complete,String assigned) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.buyerId = buyerId;
@@ -635,6 +634,7 @@ public class Models {
             this.location = location;
             this.address = address;
             this.deleted = deleted;
+            this.complete = complete;
             this.assigned = assigned;
         }
     }
@@ -648,9 +648,6 @@ public class Models {
 
         @JsonProperty(ID)
         private Long id;
-
-        @JsonProperty(DONOR)
-        private String donor;
 
         @JsonProperty(TRANSPORTER)
         private String transporter;
@@ -696,10 +693,10 @@ public class Models {
 
         }
 
-        public Distribution(Long id, String donor, String transporter, String beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long purchasesId, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Long remarks, Map<String, Integer> productStatus) {
+        public Distribution(Long id, String transporter, String beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long purchasesId, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Long remarks, Map<String, Integer> productStatus) {
             this.id = id;
             this.documentId = String.valueOf(id);
-            this.donor = donor;
+
             this.transporter = transporter;
             this.beneficiary = beneficiary;
             this.status = status;
@@ -725,9 +722,6 @@ public class Models {
 
         @JsonProperty(ID)
         private Long id;
-
-        @JsonProperty(DONOR)
-        public AppUser donor;
 
         @JsonProperty(TRANSPORTER)
         public AppUser transporter;
@@ -773,10 +767,9 @@ public class Models {
 
         }
 
-        public DistributionModel(String documentId, Long id, AppUser donor, AppUser transporter, AppUser beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, PurchaseModel purchases, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Remarks remarks,Map<String, Integer> productStatus) {
+        public DistributionModel(String documentId, Long id, AppUser transporter, AppUser beneficiary, Integer status, Date createdAt, Date updatedAt, Date completedAt, PurchaseModel purchases, String lastKnownLocation, Boolean deleted, Boolean paid, Boolean reported, Remarks remarks,Map<String, Integer> productStatus) {
             this.documentId = documentId;
             this.id = id;
-            this.donor = donor;
             this.transporter = transporter;
             this.beneficiary = beneficiary;
             this.status = status;
@@ -813,8 +806,11 @@ public class Models {
         private String beneficiary;
 
         @JsonProperty(DISTRIBUTION_ID)
-        @NotNull(message = "missing distribution")
         private Long distributionId;
+
+        @JsonProperty(DONATION_DISTRIBUTION_ID)
+        private Long donationDistributionId;
+
 
         public Remarks() {
 
@@ -826,5 +822,283 @@ public class Models {
 
 
     }
+
+    @Getter
+    @Setter
+    public static class Donation {
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty("donor_username")
+        private String donorUsername;
+
+        @JsonProperty("beneficiary_username")
+        private String beneficiaryUsername;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(DELIVERY_LOCATION)
+        private String deliveryLocation;
+
+        @JsonProperty(DELIVERY_ADDRESS)
+        private String deliveryAddress;
+
+        @JsonProperty(COLLECTION_LOCATION)
+        private String collectionLocation;
+
+        @JsonProperty(COLLECTION_ADDRESS)
+        private String collectionAddress;
+
+        private boolean deleted;
+
+        private boolean complete;
+
+        private String assigned;
+
+        private LinkedList<DonorItem> products = new LinkedList<>();
+
+
+        public Donation() {
+
+        }
+
+        public Donation(Long id) {
+            this.id = id;
+        }
+
+
+        public Donation(Long id, String donorUsername, String beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, String assigned, LinkedList<DonorItem> products) {
+            this.id = id;
+            this.documentId = String.valueOf(id);
+            this.donorUsername = donorUsername;
+            this.beneficiaryUsername = beneficiaryUsername;
+            this.createdAt = createdAt;
+            this.deliveryLocation = deliveryLocation;
+            this.deliveryAddress = deliveryAddress;
+            this.collectionLocation = collectionLocation;
+            this.collectionAddress = collectionAddress;
+            this.deleted = deleted;
+            this.complete = complete;
+            this.assigned = assigned;
+            this.products = products;
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class DonationModel {
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty("donor_username")
+        private AppUser donorUsername;
+
+        @JsonProperty("beneficiary_username")
+        private AppUser beneficiaryUsername;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(DELIVERY_LOCATION)
+        private String deliveryLocation;
+
+        @JsonProperty(DELIVERY_ADDRESS)
+        private String deliveryAddress;
+
+        @JsonProperty(COLLECTION_LOCATION)
+        private String collectionLocation;
+
+        @JsonProperty(COLLECTION_ADDRESS)
+        private String collectionAddress;
+
+        private boolean deleted;
+
+        private boolean complete;
+
+        private String assigned;
+
+        private LinkedList<DonorItem> products = new LinkedList<>();
+
+
+        public DonationModel() {
+
+        }
+
+        public DonationModel(Long id) {
+            this.id = id;
+        }
+
+        public DonationModel(Long id, AppUser donorUsername, AppUser beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, String assigned, LinkedList<DonorItem> products) {
+            this.id = id;
+            this.donorUsername = donorUsername;
+            this.beneficiaryUsername = beneficiaryUsername;
+            this.createdAt = createdAt;
+            this.deliveryLocation = deliveryLocation;
+            this.deliveryAddress = deliveryAddress;
+            this.collectionLocation = collectionLocation;
+            this.collectionAddress = collectionAddress;
+            this.deleted = deleted;
+            this.complete = complete;
+            this.assigned = assigned;
+            this.products = products;
+        }
+    }
+
+
+    @Getter
+    @Setter
+    public static class DonationDistribution {
+
+        @DocumentId
+        private String documentId;
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty(TRANSPORTER)
+        private String transporter;
+
+        @JsonProperty(BENEFICIARY)
+        private String beneficiary;
+
+        @JsonProperty(DONOR)
+        private String donor;
+
+        @JsonProperty(STATUS)
+        private Integer status;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(UPDATED_AT)
+        private Date updatedAt;
+
+        @JsonProperty(COMPLETED_AT)
+        private Date completedAt;
+
+        @JsonProperty(DONATION_ID)
+        private Long donationId;
+
+        @JsonProperty(LAST_LOCATION)
+        private String lastKnownLocation;
+
+        @JsonProperty(DELETED)
+        private Boolean deleted;
+
+        @JsonProperty(REPORTED)
+        private Boolean reported;
+
+        @JsonProperty(REMARKS)
+        private Long remarks;
+
+
+
+        public DonationDistribution() {
+
+        }
+
+        public DonationDistribution(Long id, String transporter, String beneficiary, String donor, Integer status, Date createdAt, Date updatedAt, Date completedAt, Long donationId, String lastKnownLocation, Boolean deleted, Boolean reported, Long remarks) {
+            this.documentId = String.valueOf(id);
+            this.id = id;
+            this.transporter = transporter;
+            this.beneficiary = beneficiary;
+            this.donor = donor;
+            this.status = status;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.completedAt = completedAt;
+            this.donationId = donationId;
+            this.lastKnownLocation = lastKnownLocation;
+            this.deleted = deleted;
+            this.reported = reported;
+            this.remarks = remarks;
+        }
+
+
+    }
+
+
+    @Getter
+    @Setter
+    public static class DonationDistributionModel {
+
+
+        @JsonProperty(ID)
+        private Long id;
+
+        @JsonProperty(TRANSPORTER)
+        private AppUser transporter;
+
+        @JsonProperty(BENEFICIARY)
+        private AppUser beneficiary;
+
+        @JsonProperty(DONOR)
+        private AppUser donor;
+
+        @JsonProperty(STATUS)
+        private Integer status;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(UPDATED_AT)
+        private Date updatedAt;
+
+        @JsonProperty(COMPLETED_AT)
+        private Date completedAt;
+
+        @JsonProperty(DONATION_ID)
+        private DonationModel donationId;
+
+        @JsonProperty(LAST_LOCATION)
+        private String lastKnownLocation;
+
+        @JsonProperty(DELETED)
+        private Boolean deleted;
+
+        @JsonProperty(REPORTED)
+        private Boolean reported;
+
+        @JsonProperty(REMARKS)
+        private Remarks remarks;
+
+
+
+        public DonationDistributionModel() {
+
+        }
+
+
+        public DonationDistributionModel(Long id) {
+            this.id = id;
+        }
+
+        public DonationDistributionModel(Long id, AppUser transporter, AppUser beneficiary, AppUser donor, Integer status, Date createdAt, Date updatedAt, Date completedAt, DonationModel donationId, String lastKnownLocation, Boolean deleted, Boolean reported, Remarks remarks) {
+
+            this.id = id;
+            this.transporter = transporter;
+            this.beneficiary = beneficiary;
+            this.donor = donor;
+            this.status = status;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+            this.completedAt = completedAt;
+            this.donationId = donationId;
+            this.lastKnownLocation = lastKnownLocation;
+            this.deleted = deleted;
+            this.reported = reported;
+            this.remarks = remarks;
+        }
+
+
+    }
+
+
 }
 

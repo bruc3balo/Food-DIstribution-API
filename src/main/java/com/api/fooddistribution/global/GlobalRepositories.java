@@ -18,6 +18,8 @@ public class GlobalRepositories {
     public static PurchaseRepo purchaseRepo;
     public static DistributionRepo distributionRepo;
     public static RemarksRepo remarksRepo;
+    public static DonationRepo donationRepo;
+    public static DonationDistributionRepo donationDistributionRepo;
 
     @Autowired
     public void setUserRepo(UserRepo userRepo) {
@@ -62,5 +64,16 @@ public class GlobalRepositories {
     @Autowired
     public void setRemarksRepo(RemarksRepo remarksRepo) {
         GlobalRepositories.remarksRepo = remarksRepo;
+    }
+
+
+    @Autowired
+    public void setDonationRepo(DonationRepo donationRepo) {
+        GlobalRepositories.donationRepo = donationRepo;
+    }
+
+    @Autowired
+    public void setDonationDistributionRepo(DonationDistributionRepo donationDistributionRepo) {
+        GlobalRepositories.donationDistributionRepo = donationDistributionRepo;
     }
 }

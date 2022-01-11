@@ -2,12 +2,6 @@ package com.api.fooddistribution.api.service;
 
 import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.model.*;
-import com.api.fooddistribution.config.FirestoreConfig;
-import com.api.fooddistribution.config.security.AppRolesEnum;
-import com.api.fooddistribution.config.security.AppUserPermission;
-import com.api.fooddistribution.utils.ConvertToJson;
-import com.api.fooddistribution.utils.DataOps;
-import com.google.cloud.firestore.CollectionReference;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
@@ -15,16 +9,10 @@ import com.sun.jdi.request.DuplicateRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
-import static com.api.fooddistribution.config.FirestoreConfig.firebaseDatabase;
-import static com.api.fooddistribution.global.GlobalRepositories.*;
 import static com.api.fooddistribution.global.GlobalService.*;
 import static com.api.fooddistribution.global.GlobalVariables.*;
 import static com.google.firebase.auth.UserRecord.UpdateRequest;
@@ -302,17 +290,17 @@ public class AuthServiceImp implements AuthService {
 //        Models.ProductCategory proteins = productService.saveNewProductCategory("Proteins");
 //        Thread.sleep(2000);
 //        //product
-        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage,SOLID,"Bags of tea","seller",HY));
+        Models.Product tea = productService.saveNewProduct(new ProductCreationFrom("tea", "100", "Beverage", teaImage, TONNE,"Bags of tea","seller",HY));
         Thread.sleep(2000);
-        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage,LIQUID,"Cups of coffee","seller",HY));
+        Models.Product coffee = productService.saveNewProduct(new ProductCreationFrom("coffee", "200",  "Beverage", coffeeImage, KILOGRAM,"Cups of coffee","seller",HY));
         Thread.sleep(2000);
-        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage,SOLID,"A single tomatoe","seller",HY));
+        Models.Product tomatoes = productService.saveNewProduct(new ProductCreationFrom("tomatoes", "20", "Vegetables", tomatoesImage, TONNE,"A single tomatoe","seller",HY));
         Thread.sleep(2000);
-        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries,SOLID,"a batch of strawberries","seller",HY));
+        Models.Product strawberry = productService.saveNewProduct(new ProductCreationFrom("strawberries", "80", "Fruits", strawberries, TONNE,"a batch of strawberries","seller",HY));
         Thread.sleep(2000);
-        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable,SOLID,"A single calabash","seller",HY));
+        Models.Product cabbage = productService.saveNewProduct(new ProductCreationFrom("cabbage", "150", "Vegetables", vegetable, TONNE,"A single calabash","seller",HY));
         Thread.sleep(2000);
-        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans,SOLID,"A tray of beans","seller",HY));
+        Models.Product bean = productService.saveNewProduct(new ProductCreationFrom("beans", "250", "Proteins", beans, TONNE,"A tray of beans","seller",HY));
 
 
         tea = productService.updateProduct(new ProductUpdateForm(tea.getId(),200.0));

@@ -47,7 +47,7 @@ public class ProductController {
 
     @PostMapping(value = {"category/new"})
     @PreAuthorize("hasAuthority('product:write')")
-    public ResponseEntity<?> addProductCategory(@RequestBody String name) {
+    public ResponseEntity<?> addProductCategory(@RequestParam(name = NAME) String name) {
         try {
 
             Models.ProductCategory savedProductCategory = productService.saveNewProductCategory(name);
