@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.api.fooddistribution.global.GlobalService.purchaseService;
@@ -47,6 +48,11 @@ public class PurchaseController {
     public ResponseEntity<?> getPurchase(HttpServletRequest request, @RequestParam(name = BUYERS_ID, required = false) String buyerId, @RequestParam(name = SELLERS_ID, required = false) String sellerId) {
         try {
 
+            System.out.println(request.getRequestURL() + " url");
+            //System.out.println(request.getServletPath() + " path");
+            request.getHeaderNames().asIterator().forEachRemaining(i-> System.out.println(i + ": "+request.getHeader(i)));
+
+
             List<String> unknownParams = filterRequestParams(request, Arrays.asList(BUYERS_ID, SELLERS_ID));
             ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
             if (unknownResponse != null) return unknownResponse;
@@ -60,7 +66,7 @@ public class PurchaseController {
 
 
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(PURCHASE_COLLECTION), purchaseModelList);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(PURCHASE_COLLECTION), purchaseModelList.stream().sorted());
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {

@@ -64,6 +64,13 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFoundException("Product has not been found");
         }
 
+
+        //todo remove products left
+        form.getProduct().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+            product.setUnitsLeft(product.getUnitsLeft() - items);
+            productRepo.save(product);
+        }));
+
         Models.Purchase purchase = new Models.Purchase(id, form.getLocation(), form.getAddress(), buyer.get().getUsername(), getNowFormattedFullDate(), products,null);
         Models.Purchase savedPurchase = purchaseRepo.save(purchase);
 
