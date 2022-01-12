@@ -64,7 +64,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFoundException("Product has not been found");
         }
 
-        Models.Purchase purchase = new Models.Purchase(id, form.getLocation(), form.getAddress(), buyer.get().getUsername(), getNowFormattedFullDate(), products);
+        Models.Purchase purchase = new Models.Purchase(id, form.getLocation(), form.getAddress(), buyer.get().getUsername(), getNowFormattedFullDate(), products,null);
         Models.Purchase savedPurchase = purchaseRepo.save(purchase);
 
         if (savedPurchase != null) {
@@ -92,7 +92,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 final List<String> sellerNames = i.getProducts().keySet().stream().map(id -> {
                     final Optional<Models.Product> productById = productService.findProductById(id);
                     if (productById.isPresent()) {
-                      return  productById.get().getSellerId();
+                        return productById.get().getSellerId();
                     } else {
                         return id;
                     }
@@ -272,6 +272,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     Optional<Models.Purchase> optionalPurchase = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
                     optionalPurchase.ifPresent(p -> {
                         p.setComplete(true);
+                        p.setSuccess(true);
                         purchaseRepo.save(p);
                     });
                     break;
@@ -279,6 +280,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //DNF
                 case 5:
                     updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    Optional<Models.Purchase> optionalPurchase2 = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
+                    optionalPurchase2.ifPresent(p -> {
+                        p.setComplete(true);
+                        p.setSuccess(false);
+                        purchaseRepo.save(p);
+                    });
                     break;
             }
         }
@@ -344,7 +351,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         return remarksRepo.save(remarks);
     }
- 
+
     public Optional<Models.Remarks> getRemark(Long id) {
         return remarksRepo.get(String.valueOf(id));
     }
@@ -366,7 +373,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFoundException("donor has not been found");
         }
 
-        Models.Donation donation = new Models.Donation(id, creationForm.getDonor(), creationForm.getBeneficiary(), DataOps.getNowFormattedFullDate(), creationForm.getDeliveryLocation(), creationForm.getDeliveryAddress(), creationForm.getCollectionLocation(), creationForm.getCollectionAddress(), false, false, null, creationForm.getProducts());
+        Models.Donation donation = new Models.Donation(id, creationForm.getDonor(), creationForm.getBeneficiary(), DataOps.getNowFormattedFullDate(), creationForm.getDeliveryLocation(), creationForm.getDeliveryAddress(), creationForm.getCollectionLocation(), creationForm.getCollectionAddress(), false, false, null, null, creationForm.getProducts());
         Models.Donation createdDonation = donationRepo.save(donation);
 
 
@@ -531,6 +538,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     Optional<Models.Donation> optionalDonation = donationRepo.get(String.valueOf(updatedDistribution.getDonationId()));
                     optionalDonation.ifPresent(p -> {
                         p.setComplete(true);
+                        p.setSuccess(true);
                         donationRepo.save(p);
                     });
                     break;
@@ -538,6 +546,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //DNF
                 case 5:
                     updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    Optional<Models.Donation> optionalDonation2 = donationRepo.get(String.valueOf(updatedDistribution.getDonationId()));
+                    optionalDonation2.ifPresent(p -> {
+                        p.setComplete(true);
+                        p.setSuccess(false);
+                        donationRepo.save(p);
+                    });
                     break;
             }
         }

@@ -145,31 +145,31 @@ public class DataOps {
         Optional<Models.AppUser> donorOpt = userService.findByUsername(distribution.getDonor());
         Optional<Models.AppUser> beneficiaryOpt = userService.findByUsername(distribution.getBeneficiary());
 
-        return new Models.DonationDistributionModel(distribution.getId(), transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())), beneficiaryOpt.orElse(new Models.AppUser(distribution.getBeneficiary())), donorOpt.orElse(new Models.AppUser(distribution.getDonor())),distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getDonationModelFromDonation(donationRepo.get(String.valueOf(distribution.getDonationId())).orElse(new Models.Donation(distribution.getDonationId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null);
+        return new Models.DonationDistributionModel(distribution.getId(), transporterOpt.orElse(new Models.AppUser(distribution.getTransporter())), beneficiaryOpt.orElse(new Models.AppUser(distribution.getBeneficiary())), donorOpt.orElse(new Models.AppUser(distribution.getDonor())), distribution.getStatus(), distribution.getCreatedAt(), distribution.getUpdatedAt(), distribution.getCompletedAt(), getDonationModelFromDonation(donationRepo.get(String.valueOf(distribution.getDonationId())).orElse(new Models.Donation(distribution.getDonationId()))), distribution.getTransporter() != null && transporterOpt.isPresent() ? transporterOpt.get().getLastKnownLocation() : null, distribution.getDeleted(), distribution.getReported(), distribution.getRemarks() != null ? remarksRepo.get(String.valueOf(distribution.getRemarks())).orElse(new Models.Remarks(distribution.getRemarks())) : null);
     }
 
-    public static Models.DonationModel getDonationModelFromDonation (Models.Donation donation) {
+    public static Models.DonationModel getDonationModelFromDonation(Models.Donation donation) {
 
         Optional<Models.AppUser> donorOpt = userService.findByUsername(donation.getDonorUsername());
         Optional<Models.AppUser> beneOpt = userService.findByUsername(donation.getBeneficiaryUsername());
 
-        return new Models.DonationModel(donation.getId(),donorOpt.orElse(new Models.AppUser(donation.getDonorUsername())) ,beneOpt.orElse(new Models.AppUser(donation.getBeneficiaryUsername())),donation.getCreatedAt(),donation.getDeliveryLocation(),donation.getDeliveryAddress(),donation.getCollectionLocation(),donation.getCollectionAddress(),donation.isDeleted(),donation.isComplete(),donation.getAssigned(), donation.getProducts());
+        return new Models.DonationModel(donation.getId(), donorOpt.orElse(new Models.AppUser(donation.getDonorUsername())), beneOpt.orElse(new Models.AppUser(donation.getBeneficiaryUsername())), donation.getCreatedAt(), donation.getDeliveryLocation(), donation.getDeliveryAddress(), donation.getCollectionLocation(), donation.getCollectionAddress(), donation.isDeleted(), donation.isComplete(), donation.getSuccess(), donation.getAssigned(), donation.getProducts());
     }
 
-    public static Models.ProductModel getProductModelFromProduct(Models.Product product){
+    public static Models.ProductModel getProductModelFromProduct(Models.Product product) {
         if (product == null) {
             return new Models.ProductModel();
         }
-        return new Models.ProductModel(product.getId(), product.getName(), productService.findCategoryById(product.getProduct_category_id()).orElse(null), product.getPrice(), product.getImage(), product.getSellerId(),product.getUnitsLeft(), product.getCreatedAt(), product.getUpdatedAt(),product.getDeleted(), product.getDisabled(), product.getUnit(), product.getProduct_description(),product.getLocation());
+        return new Models.ProductModel(product.getId(), product.getName(), productService.findCategoryById(product.getProduct_category_id()).orElse(null), product.getPrice(), product.getImage(), product.getSellerId(), product.getUnitsLeft(), product.getCreatedAt(), product.getUpdatedAt(), product.getDeleted(), product.getDisabled(), product.getUnit(), product.getProduct_description(), product.getLocation());
     }
 
-    public static Models.PurchaseModel getPurchaseModelFromPurchase (Models.Purchase purchase) {
+    public static Models.PurchaseModel getPurchaseModelFromPurchase(Models.Purchase purchase) {
         LinkedHashSet<ProductCountModel> products = new LinkedHashSet<>();
-        purchase.getProducts().forEach((pid,items)-> {
+        purchase.getProducts().forEach((pid, items) -> {
             Optional<Models.Product> optionalProduct = productService.findProductById(pid);
-            optionalProduct.ifPresent(p-> products.add(new ProductCountModel(p,items)));
+            optionalProduct.ifPresent(p -> products.add(new ProductCountModel(p, items)));
         });
-        return new Models.PurchaseModel(purchase.getId(),purchase.getBuyerId(),purchase.getLocation(),purchase.getAddress(),purchase.getCreatedAt(),products,purchase.isDeleted(),purchase.isComplete(),purchase.getAssigned());
+        return new Models.PurchaseModel(purchase.getId(), purchase.getBuyerId(), purchase.getLocation(), purchase.getAddress(), purchase.getCreatedAt(), products, purchase.isDeleted(), purchase.isComplete(), purchase.getSuccess(),purchase.getAssigned());
     }
 
     public static Integer strToInteger(String value) {

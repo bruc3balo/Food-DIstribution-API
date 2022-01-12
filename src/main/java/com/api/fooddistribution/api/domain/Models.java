@@ -568,6 +568,8 @@ public class Models {
 
         private boolean complete;
 
+        private Boolean success;
+
         private String assigned;
 
 
@@ -579,7 +581,7 @@ public class Models {
             this.id = id;
         }
 
-        public Purchase(Long id, String location, String address, String buyerId, Date createdAt, LinkedHashMap<String, Integer> products) {
+        public Purchase(Long id, String location, String address, String buyerId, Date createdAt, LinkedHashMap<String, Integer> products,Boolean success) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.buyerId = buyerId;
@@ -587,6 +589,7 @@ public class Models {
             this.createdAt = createdAt;
             this.products = products;
             this.address = address;
+            this.success = success;
         }
     }
 
@@ -619,13 +622,15 @@ public class Models {
 
         private boolean complete;
 
+        private Boolean success;
+
         private String assigned;
 
         public PurchaseModel() {
 
         }
 
-        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products, boolean deleted, boolean complete,String assigned) {
+        public PurchaseModel(Long id, String buyerId, String location, String address, Date createdAt, LinkedHashSet<ProductCountModel> products, boolean deleted, boolean complete,Boolean success,String assigned) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.buyerId = buyerId;
@@ -636,6 +641,7 @@ public class Models {
             this.deleted = deleted;
             this.complete = complete;
             this.assigned = assigned;
+            this.success = success;
         }
     }
 
@@ -858,6 +864,8 @@ public class Models {
 
         private boolean complete;
 
+        private Boolean success;
+
         private String assigned;
 
         private LinkedList<DonorItem> products = new LinkedList<>();
@@ -872,7 +880,7 @@ public class Models {
         }
 
 
-        public Donation(Long id, String donorUsername, String beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, String assigned, LinkedList<DonorItem> products) {
+        public Donation(Long id, String donorUsername, String beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, Boolean success,String assigned, LinkedList<DonorItem> products) {
             this.id = id;
             this.documentId = String.valueOf(id);
             this.donorUsername = donorUsername;
@@ -886,6 +894,7 @@ public class Models {
             this.complete = complete;
             this.assigned = assigned;
             this.products = products;
+            this.success = success;
         }
     }
 
@@ -921,6 +930,8 @@ public class Models {
 
         private boolean complete;
 
+        private Boolean success;
+
         private String assigned;
 
         private LinkedList<DonorItem> products = new LinkedList<>();
@@ -934,7 +945,7 @@ public class Models {
             this.id = id;
         }
 
-        public DonationModel(Long id, AppUser donorUsername, AppUser beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, String assigned, LinkedList<DonorItem> products) {
+        public DonationModel(Long id, AppUser donorUsername, AppUser beneficiaryUsername, Date createdAt, String deliveryLocation, String deliveryAddress, String collectionLocation, String collectionAddress, boolean deleted, boolean complete, Boolean success,String assigned, LinkedList<DonorItem> products) {
             this.id = id;
             this.donorUsername = donorUsername;
             this.beneficiaryUsername = beneficiaryUsername;
@@ -947,6 +958,7 @@ public class Models {
             this.complete = complete;
             this.assigned = assigned;
             this.products = products;
+            this.success = success;
         }
     }
 
