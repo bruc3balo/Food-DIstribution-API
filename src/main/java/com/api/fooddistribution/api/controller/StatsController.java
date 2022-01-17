@@ -39,7 +39,7 @@ public class StatsController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -60,7 +60,7 @@ public class StatsController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -81,7 +81,7 @@ public class StatsController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -100,7 +100,88 @@ public class StatsController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping(value = {"/all_bene_purchase"})
+    public ResponseEntity<?> getBeneficiaryReceivedPurchases(HttpServletRequest request, @RequestParam(name = "year") Integer year,@RequestParam(name = USERNAME) String beneficiary) {
+        try {
+
+            System.out.println("Year is "+year);
+
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList("year",USERNAME));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> receivedPurchases = statsService.getBeneficiaryReceivedPurchases(year,beneficiary);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  receivedPurchases.size() + "found" , getTransactionId(STATS_COLLECTION), receivedPurchases);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = {"/all_bene_donations"})
+    public ResponseEntity<?> getBeneficiaryReceivedDonations(HttpServletRequest request, @RequestParam(name = "year") Integer year, @RequestParam(name = USERNAME) String beneficiary) {
+        try {
+
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList("year",USERNAME));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> receivedDonations = statsService.getBeneficiaryReceivedDonations(year, beneficiary);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  receivedDonations.size() + "found" , getTransactionId(STATS_COLLECTION), receivedDonations);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping(value = {"/all_trans_donations"})
+    public ResponseEntity<?> getTransporterCompletedDonations(HttpServletRequest request, @RequestParam(name = "year") Integer year, @RequestParam(name = USERNAME) String transporter) {
+        try {
+
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList("year",USERNAME));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> completedDonations = statsService.getTransporterCompletedDonations(year, transporter);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  completedDonations.size() + "found" , getTransactionId(STATS_COLLECTION), completedDonations);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping(value = {"/all_trans_purchases"})
+    public ResponseEntity<?> getTransporterCompletedPurchases(HttpServletRequest request, @RequestParam(name = "year") Integer year, @RequestParam(name = USERNAME) String transporter) {
+        try {
+
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList("year",USERNAME));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> completedPurchases = statsService.getTransporterCompletedPurchases(year, transporter);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  completedPurchases.size() + "found" , getTransactionId(STATS_COLLECTION), completedPurchases);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), e.getMessage(), getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

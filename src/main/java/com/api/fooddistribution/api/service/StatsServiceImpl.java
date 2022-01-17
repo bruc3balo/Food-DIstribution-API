@@ -132,4 +132,152 @@ public class StatsServiceImpl implements StatsService {
 
         return donorStats;
     }
+
+    @Override
+    public List<SellerStats> getBeneficiaryReceivedPurchases(Integer year, String beneficiaryName) throws NotFoundException {
+        List<SellerStats> beneficiaryStats = new ArrayList<>();
+
+
+        final Optional<Models.AppUser> op = userService.findByUsername(beneficiaryName);
+
+        if (beneficiaryName == null || op.isEmpty()) {
+            throw new NotFoundException("beneficiary name not found");
+        }
+
+        if (!op.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name())) {
+            throw new IllegalStateException("User not a beneficiary");
+        }
+
+        for (int i = 0; i < 12; i++) {
+            final LinkedHashMap<String, Integer> emptyDonations = new LinkedHashMap<>();
+            emptyDonations.put(beneficiaryName, 0);
+            beneficiaryStats.add(new SellerStats(i, emptyDonations));
+        }
+
+
+        purchaseRepo.retrieveAll().stream().filter(i -> i.getBuyerId().equals(beneficiaryName) && i.getSuccess() != null && i.getSuccess()).forEach(donation -> {
+            Date donationDate = donation.getCreatedAt();
+            Calendar donationCalendar = Calendar.getInstance();
+            donationCalendar.setTime(donationDate);
+
+            beneficiaryStats.stream().filter(i -> (i.getMonth().equals(donationCalendar.get(Calendar.MONTH))) && (donationCalendar.get(Calendar.YEAR) == year)).findFirst().ifPresent(sellerStats -> { //find stat month
+                sellerStats.addProductToMonth(donation.getBuyerId(), 1);//add number of items to donor
+            });
+        }); //donors donations
+
+
+
+        return beneficiaryStats;
+    }
+
+    @Override
+    public List<SellerStats> getBeneficiaryReceivedDonations(Integer year, String beneficiaryName) throws NotFoundException {
+        List<SellerStats> beneficiaryStats = new ArrayList<>();
+
+
+        final Optional<Models.AppUser> op = userService.findByUsername(beneficiaryName);
+
+        if (beneficiaryName == null || op.isEmpty()) {
+            throw new NotFoundException("beneficiary name not found");
+        }
+
+        if (!op.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name())) {
+            throw new IllegalStateException("User not a beneficiary");
+        }
+
+        for (int i = 0; i < 12; i++) {
+            final LinkedHashMap<String, Integer> emptyDonations = new LinkedHashMap<>();
+            emptyDonations.put(beneficiaryName, 0);
+            beneficiaryStats.add(new SellerStats(i, emptyDonations));
+        }
+
+
+        donationRepo.retrieveAll().stream().filter(i -> i.getBeneficiaryUsername().equals(beneficiaryName)&& i.getSuccess() != null && i.getSuccess()).forEach(donation -> {
+            Date donationDate = donation.getCreatedAt();
+            Calendar donationCalendar = Calendar.getInstance();
+            donationCalendar.setTime(donationDate);
+
+            beneficiaryStats.stream().filter(i -> (i.getMonth().equals(donationCalendar.get(Calendar.MONTH))) && (donationCalendar.get(Calendar.YEAR) == year)).findFirst().ifPresent(sellerStats -> { //find stat month
+                sellerStats.addProductToMonth(donation.getBeneficiaryUsername(), 1);//add number of items to donor
+            });
+        }); //donors donations
+
+
+
+        return beneficiaryStats;
+    }
+
+    @Override
+    public List<SellerStats> getTransporterCompletedDonations(Integer year, String transporterName) throws NotFoundException {
+        List<SellerStats> beneficiaryStats = new ArrayList<>();
+
+
+        final Optional<Models.AppUser> op = userService.findByUsername(transporterName);
+
+        if (transporterName == null || op.isEmpty()) {
+            throw new NotFoundException("transporter name not found");
+        }
+
+        if (!op.get().getRole().getName().equals(AppRolesEnum.ROLE_TRANSPORTER.name())) {
+            throw new IllegalStateException("User not a beneficiary");
+        }
+
+        for (int i = 0; i < 12; i++) {
+            final LinkedHashMap<String, Integer> emptyDonations = new LinkedHashMap<>();
+            emptyDonations.put(transporterName, 0);
+            beneficiaryStats.add(new SellerStats(i, emptyDonations));
+        }
+
+
+        donationRepo.retrieveAll().stream().filter(i -> i.getAssigned().equals(transporterName)&& i.getSuccess() != null && i.getSuccess()).forEach(donation -> {
+            Date donationDate = donation.getCreatedAt();
+            Calendar donationCalendar = Calendar.getInstance();
+            donationCalendar.setTime(donationDate);
+
+            beneficiaryStats.stream().filter(i -> (i.getMonth().equals(donationCalendar.get(Calendar.MONTH))) && (donationCalendar.get(Calendar.YEAR) == year)).findFirst().ifPresent(sellerStats -> { //find stat month
+                sellerStats.addProductToMonth(donation.getAssigned(), 1);//add number of items to donor
+            });
+        }); //donors donations
+
+
+
+        return beneficiaryStats;
+    }
+
+    @Override
+    public List<SellerStats> getTransporterCompletedPurchases(Integer year, String transporterName) throws NotFoundException {
+        List<SellerStats> beneficiaryStats = new ArrayList<>();
+
+
+        final Optional<Models.AppUser> op = userService.findByUsername(transporterName);
+
+        if (transporterName == null || op.isEmpty()) {
+            throw new NotFoundException("transporter name not found");
+        }
+
+        if (!op.get().getRole().getName().equals(AppRolesEnum.ROLE_TRANSPORTER.name())) {
+            throw new IllegalStateException("User not a beneficiary");
+        }
+
+        for (int i = 0; i < 12; i++) {
+            final LinkedHashMap<String, Integer> emptyDonations = new LinkedHashMap<>();
+            emptyDonations.put(transporterName, 0);
+            beneficiaryStats.add(new SellerStats(i, emptyDonations));
+        }
+
+
+        purchaseRepo.retrieveAll().stream().filter(i -> i.getAssigned().equals(transporterName)&& i.getSuccess() != null && i.getSuccess()).forEach(donation -> {
+            Date donationDate = donation.getCreatedAt();
+            Calendar donationCalendar = Calendar.getInstance();
+            donationCalendar.setTime(donationDate);
+
+            beneficiaryStats.stream().filter(i -> (i.getMonth().equals(donationCalendar.get(Calendar.MONTH))) && (donationCalendar.get(Calendar.YEAR) == year)).findFirst().ifPresent(sellerStats -> { //find stat month
+                sellerStats.addProductToMonth(donation.getAssigned(), 1);//add number of items to donor
+            });
+        }); //donors donations
+
+
+
+        return beneficiaryStats;
+    }
 }
