@@ -16,6 +16,7 @@ public class GlobalService {
     public static PasswordEncoder passwordEncoder;
     public static PurchaseService purchaseService;
     public static StatsService statsService;
+    public static NotificationService notificationService;
     //  public static UserAuthenticationServiceImpl userAuthenticationServiceImpl;
 
     /*
@@ -48,6 +49,11 @@ public class GlobalService {
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         GlobalService.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+    public void setNotificationService(NotificationService notificationService) {
+        GlobalService.notificationService = notificationService;
     }
 
     @Autowired

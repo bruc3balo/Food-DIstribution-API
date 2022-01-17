@@ -25,7 +25,7 @@ public interface PurchaseService {
 
     Models.Donation createNewDonation(DonationCreationForm creationForm) throws NotFoundException, ParseException;
     List<Models.Donation> getDonations(String donorName, String beneficiaryName);
-    Models.DonationDistributionModel saveNewDonation(Long donationId,String transporterUsername) throws NotFoundException,ParseException;
+    Models.DonationDistributionModel saveNewDonationDistribution(Long donationId, String transporterUsername) throws NotFoundException,ParseException;
     Optional<Models.DonationDistributionModel> getDonorDistributionById(Long id) throws NotFoundException;
     List<Models.DonationDistributionModel> getDonorDistribution(String transporter,String beneficiary, String donorId,Boolean deleted,Long donationId,Integer status,Boolean complete);
     Models.DonationDistributionModel updateDonorDistribution(DonorDistributionUpdateForm updateForm) throws NotFoundException, ParseException;

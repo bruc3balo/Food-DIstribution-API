@@ -44,6 +44,11 @@ public class UserUpdateForm {
 
     }
 
+    public UserUpdateForm(Boolean disabled, Boolean deleted) {
+        this.disabled = disabled;
+        this.deleted = deleted;
+    }
+
     public UserUpdateForm(Boolean verified) {
         this.verified = verified;
     }

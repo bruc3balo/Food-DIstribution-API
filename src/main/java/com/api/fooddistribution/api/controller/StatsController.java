@@ -18,8 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.api.fooddistribution.global.GlobalService.statsService;
-import static com.api.fooddistribution.global.GlobalVariables.USERNAME;
-import static com.api.fooddistribution.global.GlobalVariables.USER_COLLECTION;
+import static com.api.fooddistribution.global.GlobalVariables.*;
 import static com.api.fooddistribution.utils.DataOps.*;
 
 @RestController
@@ -36,11 +35,11 @@ public class StatsController {
 
             List<SellerStats> sellerStats = statsService.getSellerStats(year,sellerName);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  sellerStats.size() + "found" , getTransactionId(USER_COLLECTION), sellerStats);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  sellerStats.size() + "found" , getTransactionId(STATS_COLLECTION), sellerStats);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(USER_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -49,18 +48,61 @@ public class StatsController {
     public ResponseEntity<?> getAllSellerStats(HttpServletRequest request, @RequestParam(name = "year") Integer year) {
         try {
 
+            System.out.println("Year is "+year);
+
             List<String> unknownParams = filterRequestParams(request, List.of("year"));
             ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
             if (unknownResponse != null) return unknownResponse;
 
             List<SellerStats> sellerStats = statsService.getAllSellerStats(year);
 
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  sellerStats.size() + "found" , getTransactionId(USER_COLLECTION), sellerStats);
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  sellerStats.size() + "found" , getTransactionId(STATS_COLLECTION), sellerStats);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(USER_COLLECTION));
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(value = {"/all_donor"})
+    public ResponseEntity<?> getAllDonorStats(HttpServletRequest request, @RequestParam(name = "year") Integer year) {
+        try {
+
+            System.out.println("Year is "+year);
+
+            List<String> unknownParams = filterRequestParams(request, List.of("year"));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> donorStats = statsService.getAllDonorStats(year);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  donorStats.size() + "found" , getTransactionId(STATS_COLLECTION), donorStats);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = {"/donor"})
+    public ResponseEntity<?> getDonorStats(HttpServletRequest request, @RequestParam(name = "year") Integer year, @RequestParam(name = USERNAME) String sellerName) {
+        try {
+
+            List<String> unknownParams = filterRequestParams(request, Arrays.asList("year",USERNAME));
+            ResponseEntity<?> unknownResponse = unknownParameterList(unknownParams);
+            if (unknownResponse != null) return unknownResponse;
+
+            List<SellerStats> donorStats = statsService.getDonorStats(year,sellerName);
+
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(),  donorStats.size() + "found" , getTransactionId(STATS_COLLECTION), donorStats);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonResponse response = JsonSetErrorResponse.setResponse(ApiCode.FAILED.getCode(), "Failed to get users", getTransactionId(STATS_COLLECTION));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

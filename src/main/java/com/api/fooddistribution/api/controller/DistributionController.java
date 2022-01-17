@@ -108,7 +108,7 @@ public class DistributionController {
             if (unknownResponse != null) return unknownResponse;
 
 
-            Models.DonationDistributionModel distributionModel = purchaseService.saveNewDonation(donationId,transporterUsername);
+            Models.DonationDistributionModel distributionModel = purchaseService.saveNewDonationDistribution(donationId,transporterUsername);
 
             JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), distributionModel != null ? distributionModel.getId() + " saved" : "Distribution not saved", getTransactionId(DONATION_DISTRIBUTION_COLLECTION), distributionModel);
             return new ResponseEntity<>(response, HttpStatus.OK);

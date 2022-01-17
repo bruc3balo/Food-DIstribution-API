@@ -23,8 +23,8 @@ public interface UserService {
     AppUser updateAUser(String uid, UserUpdateForm updateForm) throws Exception; //working
     AppUser deleteUser(AppUser user) throws NotFoundException; //works
     boolean deleteUser(String uid) throws NotFoundException; //works
-    AppUser disableUser(AppUser user) throws NotFoundException; //works
-    AppUser enableUser(AppUser user) throws NotFoundException; //works
+    AppUser disableUser(AppUser user) throws Exception; //works
+    AppUser enableUser(AppUser user) throws Exception; //works
     Optional<AppUser> getAUserByUid(String uid); //works
     Optional<AppUser> findByUsername(String username); //works
     List<AppUser> getAllUsers(); //works

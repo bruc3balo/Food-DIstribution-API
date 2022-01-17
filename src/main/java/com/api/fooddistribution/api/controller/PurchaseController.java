@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalService.purchaseService;
 import static com.api.fooddistribution.global.GlobalVariables.*;
@@ -60,13 +58,15 @@ public class PurchaseController {
             List<Models.Purchase> purchaseList = purchaseService.getPurchases(buyerId, sellerId);
             List<Models.PurchaseModel> purchaseModelList = new ArrayList<>();
             purchaseList.forEach(purchase -> {
-                Models.PurchaseModel purchaseModel = getPurchaseModelFromPurchase(purchase);
-                purchaseModelList.add(purchaseModel);
+                try {
+                    Models.PurchaseModel purchaseModel = getPurchaseModelFromPurchase(purchase);
+                    purchaseModelList.add(purchaseModel);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
 
-
-
-            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(PURCHASE_COLLECTION), purchaseModelList.stream().sorted());
+            JsonResponse response = JsonSetSuccessResponse.setResponse(ApiCode.SUCCESS.getCode(), ApiCode.SUCCESS.getDescription(), getTransactionId(PURCHASE_COLLECTION), purchaseModelList.stream().sorted(Comparator.comparing(Models.PurchaseModel::getCreatedAt)).collect(Collectors.toList()));
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {

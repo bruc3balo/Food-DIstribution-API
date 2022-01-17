@@ -6,7 +6,6 @@ import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Repository;
 
 import static com.api.fooddistribution.global.GlobalVariables.DONATION_COLLECTION;
-import static com.api.fooddistribution.global.GlobalVariables.PURCHASE_COLLECTION;
 
 
 @Repository

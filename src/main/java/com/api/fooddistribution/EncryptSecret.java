@@ -54,6 +54,10 @@ public class EncryptSecret {
         Set<String> permissionsList = Enum.valueOf(AppRolesEnum.class, AppRolesEnum.ROLE_SELLER.name()).getGrantedAuthorities().stream().filter(i -> !Objects.equals(i, DataOps.getGrantedAuthorityRole(AppRolesEnum.ROLE_SELLER.name()))).map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toSet());
         System.out.println("permissions "+permissionsList);
 
+
+        String pid = "39xArp-Green Gras-P";
+        System.out.println(" Product is ");
+
     }
 
 

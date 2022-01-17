@@ -169,6 +169,7 @@ public class DataOps {
             Optional<Models.Product> optionalProduct = productService.findProductById(pid);
             optionalProduct.ifPresent(p -> products.add(new ProductCountModel(p, items)));
         });
+
         return new Models.PurchaseModel(purchase.getId(), purchase.getBuyerId(), purchase.getLocation(), purchase.getAddress(), purchase.getCreatedAt(), products, purchase.isDeleted(), purchase.isComplete(), purchase.getSuccess(),purchase.getAssigned());
     }
 

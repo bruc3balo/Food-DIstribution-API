@@ -13,9 +13,11 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.*;
 
 import static com.api.fooddistribution.global.GlobalVariables.*;
+import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 
 public class Models {
 
@@ -1111,6 +1113,53 @@ public class Models {
 
     }
 
+
+    @Getter
+    @Setter
+    public static class NotificationModels {
+
+        //todo notification model
+        @DocumentId
+        private String documentId;
+
+        private Long id;
+
+        @JsonProperty(DESCRIPTION)
+        private String description;
+
+        @JsonProperty(TITLE)
+        private String title;
+
+        @JsonProperty(SUBTEXT)
+        private String subText;
+
+        @JsonProperty(UID)
+        private String uid;
+
+        @JsonProperty(CREATED_AT)
+        private Date createdAt;
+
+        @JsonProperty(NOTIFIED)
+        private boolean notified;
+
+        @JsonProperty(UPDATING)
+        private String updating;
+
+        public NotificationModels () {
+
+        }
+
+        public NotificationModels(String description, String title, String subText, String uid,String updating) throws ParseException {
+            this.description = description;
+            this.title = title;
+            this.subText = subText;
+            this.uid = uid;
+            this.notified = false;
+            this.updating = updating;
+            this.createdAt = getNowFormattedFullDate();
+        }
+
+    }
 
 }
 

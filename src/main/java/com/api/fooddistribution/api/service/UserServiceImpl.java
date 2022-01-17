@@ -30,11 +30,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseAuth;
-import static com.api.fooddistribution.global.GlobalService.authService;
+import static com.api.fooddistribution.global.GlobalService.*;
 import static com.api.fooddistribution.global.GlobalVariables.HY;
+import static com.api.fooddistribution.global.GlobalVariables.USER_COLLECTION;
 import static com.api.fooddistribution.utils.DataOps.getNowFormattedFullDate;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
-import static com.api.fooddistribution.global.GlobalService.passwordEncoder;
 import static com.api.fooddistribution.utils.DataOps.*;
 
 
@@ -135,11 +135,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 String link = authService.sendVerificationEmail(newUserForm.getEmailAddress());
                 if (link != null) {
                     log.info("SEND VERIFICATION EMAIL");
+                    notificationService.postNotification(new Models.NotificationModels("A verification email has been send to you email", newUser.getUsername() + " has been successfully created", "Welcome", newUser.getUsername(), USER_COLLECTION));
                 } else {
                     log.info("FAILED TO SEND VERIFICATION EMAIL");
                 }
             }
         }
+
 
         return userRepo.save(newUser);
     }
@@ -185,6 +187,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (updateForm.getVerified() != null) {
                 user.setVerified(updateForm.getVerified());
+                notificationService.postNotification(new Models.NotificationModels(user.getUsername() + ", you account has been verified", "Verification successful", "Verified", user.getUsername(), USER_COLLECTION));
             }
 
             if (updateForm.getDeleted() != null) {
@@ -193,6 +196,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (updateForm.getDisabled() != null) {
                 user.setDisabled(updateForm.getDisabled());
+
+                if (updateForm.getDisabled()) {
+                    notificationService.postNotification(new Models.NotificationModels(user.getUsername() + ", you account has been disabled", "Disabled account ", "", user.getUsername(), USER_COLLECTION));
+                } else {
+                    notificationService.postNotification(new Models.NotificationModels(user.getUsername() + ", you account has been enabled", "Enabled account ", "", user.getUsername(), USER_COLLECTION));
+                }
             }
 
             if (updateForm.getProfilePicture() != null) {
@@ -226,15 +235,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Models.AppUser disableUser(Models.AppUser user) {
-        user.setDisabled(true);
-        return userRepo.save(user);
+    public Models.AppUser disableUser(Models.AppUser user) throws Exception {
+        return updateAUser(user.getUid(), new UserUpdateForm(true,null));
     }
 
     @Override
-    public Models.AppUser enableUser(Models.AppUser user) {
-        user.setDisabled(false);
-        return userRepo.save(user);
+    public Models.AppUser enableUser(Models.AppUser user) throws Exception {
+        return updateAUser(user.getUid(), new UserUpdateForm(false,null));
     }
 
     @Override
@@ -533,12 +540,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public List<Models.Cart> getUserCarts(String userid) {
-        return cartRepo.retrieveAll().stream().filter(i->i.getUserId().equals(userid)).collect(Collectors.toList());
+        return cartRepo.retrieveAll().stream().filter(i -> i.getUserId().equals(userid)).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Models.Cart> getCart(String cartId) {
-        return cartRepo.retrieveAll().stream().filter(i->i.getId().equals(cartId)).findFirst();
+        return cartRepo.retrieveAll().stream().filter(i -> i.getId().equals(cartId)).findFirst();
     }
 
     @Override
@@ -548,7 +555,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("user not found");
         }
 
-        return cartRepo.save(new Models.Cart(generateCartID(cart.getUserId()),cart.getUserId(),cart.getProductId(),cart.getNumberOfItems()));
+        return cartRepo.save(new Models.Cart(generateCartID(cart.getUserId()), cart.getUserId(), cart.getProductId(), cart.getNumberOfItems()));
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.api.fooddistribution.api.service;
 
+import com.api.fooddistribution.api.domain.Models;
 import com.api.fooddistribution.api.domain.Models.*;
 import com.api.fooddistribution.api.model.ProductCategoryUpdateForm;
 import com.api.fooddistribution.api.model.ProductCreationFrom;
 import com.api.fooddistribution.api.model.ProductUpdateForm;
+import com.api.fooddistribution.utils.DistributionStatus;
 import javassist.NotFoundException;
 import javassist.bytecode.DuplicateMemberException;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,9 @@ import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.global.GlobalRepositories.productCategoryRepo;
 import static com.api.fooddistribution.global.GlobalRepositories.productRepo;
+import static com.api.fooddistribution.global.GlobalService.notificationService;
+import static com.api.fooddistribution.global.GlobalVariables.DONATION_DISTRIBUTION_COLLECTION;
+import static com.api.fooddistribution.global.GlobalVariables.PRODUCT_COLLECTION;
 import static com.api.fooddistribution.utils.DataOps.*;
 
 
@@ -38,6 +43,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product newProduct = new Product(generateProductID(productCreationFrom.getProductName()), productCreationFrom.getProductName(), productCategory.get().getId(), new BigDecimal(productCreationFrom.getProductPrice()), productCreationFrom.getImage(), getNowFormattedFullDate().toString(), getNowFormattedFullDate().toString(), false, false, productCreationFrom.getUnit(), productCreationFrom.getProductDescription(),0.0,productCreationFrom.getUsername(),productCreationFrom.getLocation());
+
+        notificationService.postNotification(new Models.NotificationModels(newProduct.getName() + " has been created", "Product created", "Product", newProduct.getSellerId(), PRODUCT_COLLECTION));
+
         return productRepo.save(newProduct);
     }
 
@@ -98,6 +106,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         newProduct.setUpdatedAt(getNowFormattedFullDate().toString());
+
+        notificationService.postNotification(new Models.NotificationModels(newProduct.getName() + " has been updated", "Product updated", "Product", newProduct.getSellerId(), PRODUCT_COLLECTION));
+
 
         return productRepo.save(newProduct);
     }

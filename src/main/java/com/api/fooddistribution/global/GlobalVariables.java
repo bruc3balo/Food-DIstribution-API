@@ -14,6 +14,7 @@ public class GlobalVariables {
     public static final String PACKAGE = "com.api.fooddistribution";
 
     public static final String USER_COLLECTION = "users";
+    public static final String STATS_COLLECTION = "stats";
     public static final String PURCHASE_COLLECTION = "purchase";
     public static final String DONATION_COLLECTION = "donation";
     public static final String DISTRIBUTION_COLLECTION = "distribution";
@@ -39,6 +40,14 @@ public class GlobalVariables {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     public static final String PROFILE_PICTURE = "profile_picture";
+
+    public static final String DESCRIPTION = "description";
+    public static final String TITLE = "title";
+    public static final String SUBTEXT = "sub_text";
+    public static final String NOTIFIED = "notified";
+    public static final String NOTIFICATION = "notification";
+    public static final String UPDATING = "updating";
+
 
     public static final String PRODUCT = "Product";
     public static final String PRODUCT_CATEGORY = "product_category";

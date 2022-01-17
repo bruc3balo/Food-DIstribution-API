@@ -13,14 +13,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.api.fooddistribution.config.FirestoreConfig.firebaseDatabase;
 import static com.api.fooddistribution.global.GlobalRepositories.*;
-import static com.api.fooddistribution.global.GlobalService.productService;
-import static com.api.fooddistribution.global.GlobalService.userService;
+import static com.api.fooddistribution.global.GlobalService.*;
+import static com.api.fooddistribution.global.GlobalVariables.*;
 import static com.api.fooddistribution.utils.DataOps.*;
 import static java.lang.String.valueOf;
 
@@ -65,20 +66,25 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
 
-        //todo remove products left
         form.getProduct().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
             product.setUnitsLeft(product.getUnitsLeft() - items);
             productRepo.save(product);
         }));
 
-        Models.Purchase purchase = new Models.Purchase(id, form.getLocation(), form.getAddress(), buyer.get().getUsername(), getNowFormattedFullDate(), products,null);
+        Models.Purchase purchase = new Models.Purchase(id, form.getLocation(), form.getAddress(), buyer.get().getUsername(), getNowFormattedFullDate(), products, null);
         Models.Purchase savedPurchase = purchaseRepo.save(purchase);
 
         if (savedPurchase != null) {
             //delete cart
             firebaseDatabase.getReference("Cart").child(buyer.get().getUid()).removeValue((databaseError, databaseReference) -> System.out.println("Cart Cleared for " + buyer.get().getUsername()));
-            //todo notify sellers
-
+            notificationService.postNotification(new Models.NotificationModels("You will be notified of the progress", "Your purchase request has been received", "Purchase", savedPurchase.getBuyerId(), PURCHASE_COLLECTION));
+            form.getProduct().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                try {
+                    notificationService.postNotification(new Models.NotificationModels("You will be notified of the progress", product.getName() + " has been purchased for " + items + " items", "Purchase", product.getSellerId(), PURCHASE_COLLECTION));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }));
             //todo find transporters
         }
 
@@ -142,6 +148,16 @@ public class PurchaseServiceImpl implements PurchaseService {
                     optionalTransporter.get().getUsername(), buyerOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name()) ? buyerOptional.get().getUsername() : null,
                     DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, purchase.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, false, null, productStatus);
 
+            notificationService.postNotification(new Models.NotificationModels("A transporter " + (distribution.getTransporter()) + " has accepted the purchase", "Distribution created", "Distribution", distribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+
+
+            purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                try {
+                    notificationService.postNotification(new Models.NotificationModels("A transported " + (distribution.getTransporter()) + " has accepted the purchase is gathering the items "+(product.getPrice().multiply(new BigDecimal(items)) + " Ksh"), "Distribution created", "Distribution", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }));
 
             return getDistributionModelFromDistribution(distributionRepo.save(distribution));
         } else {
@@ -229,9 +245,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Models.DistributionModel updateDistribution(DistributionUpdateForm form) throws NotFoundException, ParseException {
 
+
         Optional<Models.Distribution> optionalDistribution = distributionRepo.get(valueOf(form.getId()));
         if (optionalDistribution.isEmpty()) {
             throw new NotFoundException("distribution not found");
+        }
+
+        Optional<Models.Purchase> optionalPurchase = purchaseRepo.get(valueOf(optionalDistribution.get().getPurchasesId()));
+        if (optionalPurchase.isEmpty()) {
+            throw new NotFoundException("purchase with id " + optionalDistribution.get().getPurchasesId() + " not found");
         }
 
         Models.Distribution updatedDistribution = optionalDistribution.get();
@@ -242,6 +264,33 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         if (form.getPaid() != null) {
             updatedDistribution.setPaid(form.getPaid());
+
+
+
+            if (form.getPaid()) {
+                notificationService.postNotification(new Models.NotificationModels("Payment has been received for your purchase "+updatedDistribution.getBeneficiary(), DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+                notificationService.postNotification(new Models.NotificationModels("Purchase has been completed successfully", DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getTransporter(), DISTRIBUTION_COLLECTION));
+
+                optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                    try {
+                        notificationService.postNotification(new Models.NotificationModels("Purchase of "+product.getName() + " is successful "+(product.getPrice().multiply(new BigDecimal(items)) + " Ksh"), DistributionStatus.COMPLETE.getDescription(), "Purchase", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                })));
+            } else {
+                notificationService.postNotification(new Models.NotificationModels("You have failed to complete your purchase. This may resolve to deactivation of your account"+updatedDistribution.getBeneficiary(), DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+                notificationService.postNotification(new Models.NotificationModels(updatedDistribution.getBeneficiary()+" has failed to complete payment and should return products", DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getTransporter(), DISTRIBUTION_COLLECTION));
+
+                optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                    try {
+                        notificationService.postNotification(new Models.NotificationModels("Purchase of "+product.getName() + " has failed and product will be returned ", DistributionStatus.COMPLETE.getDescription(), "Purchase", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                })));
+            }
+
         }
 
         if (form.getLastKnownLocation() != null) {
@@ -263,20 +312,62 @@ public class PurchaseServiceImpl implements PurchaseService {
 
                 //COLLECTING_ITEMS
                 case 1:
+
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + "  is gathering the items", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+
+                    optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                        if (updatedDistribution.getProductStatus().get(productId) != 2) {
+                            try {
+                                notificationService.postNotification(new Models.NotificationModels("A transported " + (updatedDistribution.getTransporter()) + " is gathering the items", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Purchase", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })));
+
                     break;
 
                 //ON_THE_WAY
                 case 2:
+
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + "  is on the way to you" + optionalPurchase.get().getAddress(), DistributionStatus.ON_THE_WAY.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+
+                    optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                        if (updatedDistribution.getProductStatus().get(productId) != 2) {
+                            try {
+                                notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + "  is on the way to the beneficiary at " + optionalPurchase.get().getAddress(), DistributionStatus.ON_THE_WAY.getDescription(), "Distribution", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })));
+
                     break;
 
                 //ARRIVED
                 case 3:
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + "  has arrived at " + optionalPurchase.get().getAddress(), DistributionStatus.ARRIVED.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels("You have arrived at " + optionalPurchase.get().getAddress(), DistributionStatus.ARRIVED.getDescription(), "Distribution", updatedDistribution.getTransporter(), DISTRIBUTION_COLLECTION));
+
                     break;
 
                 //COMPLETE
                 case 4:
-                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
-                    Optional<Models.Purchase> optionalPurchase = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
+                    updatedDistribution.setCompletedAt(getNowFormattedFullDate());
+
+                    notificationService.postNotification(new Models.NotificationModels("Purchase has been completed", DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels("Purchase has been completed", DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getTransporter(), DISTRIBUTION_COLLECTION));
+
+                    optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                        if (updatedDistribution.getProductStatus().get(productId) != 2) {
+                            try {
+                                notificationService.postNotification(new Models.NotificationModels("Purchase has been completed for product " + product.getName(), DistributionStatus.COMPLETE.getDescription(), "Purchase", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })));
+
                     optionalPurchase.ifPresent(p -> {
                         p.setComplete(true);
                         p.setSuccess(true);
@@ -286,13 +377,26 @@ public class PurchaseServiceImpl implements PurchaseService {
 
                 //DNF
                 case 5:
-                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    updatedDistribution.setCompletedAt(getNowFormattedFullDate());
                     Optional<Models.Purchase> optionalPurchase2 = purchaseRepo.get(String.valueOf(updatedDistribution.getPurchasesId()));
                     optionalPurchase2.ifPresent(p -> {
                         p.setComplete(true);
                         p.setSuccess(false);
                         purchaseRepo.save(p);
                     });
+
+                    notificationService.postNotification(new Models.NotificationModels("You have failed to complete your purchase. This may resolve to deactivation of your account"+updatedDistribution.getBeneficiary(), DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getBeneficiary(), DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels(updatedDistribution.getBeneficiary()+" has failed to complete payment and should return products", DistributionStatus.COMPLETE.getDescription(), "Distribution", updatedDistribution.getTransporter(), DISTRIBUTION_COLLECTION));
+
+                    optionalPurchase.ifPresent(purchase -> purchase.getProducts().forEach((productId, items) -> productService.findProductById(productId).ifPresent(product -> {
+                        if (updatedDistribution.getProductStatus().get(productId) != 2) {
+                            try {
+                                notificationService.postNotification(new Models.NotificationModels("Purchase of " + product.getName() + " has failed and product will be returned ", DistributionStatus.COMPLETE.getDescription(), "Purchase", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })));
                     break;
             }
         }
@@ -300,7 +404,28 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (form.getProductStatus() != null) {
             form.getProductStatus().forEach((pid, status) -> {
                 Optional<Map.Entry<String, Integer>> pStatus = updatedDistribution.getProductStatus().entrySet().stream().filter(i -> i.getKey().equals(pid)).findFirst();
-                pStatus.ifPresent((pStatusObj) -> pStatusObj.setValue(status));
+                pStatus.ifPresent((pStatusObj) -> {
+                    pStatusObj.setValue(status);
+                    productService.findProductById(pid).ifPresent(product -> {
+                        try {
+                            switch (status) {
+                                //ON_THE_WAY
+                                case 1 -> notificationService.postNotification(new Models.NotificationModels("Transporter is on the way to you to collect the product", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Distribution", product.getSellerId(), DISTRIBUTION_COLLECTION));
+
+
+                                //FAILED
+                                case 2 -> notificationService.postNotification(new Models.NotificationModels("Transporter has failed collect your product ( " + product.getName() + ")", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Distribution", product.getSellerId(), DISTRIBUTION_COLLECTION));
+
+
+                                //COLLECTED
+                                case 3 -> notificationService.postNotification(new Models.NotificationModels("Your product has been successfully collected", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Distribution", product.getSellerId(), DISTRIBUTION_COLLECTION));
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                });
             });
 
         }
@@ -380,12 +505,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFoundException("donor has not been found");
         }
 
-        Models.Donation donation = new Models.Donation(id, creationForm.getDonor(), creationForm.getBeneficiary(), DataOps.getNowFormattedFullDate(), creationForm.getDeliveryLocation(), creationForm.getDeliveryAddress(), creationForm.getCollectionLocation(), creationForm.getCollectionAddress(), false, false, null, null, creationForm.getProducts());
+        Models.Donation donation = new Models.Donation(id, creationForm.getDonor(), creationForm.getBeneficiary(), getNowFormattedFullDate(), creationForm.getDeliveryLocation(), creationForm.getDeliveryAddress(), creationForm.getCollectionLocation(), creationForm.getCollectionAddress(), false, false, null, null, creationForm.getProducts());
         Models.Donation createdDonation = donationRepo.save(donation);
 
 
         if (createdDonation != null) {
-            //todo notify beneficiary
+
+            notificationService.postNotification(new Models.NotificationModels(createdDonation.getProducts().size() + " items to be delivered to " + createdDonation.getDeliveryAddress(), createdDonation.getBeneficiaryUsername() + ", you have received a new donation from " + createdDonation.getDonorUsername(), "Donation", createdDonation.getBeneficiaryUsername(), DONATION_COLLECTION));
+            notificationService.postNotification(new Models.NotificationModels(createdDonation.getProducts().size() + " items to be delivered to " + createdDonation.getDeliveryAddress(), createdDonation.getDonorUsername() + ", your donation request has been received ", "Donation", createdDonation.getDonorUsername(), DONATION_COLLECTION));
+
         }
 
         return createdDonation;
@@ -393,8 +521,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public List<Models.Donation> getDonations(String donorName, String beneficiaryName) {
-
-
         return donationRepo.retrieveAll().stream().filter(i -> {
             boolean add = true;
 
@@ -408,11 +534,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             return add;
         }).collect(Collectors.toList());
-
     }
 
     @Override
-    public Models.DonationDistributionModel saveNewDonation(Long donationId, String transporterUsername) throws NotFoundException, ParseException {
+    public Models.DonationDistributionModel saveNewDonationDistribution(Long donationId, String transporterUsername) throws NotFoundException, ParseException {
 
         Optional<Models.Donation> optionalDonation = donationRepo.get(valueOf(donationId));
         if (optionalDonation.isEmpty()) {
@@ -440,6 +565,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                     optionalTransporter.get().getUsername(), beneficiaryOptional.get().getRole().getName().equals(AppRolesEnum.ROLE_BUYER.name()) ? beneficiaryOptional.get().getUsername() : null,
                     optionalDonation.get().getDonorUsername(),
                     DistributionStatus.ACCEPTED.getCode(), getNowFormattedFullDate(), getNowFormattedFullDate(), null, donation.getId(), optionalTransporter.get().getLastKnownLocation(), false, false, null);
+
+
+            notificationService.postNotification(new Models.NotificationModels("A transporter " + (distribution.getTransporter()) + " has accepted the donation job", "Donation Distribution created", "Donation Distribution", distribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+            notificationService.postNotification(new Models.NotificationModels("A transporter " + (distribution.getTransporter()) + " has accepted the donation job", "Donation Distribution created", "Donation Distribution", distribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
 
 
             return getDonorDistributionModelFromDistributionDonor(donationDistributionRepo.save(distribution));
@@ -504,6 +634,13 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFoundException("distribution not found");
         }
 
+        Optional<Models.Donation> optionalDonation = donationRepo.get(String.valueOf(optionalDistribution.get().getDonationId()));
+        if (optionalDonation.isEmpty()) {
+            throw new NotFoundException("donation not found");
+        }
+
+        Models.Donation donation = optionalDonation.get();
+
         Models.DonationDistribution updatedDistribution = optionalDistribution.get();
 
         if (form.getDeleted() != null) {
@@ -529,35 +666,63 @@ public class PurchaseServiceImpl implements PurchaseService {
 
                 //COLLECTING_ITEMS
                 case 1:
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " is collecting the items", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Donation Distribution", updatedDistribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " is collecting the items", DistributionStatus.COLLECTING_ITEMS.getDescription(), "Donation Distribution", updatedDistribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
                     break;
 
                 //ON_THE_WAY
                 case 2:
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " is on the way to "+donation.getDeliveryAddress(), DistributionStatus.ON_THE_WAY.getDescription(), "Donation Distribution", updatedDistribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " is on the way to you at "+donation.getDeliveryAddress(), DistributionStatus.ON_THE_WAY.getDescription(), "Donation Distribution", updatedDistribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
                     break;
 
                 //ARRIVED
                 case 3:
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " has arrived at  "+donation.getDeliveryAddress(), DistributionStatus.ARRIVED.getDescription(), "Donation Distribution", updatedDistribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+                    notificationService.postNotification(new Models.NotificationModels("A transporter " + (updatedDistribution.getTransporter()) + " has arrived ", DistributionStatus.ARRIVED.getDescription(), "Donation Distribution", updatedDistribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
                     break;
 
                 //COMPLETE
                 case 4:
-                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
-                    Optional<Models.Donation> optionalDonation = donationRepo.get(String.valueOf(updatedDistribution.getDonationId()));
+                    updatedDistribution.setCompletedAt(getNowFormattedFullDate());
+
+
                     optionalDonation.ifPresent(p -> {
                         p.setComplete(true);
                         p.setSuccess(true);
                         donationRepo.save(p);
+
+                        try {
+                            notificationService.postNotification(new Models.NotificationModels("Donation to"+donation.getBeneficiaryUsername() + " is completed successfully", DistributionStatus.COMPLETE.getDescription(), "Donation Distribution", updatedDistribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+                            notificationService.postNotification(new Models.NotificationModels("Donation has been complete", DistributionStatus.COMPLETE.getDescription(), "Donation Distribution", updatedDistribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     });
                     break;
 
                 //DNF
                 case 5:
-                    updatedDistribution.setCompletedAt(DataOps.getNowFormattedFullDate());
+                    updatedDistribution.setCompletedAt(getNowFormattedFullDate());
                     Optional<Models.Donation> optionalDonation2 = donationRepo.get(String.valueOf(updatedDistribution.getDonationId()));
                     optionalDonation2.ifPresent(p -> {
                         p.setComplete(true);
                         p.setSuccess(false);
                         donationRepo.save(p);
+
+                        try {
+                            notificationService.postNotification(new Models.NotificationModels("Donation to "+donation.getBeneficiaryUsername() + " has failed. Items will be returned", DistributionStatus.DNF.getDescription(), "Donation Distribution", updatedDistribution.getDonor(), DONATION_DISTRIBUTION_COLLECTION));
+                            notificationService.postNotification(new Models.NotificationModels("Donation has failed . Items will be returned", DistributionStatus.DNF.getDescription(), "Donation Distribution", updatedDistribution.getBeneficiary(), DONATION_DISTRIBUTION_COLLECTION));
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     });
                     break;
             }

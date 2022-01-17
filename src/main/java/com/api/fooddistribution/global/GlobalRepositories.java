@@ -20,6 +20,7 @@ public class GlobalRepositories {
     public static RemarksRepo remarksRepo;
     public static DonationRepo donationRepo;
     public static DonationDistributionRepo donationDistributionRepo;
+    public static NotificationRepo notificationRepo;
 
     @Autowired
     public void setUserRepo(UserRepo userRepo) {
@@ -66,6 +67,10 @@ public class GlobalRepositories {
         GlobalRepositories.remarksRepo = remarksRepo;
     }
 
+    @Autowired
+    public void setNotificationRepo(NotificationRepo notificationRepo) {
+        GlobalRepositories.notificationRepo = notificationRepo;
+    }
 
     @Autowired
     public void setDonationRepo(DonationRepo donationRepo) {

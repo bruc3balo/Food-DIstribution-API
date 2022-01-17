@@ -11,7 +11,6 @@ import java.util.Objects;
 @Setter
 public class SellerStats {
 
-
     @JsonProperty("products")
     private final LinkedHashMap<String, Integer> products = new LinkedHashMap<>();
 
@@ -23,8 +22,8 @@ public class SellerStats {
         products.putAll(emptyProducts);
     }
 
-    public void addProductToMonth(String productId, int items) {
-        products.entrySet().stream().filter(entry -> Objects.equals(productId, entry.getKey())).findFirst().ifPresent(currentItems -> products.put(productId, currentItems.getValue() + items));
+    public void addProductToMonth(String key, int items) {
+        products.entrySet().stream().filter(entry -> Objects.equals(key, entry.getKey())).findFirst().ifPresent(currentItems -> products.put(key, currentItems.getValue() + items));
     }
 
 }

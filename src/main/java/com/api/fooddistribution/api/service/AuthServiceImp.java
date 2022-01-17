@@ -159,6 +159,8 @@ public class AuthServiceImp implements AuthService {
     @Override
     public void defaults() throws Exception {
 
+        //notificationService.deleteAllNotifications();
+
        // firebaseDatabase.getReference("Cart").removeValue((databaseError, databaseReference) -> System.out.println("Deleted"));
 
 
